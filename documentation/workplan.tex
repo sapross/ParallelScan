@@ -1,0 +1,212 @@
+%!TEX program = xelatex
+% \def\pgfsysdriver{pgfsys-dvipdfm.def}
+\documentclass[compress, 11pt]{beamer}
+\usepackage{pgfpages}
+
+
+% Font and Math related packages:
+% More and better fonts
+\usepackage{fontspec}
+% Better math support. Extension of amsmath.
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\usepackage{unicode-math}
+% Neat units.
+\usepackage[binary-units = true]{siunitx}
+\usepackage{microtype}
+\usepackage{anyfontsize}
+
+\setsansfont{Open Sans}
+\setmonofont{Source Code Pro}
+\setmathfont{STIXTwoMath-Regular.otf}
+
+
+% Language Supoort
+\usepackage{polyglossia}
+
+\setdefaultlanguage[]{english}
+\setotherlanguage[]{german}
+
+% Layout related packages:
+% Better control over document dimensions.
+\usepackage{geometry}
+% Better table spacing for publication quality
+\usepackage{booktabs}
+% Improved interface for floating objects.
+%\usepackage{float}
+% Control of sectional titles 
+%\usepackage{titlesec}
+
+
+% Media, graphics and other:
+% Enhanced graphics, plots and images.
+\usepackage{graphicx}
+
+% Postscript (eps) file support
+% \usepackage{epsf}
+
+% Better captions.
+\usepackage[labelformat=simple,figurename=Fig.]{caption}
+% Captions for sub-figures.
+\usepackage{subcaption}
+% Hyperlinks.
+\usepackage{hyperref}
+% For videos within presentations. Very limited.
+% \usepackage{multimedia}
+% Easy quotations using \say{}
+\usepackage{dirtytalk}
+% Enables code listings.
+%\usepackage{listings}
+% Better source code support than listings
+% \usepackage{minted}
+% \setminted{fontsize=\footnotesize,baselinestretch=1}
+
+% Other:
+% Relevant for the presetkeys command
+% \usepackage{xkeyval}
+% Fix for floats in beamer
+\setlength{\marginparwidth}{2cm}
+\usepackage{todonotes}
+\let\todox\todo
+\renewcommand\todo[1]{\todox[inline]{#1}}
+
+\usepackage{fancyvrb}
+
+
+
+\usepackage[
+    backend=biber,
+    style=numeric
+    ]{biblatex}
+%\bibliography{../sources}
+\bibliography{/home/steve/Documents/Documents/Current/MScTI_SEM/sources}
+
+
+
+% Beamer Configuration
+% Slide themeing:
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+
+% \useoutertheme{default}
+% \setbeamertemplate{mini frames}{} 
+% \setbeamertemplate{headline}
+% {%
+%   \begin{beamercolorbox}{palette tertiary}
+%     \vskip2pt\insertnavigation{\paperwidth}\vskip2pt
+%   \end{beamercolorbox}%
+% }
+\beamertemplatenavigationsymbolsempty
+% \addtobeamertemplate{navigation symbols}{}{%
+%     \usebeamerfont{footline}%
+%     \usebeamercolor[fg]{footline}%
+%     \hspace{1em}%
+%     \insertframenumber/\inserttotalframenumber
+% }
+
+% Notes
+
+% \setbeameroption{show notes}
+% \setbeameroption{show notes on second screen=right}
+% \addtobeamertemplate{note page}{\large}{}
+
+% Workaround for disappearing text
+% \AtBeginSection{
+%     \frame{\insertsectionhead}
+% }
+
+\makeatletter 
+\def\beamer@framenotesbegin{% at beginning of slide
+     \usebeamercolor[fg]{normal text}
+      \gdef\beamer@noteitems{}% 
+      \gdef\beamer@notes{}% 
+}
+\makeatother
+
+
+\newcommand{\gbs}{\si{\giga\byte/\second}}
+\newcommand{\gb}{\si{\giga\byte}}
+\newcommand{\tb}{\si{\tera\byte}}
+
+
+
+
+% Title, Author etc. of document.
+\title[Scan]{Scan}
+\subtitle{Workplan}
+\author{Nils Kochendörfer, Christian Alles ,Stephan Proß}
+\institute{Heidelberg University}
+
+
+\begin{document}
+
+
+
+% \frame{\listoftodos}
+
+\frame{\titlepage}
+
+\begin{frame}{Overview - 1}
+\begin{itemize}
+ \item Naive Sequential Implementation (Core)
+ \begin{itemize}
+  \item Inclusive/Exclusive Scan
+  \item Segmented Scan
+ \end{itemize}
+ \item Parallel Baseline (Core)
+ \begin{itemize}
+  \item OpenMP: Scan Directive
+  \item TBB: Parallel Scan Function
+ \end{itemize}
+\end{itemize}
+\end{frame}
+\begin{frame}{Overview - 2}
+\begin{itemize}
+ \item Algorithmic Optimisations
+ \begin{itemize}
+  \item Up-Down Sweep (Core)
+  \item Tiling (Core)
+  \item Hybrid (Enhanced)
+ \end{itemize}
+ \item Implementation-Specific Optimisations (Enhanced)
+ \begin{itemize}
+  \item Cache Size Awareness
+  \item NUMA (?)
+ \end{itemize}
+\end{itemize}
+
+\end{frame}
+\begin{frame}{Workplan}
+\begin{itemize}
+\item Project Setup
+\begin{itemize}
+ \item Folder Structure
+ \item Header Files (Interface definitions)
+\end{itemize}
+\item Naive Sequential and Baseline Parallel Implementation
+\item Algorithmic Optimisations
+\item Implementation-Specific and Code Optimisations
+\end{itemize}
+Meanwhile:
+\begin{itemize}
+ \item Benchmarks
+ \item Documentation
+ \item Interpretations
+\end{itemize}
+\pause
+\begin{center}
+  \bfseries Presentation!
+\end{center}
+
+ 
+\end{frame}
+
+
+
+
+
+\end{document}
