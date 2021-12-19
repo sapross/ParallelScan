@@ -21,7 +21,7 @@ TEST_CASE("Inclusive Scan Test")
     CAPTURE(N);
 
     std::vector<int> data(N, 0);
-    std::for_each(data.begin(), data.end(), [=](auto& element) { element = rand(); });
+    std::generate(data.begin(), data.end(), rand);
 
     std::vector<int> reference(N, 0);
     std::inclusive_scan(data.begin(), data.end(), reference.begin());
