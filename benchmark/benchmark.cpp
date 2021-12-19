@@ -5,20 +5,31 @@
 
 #include "scan.hpp"
 
-SCENARIO("Test Template")
+SCENARIO("Inclusive Scan", "[inc]")
 {
-    //Benchmark parameters
-    const size_t N = GENERATE(1, 2, 4, 8, 12, 16, 24, 32, 40, 48);
-    
+
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    // Benchmark parameters
+    const size_t N = LogRange(1024 * 32, 1024 * 1024 * 1024, 2);
 
     // Logging of variables
     CAPTURE(N);
     SUCCEED();
 
-    //Benchmark
-    BENCHMARK_ADVANCED("benchname")(Catch::Benchmark::Chronometer meter)
+    const std::vector<float> data(N, 0.);
+    std::generate(data.begin(), data.end(), rand);
+
+    // Benchmark
+    BENCHMARK_ADVANCED("Naive Sequential")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([N](){ return N;});
+        std::vector<float> result(N, 0);
+        meter.measure(
+            [N]() {
+                naive::sequential::inclusive_scan(
+                    data.begin(), data.end(), result.begin());
+            });
     };
 }
-
