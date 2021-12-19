@@ -6,13 +6,13 @@ include(FetchContent)
 FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG       v2.13.3
+  GIT_TAG       v2.13.7
 )
 
 FetchContent_MakeAvailable(Catch2)
 
 ## set global compiler options
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 #TODO: Compiler Flags!
 if(CMAKE_COMPILER_IS_GNUCXX)
   message(STATUS "GCC detected, adding compile flags")
@@ -23,18 +23,20 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ## define targets
 
-add_library(lib STATIC
-  include/*.hpp
-  include/*.cpp
+add_library(scan STATIC
+  include/scan.hpp
+  include/scan.cpp
   )
 
 add_executable(test
- test/test.cpp
+  test/test-main.cpp
+  test/test.cpp
   )
 
-
+target_include_directories(test PRIVATE common)
 
 add_executable(bench
+  benchmark/benchmark-main.cpp
   benchmark/benchmark.cpp
   common/csv_reporter.hpp
   common/csv_reporter.cpp
@@ -46,10 +48,10 @@ target_include_directories(bench PRIVATE common)
 
 # define target linkage
 
-target_include_directories(lib PUBLIC include)
+target_include_directories(scan PUBLIC include)
 
-target_link_libraries(bench PUBLIC lib Catch2)
+target_link_libraries(bench PUBLIC scan Catch2)
 
-target_link_libraries(test PUBLIC lib Catch2)
+target_link_libraries(test PUBLIC scan Catch2)
 
 

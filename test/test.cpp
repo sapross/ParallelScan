@@ -1,9 +1,7 @@
-#define CATCH_CONFIG_MAIN
 #define CATCH_CONFIG_FAST_COMPILE
-#include "logrange_generator"
 #include <catch2/catch.hpp>
 
-#include <algortihm>
+#include <algorithm>
 #include <numeric>
 #include <random>
 
@@ -11,17 +9,17 @@
 
 std::default_random_engine         generator;
 std::uniform_int_distribution<int> distribution(1, 10);
-auto                               rand = std::bind(distribution, generator);
+auto                               randnum = std::bind(distribution, generator);
 
 TEST_CASE("Inclusive Scan Test")
 {
     // Test parameters
-    size_t N = LogRange(1, 100, 10);
+    size_t N = GENERATE(1, 10, 100);
     // Logging of parameters
     CAPTURE(N);
 
     std::vector<int> data(N, 0);
-    std::generate(data.begin(), data.end(), rand);
+    std::generate(data.begin(), data.end(), randnum);
 
     std::vector<int> reference(N, 0);
     std::inclusive_scan(data.begin(), data.end(), reference.begin());

@@ -1,7 +1,7 @@
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_FAST_COMPILE
+#include "csv_reporter.hpp"
+#include "logrange_generator.hpp"
 #include <catch2/catch.hpp>
-#include <csv_reporter.hpp>
-#include <logrange_generator.hpp>
 
 #include "scan.hpp"
 
@@ -13,13 +13,13 @@ SCENARIO("Inclusive Scan", "[inc]")
     auto                                  rand = std::bind(distribution, generator);
 
     // Benchmark parameters
-    const size_t N = LogRange(1024 * 32, 1024 * 1024 * 1024, 2);
+    const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
 
     // Logging of variables
     CAPTURE(N);
     SUCCEED();
 
-    const std::vector<float> data(N, 0.);
+    std::vector<float> data(N, 0.);
     std::generate(data.begin(), data.end(), rand);
 
     // Benchmark
@@ -27,7 +27,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N]() {
+            [N, &data, &result]() {
                 naive::sequential::inclusive_scan(
                     data.begin(), data.end(), result.begin());
             });
