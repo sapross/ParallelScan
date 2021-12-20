@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <functional>
-
 #include <numeric>
+
 namespace naive
 {
 namespace sequential
@@ -21,13 +21,7 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    InputType sum = InputType(0);
-    for (auto i = first; i != last; i++)
-    {
-        sum          = binary_op(sum, *i);
-        *(d_first++) = sum;
-    }
-    return d_first;
+    return std::inclusive_scan(first, last, d_first, binary_op);
 }
 
 template<class InputIt, class OutputIt>
@@ -56,13 +50,7 @@ OutputIt exclusive_scan(
     static_assert(std::is_same<InputType, T>::value,
                   "Underlying input and init type have to be the same!");
 
-    T sum = init;
-    for (auto i = first; i != last; i++)
-    {
-        *(d_first++) = sum;
-        sum          = binary_op(sum, *i);
-    }
-    return d_first;
+    return std::exclusive_scan(first, last, d_first, init, binary_op);
 }
 
 template<class InputIt, class OutputIt, class T>
@@ -96,21 +84,21 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    InputType sum = InputType(0);
-
-    for (auto i = first; i != last; i++)
-    {
-        if (*(flag_first++))
+    return naive::sequential::inclusive_scan(
+        first,
+        last,
+        d_first,
+        [&flag_first, binary_op](InputType x, InputType y)
         {
-            sum = *i;
-        }
-        else
-        {
-            sum = binary_op(sum, *i);
-        }
-        *(d_first++) = sum;
-    }
-    return d_first;
+            if (!*(++flag_first))
+            {
+                return binary_op(x, y);
+            }
+            else
+            {
+                return y;
+            }
+        });
 }
 
 template<class InputIt, class OutputIt, class FlagIt>
@@ -150,21 +138,22 @@ OutputIt exclusive_segmented_scan(InputIt         first,
     static_assert(std::is_same<InputType, T>::value,
                   "Underlying input and init type have to be the same!");
 
-    InputType sum = init;
-
-    for (auto i = first; i != last; i++)
-    {
-        *(d_first++) = sum;
-        if (*(flag_first++))
+    return naive::sequential::exclusive_scan(
+        first,
+        last,
+        d_first,
+        init,
+        [&flag_first, &init, binary_op](InputType x, InputType y)
         {
-            sum = *i;
-        }
-        else
-        {
-            sum = binary_op(sum, *i);
-        }
-    }
-    return d_first;
+            if (!*(++flag_first))
+            {
+                return binary_op(x, y);
+            }
+            else
+            {
+                return init;
+            }
+        });
 }
 
 template<class InputIt, class OutputIt, class FlagIt, class T>
