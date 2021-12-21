@@ -409,52 +409,53 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    std::cout << "Tiled:" << std::endl;
+    // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values - 1) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values - 1) / tile_size;
     size_t rem        = num_values - tile_size * num_tiles;
 
-    std::cout << "num_values:" << num_values << std::endl;
-    std::cout << "tile_size:" << tile_size << std::endl;
-    std::cout << "num_tiles:" << num_tiles << std::endl;
-    std::cout << "rem:" << rem << std::endl;
+    // std::cout << "num_values:" << num_values << std::endl;
+    // std::cout << "tile_size:" << tile_size << std::endl;
+    // std::cout << "num_tiles:" << num_tiles << std::endl;
+    // std::cout << "rem:" << rem << std::endl;
 
     std::vector<InputType> temp(num_tiles + 1, 0);
 
-    std::cout << "temp: ";
-    std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    std::cout << std::endl;
+    // std::cout << "temp: ";
+    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
+    // std::cout << std::endl;
 
     // Phase 1: Reduction
     for (size_t i = 0; i < num_tiles; i++)
     {
-        std::cout << "temp[" << i << "] = std::reduce(" << 1 + i * tile_size << ","
-                  << 1 + (i + 1) * tile_size << ",InputType(0),binary_op);" << std::endl;
+        // std::cout << "temp[" << i << "] = std::reduce(" << 1 + i * tile_size << ","
+        //           << 1 + (i + 1) * tile_size << ",InputType(0),binary_op);" <<
+        //           std::endl;
 
         temp[i] = std::reduce(first + 1 + i * tile_size,
                               first + 1 + (i + 1) * tile_size,
                               InputType(0),
                               binary_op);
     }
-    std::cout << "temp: ";
-    std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    std::cout << std::endl;
+    // std::cout << "temp: ";
+    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
+    // std::cout << std::endl;
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
 
-    std::cout << "temp: ";
-    std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    std::cout << std::endl;
+    // std::cout << "temp: ";
+    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
+    // std::cout << std::endl;
 
     // Phase 3: Rescan
     for (size_t i = 0; i < num_tiles; i++)
     {
-        std::cout << "std::exclusive_scan(" << 1 + i * tile_size << ","
-                  << 1 + (i + 1) * tile_size << ", " << i * tile_size << "," << temp[i]
-                  << ",InputType(0),binary_op);" << std::endl;
+        // std::cout << "std::exclusive_scan(" << 1 + i * tile_size << ","
+        //           << 1 + (i + 1) * tile_size << ", " << i * tile_size << "," << temp[i]
+        //           << ",InputType(0),binary_op);" << std::endl;
 
         std::exclusive_scan(first + 1 + i * tile_size,
                             first + 1 + (i + 1) * tile_size,
@@ -504,50 +505,51 @@ OutputIt exclusive_scan(
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    std::cout << "Tiled:" << std::endl;
+    // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values) / tile_size;
     size_t rem        = num_values - tile_size * num_tiles;
 
-    std::cout << "num_values:" << num_values << std::endl;
-    std::cout << "tile_size:" << tile_size << std::endl;
-    std::cout << "num_tiles:" << num_tiles << std::endl;
-    std::cout << "rem:" << rem << std::endl;
+    // std::cout << "num_values:" << num_values << std::endl;
+    // std::cout << "tile_size:" << tile_size << std::endl;
+    // std::cout << "num_tiles:" << num_tiles << std::endl;
+    // std::cout << "rem:" << rem << std::endl;
 
     std::vector<InputType> temp(num_tiles + 1, 0);
 
-    std::cout << "temp: ";
-    std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    std::cout << std::endl;
+    // std::cout << "temp: ";
+    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
+    // std::cout << std::endl;
 
     // Phase 1: Reduction
     for (size_t i = 0; i < num_tiles; i++)
     {
-        std::cout << "temp[" << i << "] = std::reduce(" << 1 + i * tile_size << ","
-                  << (i + 1) * tile_size << ",InputType(0),binary_op);" << std::endl;
+        // std::cout << "temp[" << i << "] = std::reduce(" << 1 + i * tile_size << ","
+        //           << (i + 1) * tile_size << ",InputType(0),binary_op);" << std::endl;
 
         temp[i] = std::reduce(
             first + i * tile_size, first + (i + 1) * tile_size, InputType(0), binary_op);
     }
-    std::cout << "temp: ";
-    std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    std::cout << std::endl;
+    // std::cout << "temp: ";
+    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
+    // std::cout << std::endl;
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
 
-    std::cout << "temp: ";
-    std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    std::cout << std::endl;
+    // std::cout << "temp: ";
+    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
+    // std::cout << std::endl;
 
     // Phase 3: Rescan
     for (size_t i = 0; i < num_tiles; i++)
     {
-        std::cout << "std::exclusive_scan(" << i * tile_size << "," << (i + 1) * tile_size
-                  << ", " << i * tile_size << "," << temp[i]
-                  << ",InputType(0),binary_op);" << std::endl;
+        // std::cout << "std::exclusive_scan(" << i * tile_size << "," << (i + 1) *
+        // tile_size
+        //           << ", " << i * tile_size << "," << temp[i]
+        //           << ",InputType(0),binary_op);" << std::endl;
 
         std::exclusive_scan(first + i * tile_size,
                             first + (i + 1) * tile_size,
