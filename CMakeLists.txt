@@ -25,6 +25,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_library(scan STATIC
   include/scan.hpp
+  include/scan-naive.hpp
+  include/scan-openmp.hpp
+  include/scan-tbb.hpp
   include/scan.cpp
   )
 
