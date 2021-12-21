@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_FAST_COMPILE
-#include <catch2/catch.hpp>
-
+#include "logrange_generator.hpp"
 #include <algorithm>
+#include <catch2/catch.hpp>
 #include <numeric>
 #include <random>
 
@@ -14,11 +14,11 @@ auto                               randnum = std::bind(distribution, generator);
 TEST_CASE("Inclusive Scan Test")
 {
     // Test parameters
-    size_t N = GENERATE(1, 10, 100);
+    size_t N = GENERATE(logRange(2, 1ull << 5, 2));
     // Logging of parameters
     CAPTURE(N);
 
-    std::vector<int> data(N, 0);
+    std::vector<int> data(N, 1);
     std::generate(data.begin(), data.end(), randnum);
 
     std::vector<int> reference(N, 0);
@@ -31,6 +31,18 @@ TEST_CASE("Inclusive Scan Test")
         naive::sequential::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<int> result(N, 0);
+        naive::updown::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("Naive Tiled")
+    {
+        std::vector<int> result(N, 0);
+        naive::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
@@ -38,11 +50,11 @@ TEST_CASE("Inclusive Scan Test")
 TEST_CASE("Exclusive Scan Test")
 {
     // Test parameters
-    size_t N = GENERATE(1, 10, 100);
+    size_t N = GENERATE(logRange(2, 1ull << 5, 2));
     // Logging of parameters
     CAPTURE(N);
 
-    std::vector<int> data(N, 0);
+    std::vector<int> data(N, 1);
     std::generate(data.begin(), data.end(), randnum);
 
     std::vector<int> reference(N, 0);
@@ -55,6 +67,19 @@ TEST_CASE("Exclusive Scan Test")
         naive::sequential::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<int> result(N, 0);
+        naive::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<int> result(N, 0);
+        naive::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
