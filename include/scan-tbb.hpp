@@ -2,10 +2,11 @@
 
 #include <vector>
 
-#include <tbb/tbb.h>
 #include <tbb/parallel_for.h>
+#include <tbb/tbb.h>
 
-namespace naive {
+namespace tbb
+{
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
@@ -15,7 +16,7 @@ OutputIt inclusive_scan(InputIt&        first,
                         OutputIt&       d_first,
                         BinaryOperation binary_op)
 {
-
+    return OutputIt();
 }
 
 template<class InputIt, class OutputIt>
@@ -38,7 +39,7 @@ OutputIt exclusive_scan(InputIt&        first,
                         OutputIt&       d_first,
                         BinaryOperation binary_op)
 {
-                            
+    return OutputIt();
 }
 
 template<class InputIt, class OutputIt, class T>
@@ -52,4 +53,4 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
     return naive::updown::exclusive_scan(first, last, first, init, std::plus<>());
 }
-}
+} // namespace naive
