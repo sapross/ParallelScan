@@ -43,6 +43,24 @@ TEST_CASE("Inclusive Scan Test")
         naive::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("OpenMP provided")
+    {
+        std::vector<int> result(N, 0);
+        openmp::provided::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Up-Down Sweep")
+    {
+        std::vector<int> result(N, 0);
+        openmp::updown::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Tiled")
+    {
+        std::vector<int> result(N, 0);
+        openmp::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
@@ -73,10 +91,28 @@ TEST_CASE("Exclusive Scan Test")
         naive::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    SECTION("Naive Up-Down-Sweep")
+    SECTION("Naive Up-Down-Sweep Tiled")
     {
         std::vector<int> result(N, 0);
         naive::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP provided")
+    {
+        std::vector<int> result(N, 0);
+        openmp::provided::exclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Up-Down-Sweep")
+    {
+        std::vector<int> result(N, 0);
+        openmp::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Up-Down-Sweep Tiled")
+    {
+        std::vector<int> result(N, 0);
+        openmp::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
 
