@@ -23,7 +23,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     std::generate(data.begin(), data.end(), rand);
 
     // Benchmark
-    BENCHMARK_ADVANCED("Sequential Naive")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("seq_naive")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
         meter.measure(
@@ -32,14 +32,14 @@ SCENARIO("Inclusive Scan", "[inc]")
                     data.begin(), data.end(), result.begin());
             });
     };
-    BENCHMARK_ADVANCED("Sequential Up-Down")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("seq_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
         meter.measure(
             [N, &data, &result]()
             { naive::updown::inclusive_scan(data.begin(), data.end(), result.begin()); });
     };
-    BENCHMARK_ADVANCED("Sequential Tiled")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
         meter.measure(
