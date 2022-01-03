@@ -96,7 +96,6 @@ class ResultAggregator:
         # Plotting logscale with index is bugged
         # N must be added again
         df["N"] = df.index.astype(int)
-        print(["N"] + benchnames)
 
         return df[["N"] + benchnames]
 
