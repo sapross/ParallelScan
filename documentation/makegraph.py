@@ -106,6 +106,11 @@ class Plotwrapper:
         self.columns = []
 
     def col(self, column: str):
+        """Select column/benchmark name to be part of the plot.
+        Usage: makegraph.py col 'column name'
+        Warning: Please consider that this script prepends the filename
+        of the csv to the column names!
+        """
         self.columns.append(column)
         return self
 
@@ -118,7 +123,10 @@ class Plotwrapper:
         grid: bool = True,
     ):
         """Plots data from ResultAggregator with benchmarks selected from
-        columns. Figures are saved as .pdf in './graphs/'
+        columns. Figures are saved as .pdf in './graphs/'.
+        Usage: makegrapth.py ... plot --title 'Title' --index_col 'N'
+                                      --xscale 'log' --yscale 'linear'
+                                      --grid
         """
         data = self.agg.get_results(self.columns)
         data.plot(x=index_col, marker="x")
@@ -137,10 +145,17 @@ class Plotwrapper:
         plt.savefig("graphs/" + title + ".pdf")
 
     def file(self, csv: str):
+        """Select data file to be read in.
+        Usage: makegraph.py file 'data.csv'
+        """
         self.agg.add_data(Path(csv))
         return self
 
     def filedir(self, dirpath: str):
+        """Select directory containing .csv files to be read in.
+        Usage: makegraph.py filedir 'results.csv'
+        """
+
         for fpath in Path().glob(dirpath + "/*.csv"):
             self.agg.add_data(fpath)
         return self
@@ -153,6 +168,12 @@ class Plotwrapper:
             plot = getattr(p, i)
             if callable(plot):
                 plot(self)
+
+    def print_names(self):
+        """Outputs all available column names found in .csv
+        Usage: makegraph.py filedir 'results' print_names
+        """
+        print(self.agg.dataframe["Name"].unique())
 
 
 if __name__ == "__main__":
