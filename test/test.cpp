@@ -11,7 +11,7 @@ std::default_random_engine         generator;
 std::uniform_int_distribution<int> distribution(1, 10);
 auto                               randnum = std::bind(distribution, generator);
 
-TEST_CASE("Inclusive Scan Test")
+TEST_CASE("Inclusive Scan Test", "[inc]")
 {
     // Test parameters
     size_t N = GENERATE(logRange(2, 1ull << 5, 2));
@@ -65,7 +65,7 @@ TEST_CASE("Inclusive Scan Test")
     // SECTION("Naive Tiled") { ; }
 }
 
-TEST_CASE("Exclusive Scan Test")
+TEST_CASE("Exclusive Scan Test", "[ex]")
 {
     // Test parameters
     size_t N = GENERATE(logRange(2, 1ull << 5, 2));
@@ -120,18 +120,19 @@ TEST_CASE("Exclusive Scan Test")
     // SECTION("Naive Tiled") { ; }
 }
 
-TEST_CASE("Inclusive Segmented Scan Test")
+TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
 {
     // Test parameters
-    size_t N = 20;
+    size_t N = 16;
     // Logging of parameters
     CAPTURE(N);
 
     std::vector<int> data(
-        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
-    std::vector<int> flags({0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1});
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19, 20});
+    std::vector<int> flags(
+        {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0}); //, 1, 0, 0, 1});
     std::vector<int> reference(
-        {1, 3, 3, 7, 5, 11, 7, 15, 24, 34, 45, 12, 13, 14, 29, 45, 17, 35, 54, 20});
+        {1, 3, 3, 7, 5, 11, 7, 15, 24, 34, 45, 12, 13, 14, 29, 45}); //, 17, 35, 54, 20});
     // Tests
     SECTION("Naive Sequential")
     {
@@ -140,23 +141,58 @@ TEST_CASE("Inclusive Segmented Scan Test")
             data.begin(), data.end(), flags.begin(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<int> result(N, 0);
+        naive::updown::inclusive_segmented_scan(
+            data.begin(), data.end(), flags.begin(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("Naive Tiled")
+    {
+        std::vector<int> result(N, 0);
+        naive::tiled::inclusive_segmented_scan(
+            data.begin(), data.end(), flags.begin(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    // SECTION("OpenMP provided")
+    // {
+    //     std::vector<int> result(N, 0);
+    //     openmp::provided::inclusive_segmented_scan(
+    //         data.begin(), data.end(), result.begin());
+    //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    // }
+    // SECTION("OpenMP Up-Down-Sweep")
+    // {
+    //     std::vector<int> result(N, 0);
+    //     openmp::updown::inclusive_segmented_scan(
+    //         data.begin(), data.end(), result.begin());
+    //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    // }
+    // SECTION("OpenMP Up-Down-Sweep Tiled")
+    // {
+    //     std::vector<int> result(N, 0);
+    //     openmp::tiled::inclusive_segmented_scan(data.begin(), data.end(),
+    //     result.begin()); REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    // }
+
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
 
-TEST_CASE("Exclusive Segmented Scan Test")
+TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
 {
     // Test parameters
-    size_t N = 20;
+    size_t N = 16;
     // Logging of parameters
     CAPTURE(N);
 
     std::vector<int> data(
-        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19, 20});
     std::vector<int> flags(
-        {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0});
+        {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0}); //, 1, 0, 0, 0});
     std::vector<int> reference(
-        {0, 1, 0, 3, 0, 5, 0, 7, 15, 24, 34, 0, 0, 0, 14, 29, 0, 17, 35, 0});
+        {0, 1, 0, 3, 0, 5, 0, 7, 15, 24, 34, 0, 0, 0, 14, 29}); //, 0, 17, 35, 0});
 
     // Tests
     SECTION("Naive Sequential")
@@ -166,6 +202,21 @@ TEST_CASE("Exclusive Segmented Scan Test")
             data.begin(), data.end(), flags.begin(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<int> result(N, 0);
+        naive::updown::exclusive_segmented_scan(
+            data.begin(), data.end(), flags.begin(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("Naive Tiled")
+    {
+        std::vector<int> result(N, 0);
+        naive::tiled::exclusive_segmented_scan(
+            data.begin(), data.end(), flags.begin(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
