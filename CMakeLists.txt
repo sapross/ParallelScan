@@ -10,7 +10,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-set(CMAKE_PREFIX_PATH "/home/oneapi-tbb-2021.5.0/lib/cmake")
+#set(CMAKE_PREFIX_PATH "/home/oneapi-tbb-2021.5.0/lib/cmake")
 
 find_package(TBB REQUIRED)
 

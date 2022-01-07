@@ -1,11 +1,15 @@
 #pragma once
 
 #include <vector>
-
 #include <tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
-namespace tbb
+// required for distance
+#include <iterator>
+//for identity
+#include <functional>
+
+namespace _tbb
 {
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
@@ -16,27 +20,48 @@ OutputIt inclusive_scan(InputIt&        first,
                         OutputIt&       d_first,
                         BinaryOperation binary_op)
 {
+    using InputType  = typename std::iterator_traits<InputIt>::value_type;
+    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    static_assert(std::is_convertible<InputType, OutputType>::value,
+                  "Input type must be convertible to output type!");
+    using range_type = tbb::blocked_range<size_t>;
+    tbb::parallel_scan(range_type(0, std::distance(first, last)), 0,
+		[&](const range_type &r, OutputType sum, bool is_final_scan) {
+			OutputType tmp = sum;
+			for (auto it = first; it != last; ++it)
+            {
+				tmp = binary_op(tmp, *it);
+				if (is_final_scan)
+				    *d_first = tmp;
+                d_first++;
+			}
+			return tmp;
+		},
+		[&](const InputType &a, const InputType &b) {
+			return binary_op(a, b);
+		});
     return OutputIt();
 }
 
 template<class InputIt, class OutputIt>
 OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::updown::inclusive_scan(first, last, d_first, std::plus<>());
+    return _tbb::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 {
-    return naive::updown::inclusive_scan(first, last, first, std::plus<>());
+    return _tbb::inclusive_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class BinaryOperation>
+template<class InputIt, class OutputIt, class T, class BinaryOperation>
 OutputIt exclusive_scan(InputIt&        first,
                         InputIt&        last,
                         OutputIt&       d_first,
+                        T               init,
                         BinaryOperation binary_op)
 {
     return OutputIt();
@@ -45,12 +70,12 @@ OutputIt exclusive_scan(InputIt&        first,
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return _tbb::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
-    return naive::updown::exclusive_scan(first, last, first, init, std::plus<>());
+    return _tbb::exclusive_scan(first, last, first, init, std::plus<>());
 }
 } // namespace naive

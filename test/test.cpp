@@ -43,6 +43,12 @@ TEST_CASE("Inclusive Scan Test")
         naive::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("TBB")
+    {
+        std::vector<int> result(N,0);
+        _tbb::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
@@ -79,7 +85,12 @@ TEST_CASE("Exclusive Scan Test")
         naive::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-
+    SECTION("TBB")
+    {
+        std::vector<int> result(0,N);
+        _tbb::exclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
