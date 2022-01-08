@@ -10,7 +10,7 @@
 std::default_random_engine         generator;
 std::uniform_int_distribution<int> distribution(1, 10);
 auto                               randnum = std::bind(distribution, generator);
-
+/**
 TEST_CASE("Inclusive Scan Test", "[inc]")
 {
     // Test parameters
@@ -119,7 +119,7 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
-
+**/
 TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
 {
     // Test parameters
@@ -231,13 +231,19 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
-    // SECTION("Naive Up-Down-Sweep")
-    // {
-    //     std::vector<int> result(N, 0);
-    //     naive::updown::exclusive_segmented_scan(
-    //         data.begin(), data.end(), flags.begin(), result.begin(), 0);
-    //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-    // }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+
+        naive::updown::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Tiled")
     // {
     //     std::vector<int> result(N, 0);
