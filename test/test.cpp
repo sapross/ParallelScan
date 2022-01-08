@@ -10,7 +10,7 @@
 std::default_random_engine         generator;
 std::uniform_int_distribution<int> distribution(1, 10);
 auto                               randnum = std::bind(distribution, generator);
-/**
+
 TEST_CASE("Inclusive Scan Test", "[inc]")
 {
     // Test parameters
@@ -119,7 +119,7 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
-**/
+
 TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
 {
     // Test parameters

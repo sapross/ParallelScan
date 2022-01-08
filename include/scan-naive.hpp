@@ -514,8 +514,8 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     // Phase 1: Reduction
     for (size_t i = 0; i < num_tiles; i++)
     {
-        temp[i] = *(first + i * tile_size);
-        for (size_t j = 1 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
+        temp[i] = *(first + 1 + i * tile_size);
+        for (size_t j = 2 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
         {
             temp[i] = binary_op(temp[i], *(first + j));
         }
