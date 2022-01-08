@@ -49,8 +49,6 @@ OutputIt exclusive_scan(
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
-    static_assert(std::is_same<InputType, T>::value,
-                  "Underlying input and init type have to be the same!");
 
     return std::exclusive_scan(first, last, d_first, init, binary_op);
 }
@@ -78,7 +76,6 @@ OutputIt inclusive_segmented_scan(InputIt         first,
                                   BinaryOperation binary_op)
 {
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using InputType  = typename std::tuple_element<0, PairType>::type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<FlagType, bool>::value,
@@ -122,55 +119,60 @@ template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt 
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class FlagIt, class BinaryOperation, class T>
-OutputIt exclusive_segmented_scan(InputIt         first,
-                                  InputIt         last,
-                                  FlagIt          flag_first,
-                                  OutputIt        d_first,
-                                  T               init,
-                                  BinaryOperation binary_op)
+template<class InputIt, class OutputIt, class BinaryOperation, class T>
+OutputIt exclusive_segmented_scan(
+    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::iterator_traits<FlagIt>::value_type;
+    using PairType   = typename std::iterator_traits<InputIt>::value_type;
+    using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<InputType, OutputType>::value,
+    static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
-    static_assert(std::is_same<InputType, T>::value,
-                  "Underlying input and init type have to be the same!");
 
-    return naive::sequential::exclusive_scan(
-        first,
-        last,
-        d_first,
-        init,
-        [&flag_first, &init, binary_op](InputType x, InputType y)
+    naive::sequential::exclusive_scan(first,
+                                      last,
+                                      d_first,
+                                      std::make_pair(init, 0),
+                                      [init, binary_op](PairType x, PairType y)
+                                      {
+                                          PairType result;
+                                          result.second = 0;
+                                          if (!y.second)
+                                          {
+                                              result.first = binary_op(x.first, y.first);
+                                          }
+                                          else
+                                          {
+                                              result.first = y.first;
+                                          }
+                                          return result;
+                                      });
+    while (first != last)
+    {
+        if (first->second)
         {
-            if (!*(++flag_first))
-            {
-                return binary_op(x, y);
-            }
-            else
-            {
-                return init;
-            }
-        });
+            d_first->first = 0;
+        }
+        first++;
+        d_first++;
+    }
+    return first;
 }
 
-template<class InputIt, class OutputIt, class FlagIt, class T>
-OutputIt exclusive_segmented_scan(
-    InputIt first, InputIt last, FlagIt flag_first, OutputIt d_first, T init)
+template<class InputIt, class OutputIt, class T>
+OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
     return naive::sequential::exclusive_segmented_scan(
-        first, last, flag_first, d_first, init, std::plus<>());
+        first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class FlagIt, class T>
-InputIt exclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first, T init)
+template<class InputIt, class T>
+InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
     return naive::sequential::exclusive_segmented_scan(
-        first, last, flag_first, first, init, std::plus<>());
+        first, last, first, init, std::plus<>());
 }
 
 }; // namespace sequential

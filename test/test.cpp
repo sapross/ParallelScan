@@ -199,20 +199,32 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
     // Logging of parameters
     CAPTURE(N);
 
-    std::vector<int> data(
+    std::vector<int> values(
         {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19, 20});
     std::vector<int> flags(
         {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0}); //, 1, 0, 0, 0});
+    std::vector<std::pair<int, int>> data(N);
+    for (size_t i = 0; i < N; i++)
+    {
+        data[i] = std::make_pair(values[i], flags[i]);
+    }
+
     std::vector<int> reference(
         {0, 1, 0, 3, 0, 5, 0, 7, 15, 24, 34, 0, 0, 0, 14, 29}); //, 0, 17, 35, 0});
 
     // Tests
     SECTION("Naive Sequential")
     {
-        std::vector<int> result(N, 0);
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+
         naive::sequential::exclusive_segmented_scan(
-            data.begin(), data.end(), flags.begin(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+            data.begin(), data.end(), result.begin(), 0);
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
     // SECTION("Naive Up-Down-Sweep")
     // {
