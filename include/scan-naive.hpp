@@ -248,8 +248,8 @@ OutputIt exclusive_scan(
 
     size_t num_values = last - first;
     size_t step       = 1;
-    // Up sweep
 
+    // Up sweep
     if (std::distance(first, d_first) != 0)
     {
         std::copy(first, last, d_first);
@@ -263,17 +263,10 @@ OutputIt exclusive_scan(
                 binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
         }
     }
-    std::cout << "Flags: " << std::endl;
-    std::for_each(
-        d_first, d_first + num_values, [](auto x) { std::cout << x.second << ", "; });
-    std::cout << std::endl;
     d_first[num_values - 1] = init;
+
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
-        std::cout << "Stage: " << stage << std::endl;
-        std::for_each(
-            d_first, d_first + num_values, [](auto x) { std::cout << x.first << ", "; });
-        std::cout << std::endl;
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             OutputType t                  = d_first[i + (1 << stage) - 1];
@@ -282,10 +275,6 @@ OutputIt exclusive_scan(
                 binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
         }
     }
-    std::cout << "Final:" << std::endl;
-    std::for_each(
-        d_first, d_first + num_values, [](auto x) { std::cout << x.first << ", "; });
-    std::cout << std::endl;
 
     return d_first + num_values;
 }
@@ -395,10 +384,6 @@ OutputIt exclusive_segmented_scan(
 
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
-        std::cout << "Stage: " << stage << std::endl;
-        std::for_each(
-            d_first, d_first + num_values, [](auto x) { std::cout << x.first << ", "; });
-        std::cout << std::endl;
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             size_t left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
@@ -459,53 +444,31 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values - 1) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values - 1) / tile_size;
     size_t rem        = num_values - tile_size * num_tiles;
 
-    // std::cout << "num_values:" << num_values << std::endl;
-    // std::cout << "tile_size:" << tile_size << std::endl;
-    // std::cout << "num_tiles:" << num_tiles << std::endl;
-    // std::cout << "rem:" << rem << std::endl;
-
-    std::vector<InputType> temp(num_tiles + 1, 0);
-
-    // std::cout << "temp: ";
-    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    // std::cout << std::endl;
+    std::vector<InputType> temp(num_tiles + 1);
 
     // Phase 1: Reduction
     for (size_t i = 0; i < num_tiles; i++)
     {
-        // std::cout << "temp[" << i << "] = std::reduce(" << 1 + i * tile_size << ","
-        //           << 1 + (i + 1) * tile_size << ",InputType(0),binary_op);" <<
-        //           std::endl;
 
-        temp[i] = std::reduce(first + 1 + i * tile_size,
-                              first + 1 + (i + 1) * tile_size,
-                              InputType(0),
-                              binary_op);
+        temp[i] = *(first + i * tile_size);
+        for (size_t j = 1 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
+        {
+            temp[i] = binary_op(temp[i], *(first + j));
+        }
     }
-    // std::cout << "temp: ";
-    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    // std::cout << std::endl;
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
 
-    // std::cout << "temp: ";
-    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    // std::cout << std::endl;
-
     // Phase 3: Rescan
     for (size_t i = 0; i < num_tiles; i++)
     {
-        // std::cout << "std::exclusive_scan(" << 1 + i * tile_size << ","
-        //           << 1 + (i + 1) * tile_size << ", " << i * tile_size << "," << temp[i]
-        //           << ",InputType(0),binary_op);" << std::endl;
 
         std::exclusive_scan(first + 1 + i * tile_size,
                             first + 1 + (i + 1) * tile_size,
@@ -555,52 +518,27 @@ OutputIt exclusive_scan(
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values) / tile_size;
     size_t rem        = num_values - tile_size * num_tiles;
 
-    // std::cout << "num_values:" << num_values << std::endl;
-    // std::cout << "tile_size:" << tile_size << std::endl;
-    // std::cout << "num_tiles:" << num_tiles << std::endl;
-    // std::cout << "rem:" << rem << std::endl;
-
-    std::vector<InputType> temp(num_tiles + 1, 0);
-
-    // std::cout << "temp: ";
-    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    // std::cout << std::endl;
+    std::vector<InputType> temp(num_tiles + 1);
 
     // Phase 1: Reduction
     for (size_t i = 0; i < num_tiles; i++)
     {
-        // std::cout << "temp[" << i << "] = std::reduce(" << 1 + i * tile_size << ","
-        //           << (i + 1) * tile_size << ",InputType(0),binary_op);" << std::endl;
-
         temp[i] = std::reduce(
-            first + i * tile_size, first + (i + 1) * tile_size, InputType(0), binary_op);
+            first + i * tile_size, first + (i + 1) * tile_size, init, binary_op);
     }
-    // std::cout << "temp: ";
-    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    // std::cout << std::endl;
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
 
-    // std::cout << "temp: ";
-    // std::for_each(temp.begin(), temp.end(), [](auto e) { std::cout << e << ", "; });
-    // std::cout << std::endl;
-
     // Phase 3: Rescan
     for (size_t i = 0; i < num_tiles; i++)
     {
-        // std::cout << "std::exclusive_scan(" << i * tile_size << "," << (i + 1) *
-        // tile_size
-        //           << ", " << i * tile_size << "," << temp[i]
-        //           << ",InputType(0),binary_op);" << std::endl;
-
         std::exclusive_scan(first + i * tile_size,
                             first + (i + 1) * tile_size,
                             d_first + i * tile_size,
@@ -634,106 +572,107 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class FlagIt, class BinaryOperation>
+template<class InputIt, class OutputIt, class BinaryOperation>
 OutputIt inclusive_segmented_scan(InputIt         first,
                                   InputIt         last,
-                                  FlagIt          flag_first,
                                   OutputIt        d_first,
                                   BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::iterator_traits<FlagIt>::value_type;
+    using PairType   = typename std::iterator_traits<InputIt>::value_type;
+    using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<InputType, OutputType>::value,
+    static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
     return naive::tiled::inclusive_scan(first,
                                         last,
                                         d_first,
-                                        [&flag_first, binary_op](InputType x, InputType y)
+                                        [binary_op](PairType x, PairType y)
                                         {
-                                            if (!*(++flag_first))
+                                            PairType result = y;
+                                            if (!y.second)
                                             {
-                                                return binary_op(x, y);
+                                                result.first =
+                                                    binary_op(x.first, y.first);
+                                                if (x.second)
+                                                {
+                                                    result.second = x.second;
+                                                }
                                             }
-                                            else
-                                            {
-                                                return y;
-                                            }
+                                            return result;
                                         });
 }
 
-template<class InputIt, class OutputIt, class FlagIt>
-OutputIt
-inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first, OutputIt d_first)
+template<class InputIt, class OutputIt>
+OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::tiled::inclusive_segmented_scan(
-        first, last, flag_first, d_first, std::plus<>());
+    return naive::tiled::inclusive_segmented_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt, class FlagIt>
-InputIt inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first)
+template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
-    return naive::tiled::inclusive_segmented_scan(
-        first, last, flag_first, first, std::plus<>());
+    return naive::tiled::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class FlagIt, class BinaryOperation, class T>
-OutputIt exclusive_segmented_scan(InputIt         first,
-                                  InputIt         last,
-                                  FlagIt          flag_first,
-                                  OutputIt        d_first,
-                                  T               init,
-                                  BinaryOperation binary_op)
+template<class InputIt, class OutputIt, class BinaryOperation, class T>
+OutputIt exclusive_segmented_scan(
+    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::iterator_traits<FlagIt>::value_type;
+    using PairType   = typename std::iterator_traits<InputIt>::value_type;
+    using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<InputType, OutputType>::value,
+    static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
-    static_assert(std::is_same<InputType, T>::value,
-                  "Underlying input and init type have to be the same!");
 
-    return naive::tiled::exclusive_scan(
-        first,
-        last,
-        d_first,
-        init,
-        [&flag_first, &init, binary_op](InputType x, InputType y)
+    naive::tiled::exclusive_scan(first,
+                                 last,
+                                 d_first,
+                                 std::make_pair(init, 0),
+                                 [binary_op](PairType x, PairType y)
+                                 {
+                                     PairType result = y;
+                                     if (!y.second)
+                                     {
+                                         result.first = binary_op(x.first, y.first);
+                                         if (x.second)
+                                         {
+                                             result.second = x.second;
+                                         }
+                                     }
+                                     return result;
+                                 });
+    while (first != last)
+    {
+        if (first->second)
         {
-            if (!*(++flag_first))
-            {
-                return binary_op(x, y);
-            }
-            else
-            {
-                return init;
-            }
-        });
+            d_first->first = 0;
+        }
+        first++;
+        d_first++;
+    }
+    return first;
 }
 
-template<class InputIt, class OutputIt, class FlagIt, class T>
-OutputIt exclusive_segmented_scan(
-    InputIt first, InputIt last, FlagIt flag_first, OutputIt d_first, T init)
+template<class InputIt, class OutputIt, class T>
+OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
     return naive::tiled::exclusive_segmented_scan(
-        first, last, flag_first, d_first, init, std::plus<>());
+        first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class FlagIt, class T>
-InputIt exclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first, T init)
+template<class InputIt, class T>
+InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
     return naive::tiled::exclusive_segmented_scan(
-        first, last, flag_first, first, init, std::plus<>());
+        first, last, first, init, std::plus<>());
 }
-
 }; // namespace tiled
 }; // namespace naive
