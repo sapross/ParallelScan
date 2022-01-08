@@ -153,13 +153,18 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
-    // SECTION("Naive Up-Down-Sweep")
-    // {
-    //     std::vector<int> result(N, 0);
-    //     naive::updown::inclusive_segmented_scan(
-    //         data.begin(), data.end(), flags.begin(), result.begin());
-    //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-    // }
+    SECTION("Naive Up-Down-Sweep")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        naive::updown::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
+
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Tiled")
     // {
     //     std::vector<int> result(N, 0);

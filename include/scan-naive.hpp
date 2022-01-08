@@ -294,94 +294,48 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class FlagIt, class BinaryOperation>
+template<class InputIt, class OutputIt, class BinaryOperation>
 OutputIt inclusive_segmented_scan(InputIt         first,
                                   InputIt         last,
-                                  FlagIt          flag_first,
                                   OutputIt        d_first,
                                   BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::iterator_traits<FlagIt>::value_type;
+    using PairType   = typename std::iterator_traits<InputIt>::value_type;
+    using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<InputType, OutputType>::value,
+    static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    size_t num_values = last - first;
-    size_t step       = 1;
-    // Up sweep
-    std::cout << "Input:" << std::endl;
-    std::for_each(first, last, [](auto x) { std::cout << x << ", "; });
-    std::cout << std::endl;
-    std::cout << "Flags:" << std::endl;
-    std::for_each(
-        flag_first, flag_first + num_values, [](auto x) { std::cout << x << ", "; });
-    std::cout << std::endl;
-
-    if (std::distance(first, d_first) != 0)
-    {
-        std::copy(first, last, d_first);
-    }
-    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
-    {
-        step = step * 2;
-        for (size_t i = 0; i < num_values; i = i + step)
-        {
-            if (!flag_first[i + step - 1])
-            {
-                d_first[i + step - 1] =
-                    binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
-            }
-            if (flag_first[i + step / 2 - 1])
-            {
-                flag_first[i + step - 1] = flag_first[i + step / 2 - 1];
-            }
-        }
-    }
-    std::cout << "After up sweep:" << std::endl;
-    std::for_each(d_first, d_first + num_values, [](auto x) { std::cout << x << ", "; });
-    std::cout << std::endl;
-
-    step = 1 << (size_t)(std::floor(std::log2(num_values)));
-    for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
-    {
-        step = step / 2;
-        for (size_t i = step; i - 1 < num_values - 2; i = i + step)
-        {
-            if (!flag_first[i + step / 2 - 1])
-            {
-
-                d_first[i + step / 2 - 1] =
-                    binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
-            }
-            if (flag_first[i - 1])
-            {
-                flag_first[i + step / 2 - 1] = flag_first[i - 1];
-            }
-        }
-    }
-    std::cout << "After down sweep:" << std::endl;
-    std::for_each(d_first, d_first + num_values, [](auto x) { std::cout << x << ", "; });
-    std::cout << std::endl;
-
-    return d_first + num_values;
+    return naive::updown::inclusive_scan(first,
+                                         last,
+                                         d_first,
+                                         [binary_op](PairType x, PairType y)
+                                         {
+                                             PairType result = y;
+                                             if (!y.second)
+                                             {
+                                                 result.first =
+                                                     binary_op(x.first, y.first);
+                                                 if (x.second)
+                                                 {
+                                                     result.second = x.second;
+                                                 }
+                                             }
+                                             return result;
+                                         });
 }
 
-template<class InputIt, class OutputIt, class FlagIt>
-OutputIt
-inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first, OutputIt d_first)
+template<class InputIt, class OutputIt>
+OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::updown::inclusive_segmented_scan(
-        first, last, flag_first, d_first, std::plus<>());
+    return naive::updown::inclusive_segmented_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt, class FlagIt>
-InputIt inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first)
+template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
-    return naive::updown::inclusive_segmented_scan(
-        first, last, flag_first, first, std::plus<>());
+    return naive::updown::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
