@@ -71,51 +71,51 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class FlagIt, class BinaryOperation>
+template<class InputIt, class OutputIt, class BinaryOperation>
 OutputIt inclusive_segmented_scan(InputIt         first,
                                   InputIt         last,
-                                  FlagIt          flag_first,
                                   OutputIt        d_first,
                                   BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::iterator_traits<FlagIt>::value_type;
+    using PairType   = typename std::iterator_traits<InputIt>::value_type;
+    using InputType  = typename std::tuple_element<0, PairType>::type;
+    using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<InputType, OutputType>::value,
+    static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    return naive::sequential::inclusive_scan(
-        first,
-        last,
-        d_first,
-        [&flag_first, binary_op](InputType x, InputType y)
-        {
-            if (!*(++flag_first))
-            {
-                return binary_op(x, y);
-            }
-            else
-            {
-                return y;
-            }
-        });
+    return naive::sequential::inclusive_scan(first,
+                                             last,
+                                             d_first,
+                                             [binary_op](PairType x, PairType y)
+                                             {
+                                                 PairType result;
+                                                 result.second = 0;
+                                                 if (!y.second)
+                                                 {
+                                                     result.first =
+                                                         binary_op(x.first, y.first);
+                                                 }
+                                                 else
+                                                 {
+                                                     result.first = y.first;
+                                                 }
+                                                 return result;
+                                             });
 }
 
-template<class InputIt, class OutputIt, class FlagIt>
-OutputIt
-inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first, OutputIt d_first)
+template<class InputIt, class OutputIt>
+OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
     return naive::sequential::inclusive_segmented_scan(
-        first, last, flag_first, d_first, std::plus<>());
+        first, last, d_first, std::plus<>());
 }
 
-template<class InputIt, class FlagIt>
-InputIt inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first)
+template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
-    return naive::sequential::inclusive_segmented_scan(
-        first, last, flag_first, first, std::plus<>());
+    return naive::sequential::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
