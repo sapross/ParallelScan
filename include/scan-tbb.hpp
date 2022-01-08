@@ -28,19 +28,18 @@ OutputIt inclusive_scan(InputIt&        first,
     tbb::parallel_scan(range_type(0, std::distance(first, last)), 0,
 		[&](const range_type &r, OutputType sum, bool is_final_scan) {
 			OutputType tmp = sum;
-			for (auto it = first; it != last; ++it)
+			for (size_t i = r.begin(); i < r.end(); ++i)
             {
-				tmp = binary_op(tmp, *it);
+				tmp = binary_op(tmp, first[i]);
 				if (is_final_scan)
-				    *d_first = tmp;
-                d_first++;
+				    d_first[i] = tmp;
 			}
 			return tmp;
 		},
 		[&](const InputType &a, const InputType &b) {
 			return binary_op(a, b);
 		});
-    return OutputIt();
+    return d_first + std::distance(first, last);
 }
 
 template<class InputIt, class OutputIt>
@@ -64,7 +63,26 @@ OutputIt exclusive_scan(InputIt&        first,
                         T               init,
                         BinaryOperation binary_op)
 {
-    return OutputIt();
+    using InputType  = typename std::iterator_traits<InputIt>::value_type;
+    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    static_assert(std::is_convertible<InputType, OutputType>::value,
+                  "Input type must be convertible to output type!");
+    using range_type = tbb::blocked_range<size_t>;
+    tbb::parallel_scan(range_type(0, std::distance(first, last)), 0,
+		[&](const range_type &r, OutputType sum, bool is_final_scan) {
+			OutputType tmp = sum;
+			for (size_t i = r.begin(); i < r.end(); ++i)
+            {
+				tmp = binary_op(tmp, first[i]);
+				if (is_final_scan)
+				    d_first[i+1] = tmp;
+			}
+			return tmp;
+		},
+		[&](const InputType &a, const InputType &b) {
+			return binary_op(a, b);
+		});
+    return d_first + std::distance(first, last);
 }
 
 template<class InputIt, class OutputIt, class T>
