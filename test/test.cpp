@@ -87,16 +87,8 @@ TEST_CASE("Exclusive Scan Test")
     }
     SECTION("TBB")
     {
-        std::vector<int> result(0,N+1);
+        std::vector<int> result(N, 0);
         _tbb::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-        
-        std::cout << "data: ";
-        std::for_each(data.begin(), data.end(), [](auto e) { std::cout << e << ", "; });
-        std::cout << std::endl;
-        std::cout << "result: ";
-        std::for_each(result.begin(), result.end(), [](auto e) { std::cout << e << ", "; });
-        std::cout << std::endl;
-        
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     // SECTION("Naive Up-Down-Sweep") { ; }

@@ -67,6 +67,7 @@ OutputIt exclusive_scan(InputIt&        first,
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
+    d_first[0] = init;
     using range_type = tbb::blocked_range<size_t>;
     tbb::parallel_scan(range_type(0, std::distance(first, last)), 0,
 		[&](const range_type &r, OutputType sum, bool is_final_scan) {
