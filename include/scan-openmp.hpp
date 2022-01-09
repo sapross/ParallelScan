@@ -2,11 +2,10 @@
 
 namespace openmp
 {
-namespace provided 
+namespace provided
 {
 template<class InputIt, class OutputIt>
-OutputIt
-inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
@@ -31,8 +30,7 @@ template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 }
 
 template<class InputIt, class OutputIt>
-OutputIt
-exclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
@@ -174,6 +172,45 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
     return openmp::updown::exclusive_scan(first, last, first, init, std::plus<>());
 }
+
+// ----------------------------------------------------------------------------------
+//  Inclusive Segmented Scan
+// ----------------------------------------------------------------------------------
+
+template<class InputIt, class OutputIt, class FlagIt>
+OutputIt
+inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first, OutputIt d_first)
+{
+    using InputType  = typename std::iterator_traits<InputIt>::value_type;
+    using FlagType   = typename std::iterator_traits<FlagIt>::value_type;
+    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    static_assert(std::is_convertible<FlagType, bool>::value,
+                  "Second Input Iterator type must be convertible to bool!");
+    static_assert(std::is_convertible<InputType, OutputType>::value,
+                  "Input type must be convertible to output type!");
+
+    return openmp::updown::inclusive_scan(first,
+                                          last,
+                                          d_first,
+                                          [&flag_first](InputType x, InputType y)
+                                          {
+                                              if (!*(++flag_first))
+                                              {
+                                                  return +(x, y);
+                                              }
+                                              else
+                                              {
+                                                  return y;
+                                              }
+                                          });
+}
+
+template<class InputIt, class FlagIt>
+InputIt inclusive_segmented_scan(InputIt first, InputIt last, FlagIt flag_first)
+{
+    return openmp::updown::inclusive_segmented_scan(first, last, flag_first, first);
+}
+
 } // namespace updown
 namespace tiled
 {
