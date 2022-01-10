@@ -8,15 +8,18 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
   GIT_TAG       v2.13.7
 )
-
 FetchContent_MakeAvailable(Catch2)
+
+#set(CMAKE_PREFIX_PATH "/home/oneapi-tbb-2021.5.0/lib/cmake")
+
+find_package(TBB REQUIRED)
 
 ## set global compiler options
 set(CMAKE_CXX_STANDARD 20)
 #TODO: Compiler Flags!
 if(CMAKE_COMPILER_IS_GNUCXX)
   message(STATUS "GCC detected, adding compile flags")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3 -ltbb")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -62,8 +65,9 @@ target_include_directories(bench PRIVATE common)
 
 target_include_directories(scan PUBLIC include)
 
-target_link_libraries(bench PUBLIC scan Catch2)
+target_link_libraries(bench PUBLIC scan Catch2 TBB::tbb)
 
-target_link_libraries(test PUBLIC scan Catch2)
+target_link_libraries(test PUBLIC scan Catch2 TBB::tbb)
 
-
+target_compile_features(bench PRIVATE cxx_std_11)
+target_compile_features(test PRIVATE cxx_std_11)
