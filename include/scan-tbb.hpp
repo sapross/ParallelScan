@@ -6,8 +6,6 @@
 
 // required for distance
 #include <iterator>
-//for identity
-#include <functional>
 
 namespace _tbb
 {
