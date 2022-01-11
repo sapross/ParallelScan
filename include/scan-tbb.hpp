@@ -117,6 +117,7 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
     static_assert(std::is_convertible<PairType, OutputType>::value,
@@ -130,19 +131,19 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using range_type = tbb::blocked_range<size_t>;
     tbb::parallel_scan(range_type(0, std::distance(first, last)), 0,
-		                [&](const range_type &r, PairType sum, bool is_final_scan) -> PairType {
-			                PairType tmp = sum;
-			                // for (size_t i = r.begin(); i < r.end(); ++i)
-                            // {
-			                // 	tmp = OutputType(binary_op(tmp.first, first[i].first),0);
-			                // 	if (is_final_scan)
-			                // 	    d_first[i].first = tmp.first;
-			                // }
+		                [&](const range_type &r, ValueType sum, bool is_final_scan) {
+			                ValueType tmp = sum;
+			                 for (size_t i = r.begin(); i < r.end(); ++i)
+                             {
+			                 	tmp = binary_op(tmp, first[i].first);
+			                 	if (is_final_scan)
+			                 	    d_first[i] = PairType(tmp,0);
+			                 }
 			                return tmp;
 		                },
-		                [&](const PairType &a, const PairType &b) {
-			                //return InputType(binary_op(a.first, b.first),0);});
-                            return a;});
+		                [&](const ValueType &a, const ValueType &b) {
+			                return binary_op(a, b);
+                            });
     return d_first + std::distance(first, last);
 }
 
