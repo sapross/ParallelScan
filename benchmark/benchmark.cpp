@@ -23,12 +23,12 @@ SCENARIO("Inclusive Scan", "[inc]")
     std::generate(data.begin(), data.end(), rand);
 
     // Benchmark
-    BENCHMARK_ADVANCED("inc_seq_naive")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("inc_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
         meter.measure(
             [N, &data, &result]() {
-                naive::sequential::inclusive_scan(
+                sequential::naive::inclusive_scan(
                     data.begin(), data.end(), result.begin());
             });
     };
@@ -36,15 +36,19 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]()
-            { naive::updown::inclusive_scan(data.begin(), data.end(), result.begin()); });
+            [N, &data, &result]() {
+                sequential::updown::inclusive_scan(
+                    data.begin(), data.end(), result.begin());
+            });
     };
     BENCHMARK_ADVANCED("inc_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]()
-            { naive::tiled::inclusive_scan(data.begin(), data.end(), result.begin()); });
+            [N, &data, &result]() {
+                sequential::tiled::inclusive_scan(
+                    data.begin(), data.end(), result.begin());
+            });
     };
     BENCHMARK_ADVANCED("inc_OMP_provided")(Catch::Benchmark::Chronometer meter)
     {
@@ -90,12 +94,12 @@ SCENARIO("Exclusive Scan", "[ex]")
     float init = 0.0;
 
     // Benchmark
-    BENCHMARK_ADVANCED("ex_seq_naive")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("ex_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
         meter.measure(
             [N, &data, &result, init]() {
-                naive::sequential::exclusive_scan(
+                sequential::naive::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
     };
@@ -104,7 +108,7 @@ SCENARIO("Exclusive Scan", "[ex]")
         std::vector<float> result(N, 0);
         meter.measure(
             [N, &data, &result, init]() {
-                naive::updown::exclusive_scan(
+                sequential::updown::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
     };
@@ -113,7 +117,7 @@ SCENARIO("Exclusive Scan", "[ex]")
         std::vector<float> result(N, 0);
         meter.measure(
             [N, &data, &result, init]() {
-                naive::tiled::exclusive_scan(
+                sequential::tiled::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
     };
@@ -176,13 +180,13 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
                   });
 
     // Benchmark
-    BENCHMARK_ADVANCED("incseg_seq_naive")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("incseg_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
             [N, &data, &result]()
             {
-                naive::sequential::inclusive_segmented_scan(
+                sequential::naive::inclusive_segmented_scan(
                     data.begin(), data.end(), result.begin());
             });
     };
@@ -190,8 +194,9 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result]() {
-                naive::updown::inclusive_segmented_scan(
+            [N, &data, &result]()
+            {
+                sequential::updown::inclusive_segmented_scan(
                     data.begin(), data.end(), result.begin());
             });
     };
@@ -199,8 +204,9 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result]() {
-                naive::tiled::inclusive_segmented_scan(
+            [N, &data, &result]()
+            {
+                sequential::tiled::inclusive_segmented_scan(
                     data.begin(), data.end(), result.begin());
             });
     };
@@ -265,13 +271,13 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     float init = 0.0;
 
     // Benchmark
-    BENCHMARK_ADVANCED("exseg_seq_naive")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("exseg_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
             [N, &data, &result, init]()
             {
-                naive::sequential::exclusive_segmented_scan(
+                sequential::naive::exclusive_segmented_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
     };
@@ -281,7 +287,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
         meter.measure(
             [N, &data, &result, init]()
             {
-                naive::updown::exclusive_segmented_scan(
+                sequential::updown::exclusive_segmented_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
     };
@@ -291,7 +297,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
         meter.measure(
             [N, &data, &result, init]()
             {
-                naive::tiled::exclusive_segmented_scan(
+                sequential::tiled::exclusive_segmented_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
     };
