@@ -169,7 +169,7 @@ OutputIt exclusive_segmented_scan(
     {
         if (first->second)
         {
-            d_first->first = 0;
+            d_first->first = init;
         }
         first++;
         d_first++;
@@ -466,7 +466,7 @@ OutputIt exclusive_segmented_scan(
     {
         if (first->second)
         {
-            d_first->first = 0;
+            d_first->first = init;
         }
         first++;
         d_first++;
@@ -711,7 +711,7 @@ OutputIt exclusive_segmented_scan(
     {
         if (first->second)
         {
-            d_first->first = 0;
+            d_first->first = init;
         }
         first++;
         d_first++;

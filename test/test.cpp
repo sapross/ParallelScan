@@ -43,6 +43,12 @@ TEST_CASE("Inclusive Scan Test", "[inc]")
         naive::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("TBB")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
     SECTION("OpenMP provided")
     {
         std::vector<int> result(N, 0);
@@ -97,6 +103,15 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
         naive::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
+    SECTION("TBB")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    // SECTION("Naive Up-Down-Sweep") { ; }
+    // SECTION("Naive Tiled") { ; }
+
     SECTION("OpenMP provided")
     {
         std::vector<int> result(N, 0);
@@ -128,7 +143,8 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
     CAPTURE(N);
 
     std::vector<int> values(
-        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19, 20});
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19,
+                                                                  // 20});
     std::vector<int> flags(
         {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0}); //, 1, 0, 0, 1});
     std::vector<std::pair<int, int>> data(N);
@@ -138,7 +154,8 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
     }
 
     std::vector<int> reference(
-        {1, 3, 3, 7, 5, 11, 7, 15, 24, 34, 45, 12, 13, 14, 29, 45}); //, 17, 35, 54, 20});
+        {1, 3, 3, 7, 5, 11, 7, 15, 24, 34, 45, 12, 13, 14, 29, 45}); //, 17, 35, 54,
+                                                                     // 20});
     // Tests
     SECTION("Naive Sequential")
     {
@@ -223,7 +240,8 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
     CAPTURE(N);
 
     std::vector<int> values(
-        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19, 20});
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}); //, 17, 18, 19,
+                                                                  // 20});
     std::vector<int> flags(
         {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0}); //, 1, 0, 0, 0});
     std::vector<std::pair<int, int>> data(N);
