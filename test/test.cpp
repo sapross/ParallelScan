@@ -100,7 +100,7 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
     SECTION("OpenMP provided")
     {
         std::vector<int> result(N, 0);
-        openmp::provided::exclusive_scan(data.begin(), data.end(), result.begin());
+        openmp::provided::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("OpenMP Up-Down-Sweep")
