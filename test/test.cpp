@@ -184,19 +184,32 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
     //         data.begin(), data.end(), result.begin());
     //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     // }
-    // SECTION("OpenMP Up-Down-Sweep")
-    // {
-    //     std::vector<int> result(N, 0);
-    //     openmp::updown::inclusive_segmented_scan(
-    //         data.begin(), data.end(), result.begin());
-    //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-    // }
-    // SECTION("OpenMP Up-Down-Sweep Tiled")
-    // {
-    //     std::vector<int> result(N, 0);
-    //     openmp::tiled::inclusive_segmented_scan(data.begin(), data.end(),
-    //     result.begin()); REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-    // }
+    SECTION("OpenMP Up-Down-Sweep")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        openmp::updown::inclusive_segmented_scan(
+            data.begin(), data.end(), result.begin());
+
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        openmp::tiled::inclusive_segmented_scan(
+            data.begin(), data.end(), result.begin());
+
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
 
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
