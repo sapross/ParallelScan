@@ -18,19 +18,20 @@ namespace _tbb
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt
-inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation binary_op)
+template<class InputIt, class OutputIt, class BinaryOperation, class T>
+OutputIt inclusive_scan(
+    InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
     using range_type = tbb::blocked_range<size_t>;
+
     tbb::parallel_scan(
         range_type(0, std::distance(first, last)),
-        0,
-        [&](const range_type& r, OutputType sum, bool is_final_scan) -> OutputType
+        identity,
+        [&](const range_type& r, OutputType sum, bool is_final_scan)
         {
             OutputType tmp = sum;
             for (size_t i = r.begin(); i < r.end(); ++i)
@@ -45,15 +46,16 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     return d_first + std::distance(first, last);
 }
 
-template<class InputIt, class OutputIt>
-OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class InputIt, class OutputIt, class T>
+OutputIt inclusive_scan(InputIt first, InputIt last, T identity, OutputIt d_first)
 {
-    return _tbb::inclusive_scan(first, last, d_first, std::plus<>());
+    return _tbb::inclusive_scan(first, last, d_first, identity, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
+template<class InputIt, class T>
+InputIt inclusive_scan(InputIt first, InputIt last, T identity)
 {
-    return _tbb::inclusive_scan(first, last, first, std::plus<>());
+    return _tbb::inclusive_scan(first, last, first, identity, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -67,8 +69,9 @@ OutputIt exclusive_scan(
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
-    d_first[0]       = init;
     using range_type = tbb::blocked_range<size_t>;
+
+    d_first[0] = init;
     tbb::parallel_scan(
         range_type(0, std::distance(first, last)),
         init,
@@ -103,11 +106,9 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt inclusive_segmented_scan(InputIt         first,
-                                  InputIt         last,
-                                  OutputIt        d_first,
-                                  BinaryOperation binary_op)
+template<class InputIt, class OutputIt, class BinaryOperation, class T>
+OutputIt inclusive_segmented_scan(
+    InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
@@ -123,34 +124,41 @@ OutputIt inclusive_segmented_scan(InputIt         first,
       a addition with the running sum as operand x and the current value as
       operand y, resetting the sum to the value of y yields the correct result.
      */
-    using range_type = tbb::blocked_range<size_t>;
-    tbb::parallel_scan(
-        range_type(0, std::distance(first, last)),
-        0,
-        [&](const range_type& r, ValueType sum, bool is_final_scan)
-        {
-            ValueType tmp = sum;
-            for (size_t i = r.begin(); i < r.end(); ++i)
-            {
-                tmp = binary_op(tmp, first[i].first);
-                if (is_final_scan)
-                    d_first[i] = PairType(tmp, 0);
-            }
-            return tmp;
-        },
-        [&](const ValueType& a, const ValueType& b) { return binary_op(a, b); });
+    _tbb::inclusive_scan(first,
+                         last,
+                         d_first,
+                         std::make_pair(identity, 0),
+                         [binary_op](PairType x, PairType y)
+                         {
+                             PairType result = y;
+                             if (!y.second)
+                             {
+                                 result.first = binary_op(x.first, y.first);
+                                 /* Only required if additions are
+                                    reordered!
+                                 */
+                                 // if (x.second)
+                                 // {
+                                 //     result.second = x.second;
+                                 // }
+                             }
+                             return result;
+                         });
+
     return d_first + std::distance(first, last);
 }
 
-template<class InputIt, class OutputIt>
-OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class InputIt, class OutputIt, class T>
+OutputIt
+inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T identity)
 {
-    return _tbb::inclusive_segmented_scan(first, last, d_first, std::plus<>());
+    return _tbb::inclusive_segmented_scan(first, last, d_first, identity, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
+template<class InputIt, class T>
+InputIt inclusive_segmented_scan(InputIt first, InputIt last, T identity)
 {
-    return _tbb::inclusive_segmented_scan(first, last, first, std::plus<>());
+    return _tbb::inclusive_segmented_scan(first, last, first, identity, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------

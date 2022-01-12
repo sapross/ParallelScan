@@ -46,7 +46,7 @@ TEST_CASE("Inclusive Scan Test", "[inc]")
     SECTION("TBB")
     {
         std::vector<int> result(N, 0);
-        _tbb::inclusive_scan(data.begin(), data.end(), result.begin());
+        _tbb::inclusive_scan(data.begin(), data.end(), 0, result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("OpenMP provided")
@@ -197,7 +197,8 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
     SECTION("TBB")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        _tbb::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
+        _tbb::inclusive_segmented_scan(data.begin(), data.end(), result.begin(), 0);
+
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
         {
