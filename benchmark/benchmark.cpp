@@ -369,6 +369,7 @@ SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
             });
     };
 }
+
 SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
 {
 
