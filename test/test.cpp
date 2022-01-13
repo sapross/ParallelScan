@@ -194,13 +194,20 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
+    // Does not work with provided scan functionality
     // SECTION("OpenMP provided")
-    // {
-    //     std::vector<int> result(N, 0);
-    //     openmp::provided::inclusive_segmented_scan(
-    //         data.begin(), data.end(), result.begin());
-    //     REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-    // }
+    //{
+    // std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+    // openmp::provided::inclusive_segmented_scan(
+    //  data.begin(), data.end(), result.begin());
+
+    // std::vector<int> temp(N);
+    // for (size_t i = 0; i < N; i++)
+    //{
+    //  temp[i] = result[i].first;
+    //}
+    //  REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    //}
     SECTION("OpenMP Up-Down-Sweep")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
@@ -217,8 +224,7 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
     SECTION("OpenMP Tiled")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        openmp::tiled::inclusive_segmented_scan(
-            data.begin(), data.end(), result.begin());
+        openmp::tiled::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
 
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
@@ -285,6 +291,46 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
 
         naive::tiled::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    // Does not work with provided scan functionality
+    // SECTION("OpenMP provided")
+    //{
+    //  std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+    // openmp::provided::exclusive_segmented_scan(
+    //  data.begin(), data.end(), result.begin());
+
+    // std::vector<int> temp(N);
+    // for (size_t i = 0; i < N; i++)
+    //{
+    //   temp[i] = result[i].first;
+    //}
+    // REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    //}
+    SECTION("OpenMP Up-Down-Sweep")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+
+        openmp::updown::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+
+        openmp::tiled::exclusive_segmented_scan(
             data.begin(), data.end(), result.begin(), 0);
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
