@@ -103,15 +103,18 @@ class ResultAggregator:
 class Plotwrapper:
     def __init__(self):
         self.agg = ResultAggregator()
-        self.columns = []
 
-    def col(self, column: str):
+        self.columns = dict()
+
+    def col(self, column: str, name=""):
         """Select column/benchmark name to be part of the plot.
         Usage: makegraph.py col 'column name'
         Warning: Please consider that this script prepends the filename
         of the csv to the column names!
         """
-        self.columns.append(column)
+        if not name:
+            name = column
+        self.columns[name] = column
         return self
 
     def plot(
@@ -128,7 +131,8 @@ class Plotwrapper:
                                       --xscale 'log' --yscale 'linear'
                                       --grid
         """
-        data = self.agg.get_results(self.columns)
+        data = self.agg.get_results(list(self.columns.keys()))
+        data.rename(columns=self.columns, inplace=True)
         data.plot(x=index_col, marker="x")
         plt.title(title)
         plt.xlabel(index_col)

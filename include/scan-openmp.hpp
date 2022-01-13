@@ -2,27 +2,26 @@
 
 namespace openmp
 {
-namespace provided 
+namespace provided
 {
 template<class InputIt, class OutputIt>
-OutputIt
-inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    size_t                                              num_values = last - first;
-    typename std::iterator_traits<OutputIt>::value_type sum        = 0;
+    size_t     num_values = last - first;
+    OutputType sum        = 0;
 #pragma omp      parallel for reduction(inscan, + : sum)
     for (size_t i = 0; i < num_values; ++i)
     {
         sum += *(first + i);
 #pragma omp scan inclusive(sum)
         *(d_first + i) = sum;
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
 template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
@@ -30,30 +29,30 @@ template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
     return openmp::provided::inclusive_scan(first, last, first);
 }
 
-template<class InputIt, class OutputIt>
-OutputIt
-exclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class InputIt, class OutputIt, class T>
+OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    size_t                                              num_values = last - first;
-    typename std::iterator_traits<OutputIt>::value_type sum        = 0;
+    size_t     num_values = last - first;
+    OutputType sum        = init;
 #pragma omp      parallel for reduction(inscan, + : sum)
     for (size_t i = 0; i < num_values; ++i)
     {
         *(d_first + i) = sum;
 #pragma omp scan exclusive(sum)
         sum += *(first + i);
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
-template<class InputIt> InputIt exclusive_scan(InputIt first, InputIt last)
+template<class InputIt, class T>
+InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
-    return openmp::provided::exclusive_scan(first, last, first);
+    return openmp::provided::exclusive_scan(first, last, first, init);
 }
 } // namespace provided
 namespace updown
