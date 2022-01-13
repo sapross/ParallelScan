@@ -20,8 +20,8 @@ OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
         sum += *(first + i);
 #pragma omp scan inclusive(sum)
         *(d_first + i) = sum;
-         }
-         return d_first;
+    }
+    return d_first;
 }
 
 template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
@@ -45,8 +45,8 @@ OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
         *(d_first + i) = sum;
 #pragma omp scan exclusive(sum)
         sum += *(first + i);
-         }
-         return d_first;
+    }
+    return d_first;
 }
 
 template<class InputIt, class T>
@@ -389,18 +389,17 @@ OutputIt exclusive_segmented_scan(
             }
         }
     }
-    // Like with all exclusives variants, this step cannot be omitted or
-    // fused with any previous operation.
-    while (first != last)
+// Like with all exclusives variants, this step cannot be omitted or
+// fused with any previous operation.
+#pragma omp parallel for
+    for (size_t i = 0; i < num_values; i++)
     {
-        if (first->second)
+        if (first[i].second)
         {
-            d_first->first = init;
+            d_first[i].first = init;
         }
-        first++;
-        d_first++;
     }
-    return first;
+    return first + num_values;
 }
 
 template<class InputIt, class OutputIt, class T>
@@ -643,16 +642,15 @@ OutputIt exclusive_segmented_scan(
                                       }
                                       return result;
                                   });
-    while (first != last)
+    #pragma omp parallel for
+    for (int i = 0; i < (last - first); i++)
     {
-        if (first->second)
+        if (first[i].second)
         {
-            d_first->first = init;
+            d_first[i].first = init;
         }
-        first++;
-        d_first++;
     }
-    return first;
+    return first + (last - first);
 }
 
 template<class InputIt, class OutputIt, class T>
