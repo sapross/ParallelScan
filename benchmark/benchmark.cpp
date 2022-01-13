@@ -27,7 +27,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]() {
+            [&data, &result]() {
                 sequential::naive::inclusive_scan(
                     data.begin(), data.end(), result.begin());
             });
@@ -36,7 +36,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]() {
+            [&data, &result]() {
                 sequential::updown::inclusive_scan(
                     data.begin(), data.end(), result.begin());
             });
@@ -45,7 +45,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]() {
+            [&data, &result]() {
                 sequential::tiled::inclusive_scan(
                     data.begin(), data.end(), result.begin());
             });
@@ -54,7 +54,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]() {
+            [&data, &result]() {
                 openmp::provided::inclusive_scan(
                     data.begin(), data.end(), result.begin());
             });
@@ -63,7 +63,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]() {
+            [&data, &result]() {
                 openmp::updown::inclusive_scan(data.begin(), data.end(), result.begin());
             });
     };
@@ -71,7 +71,7 @@ SCENARIO("Inclusive Scan", "[inc]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result]()
+            [&data, &result]()
             { openmp::tiled::inclusive_scan(data.begin(), data.end(), result.begin()); });
     };
 }
@@ -98,7 +98,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result, init]() {
+            [&data, &result, init]() {
                 sequential::naive::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
@@ -107,7 +107,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result, init]() {
+            [&data, &result, init]() {
                 sequential::updown::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
@@ -116,7 +116,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result, init]() {
+            [&data, &result, init]() {
                 sequential::tiled::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
@@ -125,7 +125,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result, init]() {
+            [&data, &result, init]() {
                 openmp::provided::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
@@ -134,7 +134,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result, init]() {
+            [&data, &result, init]() {
                 openmp::updown::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
@@ -143,7 +143,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     {
         std::vector<float> result(N, 0);
         meter.measure(
-            [N, &data, &result, init]() {
+            [&data, &result, init]() {
                 openmp::tiled::exclusive_scan(
                     data.begin(), data.end(), result.begin(), init);
             });
@@ -184,7 +184,7 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result]()
+            [&data, &result]()
             {
                 sequential::naive::inclusive_segmented_scan(
                     data.begin(), data.end(), result.begin());
@@ -194,7 +194,7 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result]()
+            [&data, &result]()
             {
                 sequential::updown::inclusive_segmented_scan(
                     data.begin(), data.end(), result.begin());
@@ -204,7 +204,7 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result]()
+            [&data, &result]()
             {
                 sequential::tiled::inclusive_segmented_scan(
                     data.begin(), data.end(), result.begin());
@@ -214,7 +214,7 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     // {
     //     std::vector<std::pair<float, int>> result(N);
     //     meter.measure(
-    //         [N, &data, &result]()
+    //         [&data, &result]()
     //         {
     //             openmp::provided::inclusive_segmented_scan(
     //                 data.begin(), data.end(), result.begin());
@@ -224,7 +224,7 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     // {
     //     std::vector<std::pair<float, int>> result(N);
     //     meter.measure(
-    //         [N, &data, &result]() {
+    //         [&data, &result]() {
     //             openmp::updown::inclusive_segmented_scan(
     //                 data.begin(), data.end(), result.begin());
     //         });
@@ -233,7 +233,7 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     // {
     //     std::vector<std::pair<float, int>> result(N);
     //     meter.measure(
-    //         [N, &data, &result]() {
+    //         [&data, &result]() {
     //             openmp::tiled::inclusive_segmented_scan(
     //                 data.begin(), data.end(), result.begin());
     //         });
@@ -275,7 +275,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result, init]()
+            [&data, &result, init]()
             {
                 sequential::naive::exclusive_segmented_scan(
                     data.begin(), data.end(), result.begin(), init);
@@ -285,7 +285,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result, init]()
+            [&data, &result, init]()
             {
                 sequential::updown::exclusive_segmented_scan(
                     data.begin(), data.end(), result.begin(), init);
@@ -295,7 +295,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [N, &data, &result, init]()
+            [&data, &result, init]()
             {
                 sequential::tiled::exclusive_segmented_scan(
                     data.begin(), data.end(), result.begin(), init);
@@ -305,7 +305,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     // {
     //     std::vector<std::pair<float, int>> result(N);
     //     meter.measure(
-    //         [N, &data, &result, init]()
+    //         [&data, &result, init]()
     //         {
     //             openmp::provided::exclusive_segmented_scan(
     //                 data.begin(), data.end(), result.begin(), init);
@@ -315,7 +315,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     // {
     //     std::vector<std::pair<float, int>> result(N);
     //     meter.measure(
-    //         [N, &data, &result, init]()
+    //         [&data, &result, init]()
     //         {
     //             openmp::updown::exclusive_segmented_scan(
     //                 data.begin(), data.end(), result.begin(), init);
@@ -325,7 +325,7 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
     // {
     //     std::vector<std::pair<float, int>> result(N);
     //     meter.measure(
-    //         [N, &data, &result, init]()
+    //         [&data, &result, init]()
     //         {
     //             openmp::tiled::exclusive_segmented_scan(
     //                 data.begin(), data.end(), result.begin(), init);

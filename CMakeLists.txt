@@ -21,6 +21,12 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   message(STATUS "GCC detected, adding compile flags")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3 -ltbb")
 endif(CMAKE_COMPILER_IS_GNUCXX)
+## icpx flags are still iffy. May work or not.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
+  message(STATUS "Intel compiler detected, adding compile flags")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3 -ltbb")
+endif()
+
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -28,8 +34,10 @@ OPTION (USE_OpenMP "Use OpenMP" ON)
 IF(USE_OpenMP)
   FIND_PACKAGE(OpenMP)
   IF(OPENMP_FOUND)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    IF(CMAKE_COMPILER_IS_GNUCXX)
+      SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    ENDIF()
   ENDIF()
 ENDIF()
 
