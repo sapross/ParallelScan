@@ -5,7 +5,7 @@
 
 #include "scan.hpp"
 
-SCENARIO("Inclusive Scan", "[inc]")
+SCENARIO("Inclusive Scan Sequential", "[inc] [seq]")
 {
 
     std::default_random_engine            generator;
@@ -50,6 +50,23 @@ SCENARIO("Inclusive Scan", "[inc]")
                     data.begin(), data.end(), result.begin());
             });
     };
+}
+SCENARIO("Inclusive Scan OpenMP", "[inc] [omp]")
+{
+
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    // Benchmark parameters
+    const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
+
+    // Logging of variables
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<float> data(N, 0.);
+    std::generate(data.begin(), data.end(), rand);
     BENCHMARK_ADVANCED("inc_OMP_provided")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
@@ -75,7 +92,8 @@ SCENARIO("Inclusive Scan", "[inc]")
             { openmp::tiled::inclusive_scan(data.begin(), data.end(), result.begin()); });
     };
 }
-SCENARIO("Exclusive Scan", "[ex]")
+
+SCENARIO("Exclusive Scan", "[ex] [seq]")
 {
 
     std::default_random_engine            generator;
@@ -121,6 +139,24 @@ SCENARIO("Exclusive Scan", "[ex]")
                     data.begin(), data.end(), result.begin(), init);
             });
     };
+}
+SCENARIO("Exclusive Scan OpenMP", "[ex] [omp]")
+{
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    // Benchmark parameters
+    const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
+
+    // Logging of variables
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<float> data(N, 0.);
+    std::generate(data.begin(), data.end(), rand);
+    float init = 0.0;
+
     BENCHMARK_ADVANCED("ex_OMP_provided")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<float> result(N, 0);
@@ -150,7 +186,7 @@ SCENARIO("Exclusive Scan", "[ex]")
     };
 }
 
-SCENARIO("Inclusive Segmented Scan", "[incseg]")
+SCENARIO("Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
 {
 
     std::default_random_engine            generator;
@@ -210,6 +246,36 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
                     data.begin(), data.end(), result.begin());
             });
     };
+}
+SCENARIO("Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
+{
+
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    std::default_random_engine         flag_generator;
+    std::uniform_int_distribution<int> flag_distribution(0, 1);
+    auto flag_rand = std::bind(flag_distribution, flag_generator);
+
+    // Benchmark parameters
+    const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
+
+    // Logging of variables
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<std::pair<float, int>> data(N);
+    std::generate(data.begin(),
+                  data.end(),
+                  [&rand, &flag_rand]()
+                  {
+                      std::pair<float, int> A;
+                      A.first  = rand();
+                      A.second = flag_rand();
+                      return A;
+                  });
+
     // BENCHMARK_ADVANCED("incseg_OMP_provided")(Catch::Benchmark::Chronometer meter)
     // {
     //     std::vector<std::pair<float, int>> result(N);
@@ -239,7 +305,8 @@ SCENARIO("Inclusive Segmented Scan", "[incseg]")
     //         });
     // };
 }
-SCENARIO("Exclusive Segmented Scan", "[exseg]")
+
+SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
 {
 
     std::default_random_engine            generator;
@@ -301,6 +368,38 @@ SCENARIO("Exclusive Segmented Scan", "[exseg]")
                     data.begin(), data.end(), result.begin(), init);
             });
     };
+}
+SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
+{
+
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    std::default_random_engine         flag_generator;
+    std::uniform_int_distribution<int> flag_distribution(0, 1);
+    auto flag_rand = std::bind(flag_distribution, flag_generator);
+
+    // Benchmark parameters
+    const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
+
+    // Logging of variables
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<std::pair<float, int>> data(N);
+    std::generate(data.begin(),
+                  data.end(),
+                  [&rand, &flag_rand]()
+                  {
+                      std::pair<float, int> A;
+                      A.first  = rand();
+                      A.second = flag_rand();
+                      return A;
+                  });
+
+    float init = 0.0;
+
     // BENCHMARK_ADVANCED("exseg_OMP_provided")(Catch::Benchmark::Chronometer meter)
     // {
     //     std::vector<std::pair<float, int>> result(N);
