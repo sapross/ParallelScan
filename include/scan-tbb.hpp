@@ -15,6 +15,8 @@
 
 namespace _tbb
 {
+namespace provided
+{
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
@@ -49,13 +51,13 @@ OutputIt inclusive_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt inclusive_scan(InputIt first, InputIt last, T identity, OutputIt d_first)
 {
-    return _tbb::inclusive_scan(first, last, d_first, identity, std::plus<>());
+    return _tbb::provided::inclusive_scan(first, last, d_first, identity, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt inclusive_scan(InputIt first, InputIt last, T identity)
 {
-    return _tbb::inclusive_scan(first, last, first, identity, std::plus<>());
+    return _tbb::provided::inclusive_scan(first, last, first, identity, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -93,13 +95,13 @@ OutputIt exclusive_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return _tbb::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return _tbb::provided::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
-    return _tbb::exclusive_scan(first, last, first, init, std::plus<>());
+    return _tbb::provided::exclusive_scan(first, last, first, init, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -124,7 +126,7 @@ OutputIt inclusive_segmented_scan(
       a addition with the running sum as operand x and the current value as
       operand y, resetting the sum to the value of y yields the correct result.
      */
-    _tbb::inclusive_scan(first,
+    _tbb::provided::inclusive_scan(first,
                          last,
                          d_first,
                          std::make_pair(identity, 0),
@@ -152,13 +154,13 @@ template<class InputIt, class OutputIt, class T>
 OutputIt
 inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T identity)
 {
-    return _tbb::inclusive_segmented_scan(first, last, d_first, identity, std::plus<>());
+    return _tbb::provided::inclusive_segmented_scan(first, last, d_first, identity, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt inclusive_segmented_scan(InputIt first, InputIt last, T identity)
 {
-    return _tbb::inclusive_segmented_scan(first, last, first, identity, std::plus<>());
+    return _tbb::provided::inclusive_segmented_scan(first, last, first, identity, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -177,7 +179,7 @@ OutputIt exclusive_segmented_scan(
     /*Sequential exclusive scan becomes the segmented variant by wrapping the
       passed binary_op into a new conditional binary like with inclusive scan.
     */
-    _tbb::exclusive_scan(first,
+    _tbb::provided::exclusive_scan(first,
                          last,
                          d_first,
                          std::make_pair(init, 0),
@@ -216,132 +218,136 @@ OutputIt exclusive_segmented_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return _tbb::exclusive_segmented_scan(first, last, d_first, init, std::plus<>());
+    return _tbb::provided::exclusive_segmented_scan(first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
-    return _tbb::exclusive_segmented_scan(first, last, first, init, std::plus<>());
+    return _tbb::provided::exclusive_segmented_scan(first, last, first, init, std::plus<>());
 }
-// namespace updown
-// {
+
+}   //provided
+namespace updown
+{
 // // ----------------------------------------------------------------------------------
 // //  Inclusive Scan
 // // ----------------------------------------------------------------------------------
-// template<class InputIt, class OutputIt, class BinaryOperation>
-// OutputIt inclusive_scan(InputIt&        first,
-//                         InputIt&        last,
-//                         OutputIt&       d_first,
-//                         BinaryOperation binary_op)
-// {
-//     using InputType  = typename std::iterator_traits<InputIt>::value_type;
-//     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-//     static_assert(std::is_convertible<InputType, OutputType>::value,
-//                   "Input type must be convertible to output type!");
+template<class InputIt, class OutputIt, class BinaryOperation>
+OutputIt inclusive_scan(InputIt&        first,
+                        InputIt&        last,
+                        OutputIt&       d_first,
+                        BinaryOperation binary_op)
+{
+    using InputType  = typename std::iterator_traits<InputIt>::value_type;
+    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    static_assert(std::is_convertible<InputType, OutputType>::value,
+                  "Input type must be convertible to output type!");
 
-//     size_t num_values = last - first;
-//     size_t step       = 1;
-//     // Up sweep
+    size_t num_values = last - first;
+    size_t step       = 1;
+    // Up sweep
 
-//     if (std::distance(first, d_first) != 0)
-//     {
-//         std::copy(first, last, d_first);
-//     }
-//     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
-//     {
-//         step = step * 2;
-//         for (size_t i = 0; i < num_values; i = i + step)
-//         {
-//             d_first[i + step - 1] =
-//                 binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
-//         }
-//     }
-//     step = 1 << (size_t)(std::floor(std::log2(num_values)));
-//     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
-//     {
-//         step = step / 2;
-//         for (size_t i = step; i - 1 < num_values - 2; i = i + step)
-//         {
-//             d_first[i + step / 2 - 1] =
-//                 binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
-//         }
-//     }
-//     return d_first + num_values;
-// }
+    if (std::distance(first, d_first) != 0)
+    {
+        std::copy(first, last, d_first);
+    }
+    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+    {
+        step = step * 2;
+        tbb::parallel_for(size_t(0), num_values, step,
+                            [&](auto i)
+                                {
+                                    d_first[i + step - 1] =
+                                        binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+                                });
+    }
+    step = 1 << (size_t)(std::floor(std::log2(num_values)));
+    for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
+    {
+        step = step / 2;
+        tbb::parallel_for(step, num_values -1, step,
+                            [&](auto i)
+                                {
+                                    d_first[i + step / 2 - 1] =
+                                        binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
+                                });
+    }
+    return d_first + num_values;
+}
 
-// template<class InputIt, class OutputIt>
-// OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
-// {
-//     return naive::updown::inclusive_scan(first, last, d_first, std::plus<>());
-// }
+template<class InputIt, class OutputIt>
+OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+{
+    return _tbb::updown::inclusive_scan(first, last, d_first, std::plus<>());
+}
 
-// template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
-// {
-//     return naive::updown::inclusive_scan(first, last, first, std::plus<>());
-// }
+template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
+{
+    return _tbb::updown::inclusive_scan(first, last, first, std::plus<>());
+}
 
 // // ----------------------------------------------------------------------------------
 // //  Exclusive Scan
 // // ----------------------------------------------------------------------------------
 
-// // ToDo: how should an Up-Down Sweep look like in _tbb?
+template<class InputIt, class OutputIt, class T, class BinaryOperation>
+OutputIt exclusive_scan(
+    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+{
+    using InputType  = typename std::iterator_traits<InputIt>::value_type;
+    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    static_assert(std::is_convertible<InputType, OutputType>::value,
+                  "Input type must be convertible to output type!");
+    static_assert(std::is_same<InputType, T>::value,
+                  "Underlying input and init type have to be the same!");
 
-// template<class InputIt, class OutputIt, class T, class BinaryOperation>
-// OutputIt exclusive_scan(
-//     InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
-// {
-//     using InputType  = typename std::iterator_traits<InputIt>::value_type;
-//     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-//     static_assert(std::is_convertible<InputType, OutputType>::value,
-//                   "Input type must be convertible to output type!");
-//     static_assert(std::is_same<InputType, T>::value,
-//                   "Underlying input and init type have to be the same!");
+    size_t num_values = last - first;
+    size_t step       = 1;
 
-//     size_t num_values = last - first;
-//     size_t step       = 1;
+    // Up sweep
+    if (std::distance(first, d_first) != 0)
+    {
+        std::copy(first, last, d_first);
+    }
+    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+    {
+        step = step * 2;
+        tbb::parallel_for(size_t(0), num_values, step,
+                            [&](auto i)
+                                {
+                                    d_first[i + step - 1] =
+                                        binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+                                });
+    }
+    d_first[num_values - 1] = init;
 
-//     // Up sweep
-//     if (std::distance(first, d_first) != 0)
-//     {
-//         std::copy(first, last, d_first);
-//     }
-//     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
-//     {
-//         step = step * 2;
-//         for (size_t i = 0; i < num_values; i = i + step)
-//         {
-//             d_first[i + step - 1] =
-//                 binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
-//         }
-//     }
-//     d_first[num_values - 1] = init;
+    for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
+    {
+        size_t downstep = (1 << (stage + 1));
+        tbb::parallel_for(size_t(0), size_t(num_values), downstep,
+                           [&](auto i)
+                               {
+                                   OutputType t                  = d_first[i + (1 << stage) - 1];
+                                   d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
+                                   d_first[i + (1 << (stage + 1)) - 1] = binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
+                               });
+    }
 
-//     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
-//     {
-//         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
-//         {
-//             OutputType t                  = d_first[i + (1 << stage) - 1];
-//             d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
-//             d_first[i + (1 << (stage + 1)) - 1] =
-//                 binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
-//         }
-//     }
+    return d_first + num_values;
+}
 
-//     return d_first + num_values;
-// }
+template<class InputIt, class OutputIt, class T>
+OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+{
+    return _tbb::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
+}
 
-// template<class InputIt, class OutputIt, class T>
-// OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
-// {
-//     return _tbb::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
-// }
-
-// template<class InputIt, class T>
-// InputIt exclusive_scan(InputIt first, InputIt last, T init)
-// {
-//     return _tbb::updown::exclusive_scan(first, last, first, init, std::plus<>());
-// }
+template<class InputIt, class T>
+InputIt exclusive_scan(InputIt first, InputIt last, T init)
+{
+    return _tbb::updown::exclusive_scan(first, last, first, init, std::plus<>());
+}
 
 // // ----------------------------------------------------------------------------------
 // //  Inclusive Segmented Scan
@@ -523,7 +529,7 @@ InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 //         first, last, first, init, std::plus<>());
 // }
 
-// }; // namespace updown
+}; // namespace updown
 // namespace tiled
 // {
 // // ----------------------------------------------------------------------------------

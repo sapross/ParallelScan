@@ -43,10 +43,16 @@ TEST_CASE("Inclusive Scan Test", "[inc]")
         naive::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    SECTION("TBB")
+    SECTION("TBB provided")
     {
         std::vector<int> result(N, 0);
-        _tbb::inclusive_scan(data.begin(), data.end(), 0, result.begin());
+        _tbb::provided::inclusive_scan(data.begin(), data.end(), 0, result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Up-Down Sweep")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::updown::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("OpenMP provided")
@@ -103,14 +109,18 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
         naive::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    SECTION("TBB")
+    SECTION("TBB provided")
     {
         std::vector<int> result(N, 0);
-        _tbb::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        _tbb::provided::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    // SECTION("Naive Up-Down-Sweep") { ; }
-    // SECTION("Naive Tiled") { ; }
+    SECTION("TBB Up-Down Sweep")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
 
     SECTION("OpenMP provided")
     {
@@ -197,7 +207,7 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
     SECTION("TBB")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        _tbb::inclusive_segmented_scan(data.begin(), data.end(), result.begin(), 0);
+        _tbb::provided::inclusive_segmented_scan(data.begin(), data.end(), result.begin(), 0);
 
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
@@ -295,7 +305,7 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
     SECTION("TBB")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        _tbb::exclusive_segmented_scan(data.begin(), data.end(), result.begin(), 0);
+        _tbb::provided::exclusive_segmented_scan(data.begin(), data.end(), result.begin(), 0);
 
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
