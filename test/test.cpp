@@ -238,6 +238,17 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
+    SECTION("TBB Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::tiled::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
+        std::vector<int> temp(N);
+        for(size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
     // SECTION("OpenMP provided")
     // {
     //     std::vector<int> result(N, 0);
@@ -348,7 +359,18 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
+    SECTION("TBB Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::tiled::exclusive_segmented_scan(data.begin(), data.end(), result.begin(), 0);
 
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
     // SECTION("Naive Up-Down-Sweep") { ; }
     // SECTION("Naive Tiled") { ; }
 }
