@@ -1,17 +1,7 @@
 #pragma once
-
 #include <tbb/parallel_for.h>
 #include <tbb/tbb.h>
 #include <vector>
-
-#include <algorithm>
-#include <functional>
-#include <iostream>
-#include <math.h>
-#include <numeric>
-
-// required for distance
-#include <iterator>
 
 namespace _tbb
 {
@@ -115,7 +105,6 @@ OutputIt inclusive_segmented_scan(
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    using ValueType  = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
     static_assert(std::is_convertible<PairType, OutputType>::value,
@@ -139,10 +128,10 @@ OutputIt inclusive_segmented_scan(
                                  /* Only required if additions are
                                     reordered!
                                  */
-                                 // if (x.second)
-                                 // {
-                                 //     result.second = x.second;
-                                 // }
+                                 if (x.second)
+                                 {
+                                     result.second = x.second;
+                                 }
                              }
                              return result;
                          });
@@ -355,7 +344,6 @@ OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first,
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    using ValueType  = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
     static_assert(std::is_convertible<PairType, OutputType>::value,
@@ -655,10 +643,7 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 // // ----------------------------------------------------------------------------------
 
 template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt inclusive_segmented_scan(InputIt         first,
-                                  InputIt         last,
-                                  OutputIt        d_first,
-                                  BinaryOperation binary_op)
+OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation binary_op)
 {
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
