@@ -704,47 +704,11 @@ IterType exclusive_segmented_scan(
                               first + (i + 1) * tile_size,
                               std::make_pair(init, 0),
                               wrapped_bop);
-        // temp[i] = std::make_pair(init, 0);
-        // for (size_t j = i * tile_size; j < (i + 1) * tile_size; j++)
-        // {
-        //     if (not first[j].second)
-        //     {
-        //         temp[i].first = binary_op(temp[i].first, first[j].first);
-        //     }
-        //     else
-        //     {
-        //         temp[i].first = first[j].first;
-        //     }
-        // }
     }
-    // Phase 2: Intermediate Scan
-    std::cout << "temp"
-              << ":" << std::endl;
-    std::for_each(temp.begin(), temp.end(), [](auto x) { std::cout << x.first << ", "; });
-    std::cout << std::endl;
-    std::for_each(
-        temp.begin(), temp.end(), [](auto x) { std::cout << x.second << ", "; });
-    std::cout << std::endl;
 
+    // Phase 2: Intermediate Scan
     std::exclusive_scan(
         temp.begin(), temp.end(), temp.begin(), std::make_pair(init, 0), wrapped_bop);
-
-    std::cout << "temp"
-              << ":" << std::endl;
-    std::for_each(temp.begin(), temp.end(), [](auto x) { std::cout << x.first << ", "; });
-    std::cout << std::endl;
-    std::for_each(
-        temp.begin(), temp.end(), [](auto x) { std::cout << x.second << ", "; });
-    std::cout << std::endl;
-
-    std::cout << "first"
-              << ":" << std::endl;
-    std::for_each(
-        first, first + num_values, [](auto x) { std::cout << x.first << ", "; });
-    std::cout << std::endl;
-    std::for_each(
-        first, first + num_values, [](auto x) { std::cout << x.second << ", "; });
-    std::cout << std::endl;
 
     // Phase 3: Rescan
     for (size_t i = 0; i < num_tiles; i++)
