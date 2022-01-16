@@ -125,43 +125,22 @@ IterType exclusive_segmented_scan(
     static_assert(std::is_convertible<T, ValueType>::value,
                   "Init must be convertible to First pair type!");
 
-    /*Sequential exclusive scan becomes the segmented variant by wrapping the
-      passed binary_op into a new conditional binary like with inclusive scan.
-    */
-    sequential::naive::exclusive_scan(first,
-                                      last,
-                                      d_first,
-                                      std::make_pair(init, 0),
-                                      [binary_op](PairType x, PairType y)
-                                      {
-                                          PairType result = y;
-                                          if (!y.second)
-                                          {
-                                              result.first = binary_op(x.first, y.first);
-                                              /* Only required if additions are
-                                                 reordered!
-                                              */
-                                              // if (x.second)
-                                              // {
-                                              //     result.second = x.second;
-                                              // }
-                                          }
-                                          return result;
-                                      });
-
-    // Reset of segment beginnings to initial value.
-    // Using only an operand wrapper it is not possible to omit this step!
-    // See implementation under numeric.h
-    while (first != last)
+    size_t    num_values = last - first;
+    ValueType sum        = init;
+    for (size_t i = 0; i < num_values; i++)
     {
-        if (first->second)
+        if (!first[i].second)
         {
-            d_first->first = init;
+            d_first[i].first = sum;
+            sum              = binary_op(sum, first[i].first);
         }
-        first++;
-        d_first++;
+        else
+        {
+            d_first[i].first = init;
+            sum              = first[i].first;
+        }
     }
-    return first;
+    return first + num_values;
 }
 
 template<class IterType, class T>
