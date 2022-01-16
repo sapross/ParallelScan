@@ -43,10 +43,22 @@ TEST_CASE("Inclusive Scan Test", "[inc]")
         sequential::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    SECTION("TBB")
+    SECTION("TBB provided")
     {
         std::vector<int> result(N, 0);
-        _tbb::inclusive_scan(data.begin(), data.end(), result.begin());
+        _tbb::provided::inclusive_scan(data.begin(), data.end(), 0, result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Up-Down Sweep")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::updown::inclusive_scan(data.begin(), data.end(), result.begin());
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Tiled")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("OpenMP provided")
@@ -103,15 +115,24 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
         sequential::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    SECTION("TBB")
+    SECTION("TBB provided")
     {
         std::vector<int> result(N, 0);
-        _tbb::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        _tbb::provided::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    // SECTION("Naive Up-Down-Sweep") { ; }
-    // SECTION("Naive Tiled") { ; }
-
+    SECTION("TBB Up-Down Sweep")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Tiled")
+    {
+        std::vector<int> result(N, 0);
+        _tbb::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+    }
     SECTION("OpenMP provided")
     {
         std::vector<int> result(N, 0);
@@ -189,6 +210,41 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
         sequential::tiled::inclusive_segmented_scan(
             data.begin(), data.end(), result.begin());
 
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB provided")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::provided::inclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
+
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Up-Down Sweep")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::updown::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::tiled::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
         {
@@ -341,7 +397,42 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
+    SECTION("TBB provided")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::provided::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Up-Down Sweep")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::updown::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
 
-    // SECTION("Sequential Up-Down-Sweep") { ; }
-    // SECTION("Sequential Tiled") { ; }
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
+    SECTION("TBB Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        _tbb::tiled::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), 0);
+
+        std::vector<int> temp(N);
+        for (size_t i = 0; i < N; i++)
+        {
+            temp[i] = result[i].first;
+        }
+        REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
+    }
 }
