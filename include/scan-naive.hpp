@@ -6,9 +6,9 @@
 #include <math.h>
 #include <numeric>
 
-namespace naive
-{
 namespace sequential
+{
+namespace naive
 {
 
 // ----------------------------------------------------------------------------------
@@ -29,12 +29,12 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
 template<class InputIt, class OutputIt>
 OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::sequential::inclusive_scan(first, last, d_first, std::plus<>());
+    return sequential::naive::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 {
-    return naive::sequential::inclusive_scan(first, last, first, std::plus<>());
+    return sequential::naive::inclusive_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -56,13 +56,13 @@ OutputIt exclusive_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::sequential::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return sequential::naive::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
-    return naive::sequential::exclusive_scan(first, last, first, init, std::plus<>());
+    return sequential::naive::exclusive_scan(first, last, first, init, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ OutputIt inclusive_segmented_scan(InputIt         first,
       a addition with the running sum as operand x and the current value as
       operand y, resetting the sum to the value of y yields the correct result.
      */
-    return naive::sequential::inclusive_scan(first,
+    return sequential::naive::inclusive_scan(first,
                                              last,
                                              d_first,
                                              [binary_op](PairType x, PairType y)
@@ -113,13 +113,13 @@ OutputIt inclusive_segmented_scan(InputIt         first,
 template<class InputIt, class OutputIt>
 OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::sequential::inclusive_segmented_scan(
+    return sequential::naive::inclusive_segmented_scan(
         first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
-    return naive::sequential::inclusive_segmented_scan(first, last, first, std::plus<>());
+    return sequential::naive::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ OutputIt exclusive_segmented_scan(
     /*Sequential exclusive scan becomes the segmented variant by wrapping the
       passed binary_op into a new conditional binary like with inclusive scan.
     */
-    naive::sequential::exclusive_scan(first,
+    sequential::naive::exclusive_scan(first,
                                       last,
                                       d_first,
                                       std::make_pair(init, 0),
@@ -180,18 +180,18 @@ OutputIt exclusive_segmented_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::sequential::exclusive_segmented_scan(
+    return sequential::naive::exclusive_segmented_scan(
         first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
-    return naive::sequential::exclusive_segmented_scan(
+    return sequential::naive::exclusive_segmented_scan(
         first, last, first, init, std::plus<>());
 }
 
-}; // namespace sequential
+}; // namespace naive
 namespace updown
 {
 // ----------------------------------------------------------------------------------
@@ -241,12 +241,12 @@ OutputIt inclusive_scan(InputIt&        first,
 template<class InputIt, class OutputIt>
 OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::updown::inclusive_scan(first, last, d_first, std::plus<>());
+    return sequential::updown::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 {
-    return naive::updown::inclusive_scan(first, last, first, std::plus<>());
+    return sequential::updown::inclusive_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -300,13 +300,13 @@ OutputIt exclusive_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return sequential::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
-    return naive::updown::exclusive_scan(first, last, first, init, std::plus<>());
+    return sequential::updown::exclusive_scan(first, last, first, init, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -341,37 +341,39 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    return naive::updown::inclusive_scan(first,
-                                         last,
-                                         d_first,
-                                         [binary_op](PairType x, PairType y)
-                                         {
-                                             PairType result = y;
-                                             if (!y.second)
-                                             {
-                                                 result.first =
-                                                     binary_op(x.first, y.first);
-                                                 // Since additions are reordered
-                                                 // flags need to be carried along
-                                                 // to indicate finished segments!
-                                                 if (x.second)
-                                                 {
-                                                     result.second = x.second;
-                                                 }
-                                             }
-                                             return result;
-                                         });
+    return sequential::updown::inclusive_scan(first,
+                                              last,
+                                              d_first,
+                                              [binary_op](PairType x, PairType y)
+                                              {
+                                                  PairType result = y;
+                                                  if (!y.second)
+                                                  {
+                                                      result.first =
+                                                          binary_op(x.first, y.first);
+                                                      // Since additions are reordered
+                                                      // flags need to be carried along
+                                                      // to indicate finished segments!
+                                                      if (x.second)
+                                                      {
+                                                          result.second = x.second;
+                                                      }
+                                                  }
+                                                  return result;
+                                              });
 }
 
 template<class InputIt, class OutputIt>
 OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::updown::inclusive_segmented_scan(first, last, d_first, std::plus<>());
+    return sequential::updown::inclusive_segmented_scan(
+        first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
-    return naive::updown::inclusive_segmented_scan(first, last, first, std::plus<>());
+    return sequential::updown::inclusive_segmented_scan(
+        first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -477,14 +479,14 @@ OutputIt exclusive_segmented_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::updown::exclusive_segmented_scan(
+    return sequential::updown::exclusive_segmented_scan(
         first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
-    return naive::updown::exclusive_segmented_scan(
+    return sequential::updown::exclusive_segmented_scan(
         first, last, first, init, std::plus<>());
 }
 
@@ -548,12 +550,12 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
 template<class InputIt, class OutputIt>
 OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::tiled::inclusive_scan(first, last, d_first, std::plus<>());
+    return sequential::tiled::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 {
-    return naive::tiled::inclusive_scan(first, last, first, std::plus<>());
+    return sequential::tiled::inclusive_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -617,13 +619,13 @@ OutputIt exclusive_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::tiled::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return sequential::tiled::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
-    return naive::tiled::exclusive_scan(first, last, first, init, std::plus<>());
+    return sequential::tiled::exclusive_scan(first, last, first, init, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -644,34 +646,35 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    return naive::tiled::inclusive_scan(first,
-                                        last,
-                                        d_first,
-                                        [binary_op](PairType x, PairType y)
-                                        {
-                                            PairType result = y;
-                                            if (!y.second)
-                                            {
-                                                result.first =
-                                                    binary_op(x.first, y.first);
-                                                if (x.second)
-                                                {
-                                                    result.second = x.second;
-                                                }
-                                            }
-                                            return result;
-                                        });
+    return sequential::tiled::inclusive_scan(first,
+                                             last,
+                                             d_first,
+                                             [binary_op](PairType x, PairType y)
+                                             {
+                                                 PairType result = y;
+                                                 if (!y.second)
+                                                 {
+                                                     result.first =
+                                                         binary_op(x.first, y.first);
+                                                     if (x.second)
+                                                     {
+                                                         result.second = x.second;
+                                                     }
+                                                 }
+                                                 return result;
+                                             });
 }
 
 template<class InputIt, class OutputIt>
 OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
-    return naive::tiled::inclusive_segmented_scan(first, last, d_first, std::plus<>());
+    return sequential::tiled::inclusive_segmented_scan(
+        first, last, d_first, std::plus<>());
 }
 
 template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
-    return naive::tiled::inclusive_segmented_scan(first, last, first, std::plus<>());
+    return sequential::tiled::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -690,23 +693,23 @@ OutputIt exclusive_segmented_scan(
     static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    naive::tiled::exclusive_scan(first,
-                                 last,
-                                 d_first,
-                                 std::make_pair(init, 0),
-                                 [binary_op](PairType x, PairType y)
-                                 {
-                                     PairType result = y;
-                                     if (!y.second)
-                                     {
-                                         result.first = binary_op(x.first, y.first);
-                                         if (x.second)
-                                         {
-                                             result.second = x.second;
-                                         }
-                                     }
-                                     return result;
-                                 });
+    sequential::tiled::exclusive_scan(first,
+                                      last,
+                                      d_first,
+                                      std::make_pair(init, 0),
+                                      [binary_op](PairType x, PairType y)
+                                      {
+                                          PairType result = y;
+                                          if (!y.second)
+                                          {
+                                              result.first = binary_op(x.first, y.first);
+                                              if (x.second)
+                                              {
+                                                  result.second = x.second;
+                                              }
+                                          }
+                                          return result;
+                                      });
     while (first != last)
     {
         if (first->second)
@@ -722,15 +725,15 @@ OutputIt exclusive_segmented_scan(
 template<class InputIt, class OutputIt, class T>
 OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
-    return naive::tiled::exclusive_segmented_scan(
+    return sequential::tiled::exclusive_segmented_scan(
         first, last, d_first, init, std::plus<>());
 }
 
 template<class InputIt, class T>
 InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
-    return naive::tiled::exclusive_segmented_scan(
+    return sequential::tiled::exclusive_segmented_scan(
         first, last, first, init, std::plus<>());
 }
 }; // namespace tiled
-}; // namespace naive
+}; // namespace sequential
