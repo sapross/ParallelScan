@@ -170,20 +170,24 @@ IterType inclusive_scan(IterType&       first,
                         BinaryOperation binary_op)
 {
     size_t num_values = last - first;
-    size_t step       = 1;
+    size_t step       = 2;
     // Up sweep
 
-    if (std::distance(first, d_first) != 0)
+    // First stage of the up sweep fused with copy.
+    for (size_t i = 0; i < num_values; i = i + step)
     {
-        std::copy(first, last, d_first);
+        size_t left = i + step / 2 - 1, right = i + step - 1;
+        d_first[left]  = first[left];
+        d_first[right] = binary_op(first[left], first[right]);
     }
-    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+
+    for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
         for (size_t i = 0; i < num_values; i = i + step)
         {
-            d_first[i + step - 1] =
-                binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+            size_t left = i + step / 2 - 1, right = i + step - 1;
+            d_first[right] = binary_op(d_first[left], d_first[right]);
         }
     }
     step = 1 << (size_t)(std::floor(std::log2(num_values)));
@@ -223,22 +227,26 @@ IterType exclusive_scan(
                   "Underlying input and init type have to be the same!");
 
     size_t num_values = last - first;
-    size_t step       = 1;
-
+    size_t step       = 2;
     // Up sweep
-    if (std::distance(first, d_first) != 0)
+
+    // First stage of the up sweep fused with copy.
+    for (size_t i = 0; i < num_values; i = i + step)
     {
-        std::copy(first, last, d_first);
+        size_t left = i + step / 2 - 1, right = i + step - 1;
+        d_first[left]  = first[left];
+        d_first[right] = binary_op(first[left], first[right]);
     }
-    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+    for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
         for (size_t i = 0; i < num_values; i = i + step)
         {
-            d_first[i + step - 1] =
-                binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+            size_t left = i + step / 2 - 1, right = i + step - 1;
+            d_first[right] = binary_op(d_first[left], d_first[right]);
         }
     }
+
     d_first[num_values - 1] = init;
 
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
@@ -359,7 +367,7 @@ IterType exclusive_segmented_scan(
        up-down sweeping scan.
     */
 
-    // First stage of the up-sweep fused with copy
+    // First stage of the up sweep fused with copy
     step = step * 2;
     for (size_t i = 0; i < num_values; i = i + step)
     {
@@ -383,7 +391,7 @@ IterType exclusive_segmented_scan(
                 first[left].second ? first[left].second : first[right].second;
         }
     }
-
+    // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
@@ -401,7 +409,10 @@ IterType exclusive_segmented_scan(
             }
         }
     }
+
     d_first[num_values - 1] = std::make_pair(init, 0);
+
+    // Down sweep
     for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
@@ -437,7 +448,8 @@ IterType exclusive_segmented_scan(
             }
         }
     }
-    // Last stage of up-sweep meaning that stage = 0
+    // Last stage of down-sweep meaning that stage = 0
+    // This stage is fused with a cleanup of the segment beginnings.
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
@@ -491,6 +503,10 @@ IterType exclusive_segmented_scan(IterType first, IterType last, T init)
 }; // namespace updown
 namespace tiled
 {
+// Controls the number of elements a tile has.
+size_t tile_size = 4;
+void   set_tile_size(size_t size) { tiled::tile_size = size; }
+
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
@@ -501,10 +517,9 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
     using ValueType = typename std::iterator_traits<IterType>::value_type;
 
     size_t num_values = last - first;
-    size_t tile_size  = 4;
+    size_t tile_size  = tiled::tile_size;
     tile_size         = (num_values - 1) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values - 1) / tile_size;
-    size_t rem        = num_values - tile_size * num_tiles;
 
     std::vector<ValueType> temp(num_tiles + 1);
 
@@ -522,21 +537,13 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
 
     // Phase 3: Rescan
-    for (size_t i = 0; i < num_tiles; i++)
+    for (size_t i = 0; i <= num_tiles; i++)
     {
-
-        std::exclusive_scan(first + 1 + i * tile_size,
-                            first + 1 + (i + 1) * tile_size,
+        size_t begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
+        std::exclusive_scan(first + begin,
+                            end > num_values + 1 ? first + num_values : first + end,
                             d_first + i * tile_size,
                             temp[i],
-                            binary_op);
-    }
-    if (rem)
-    {
-        std::exclusive_scan(first + num_values - rem + 1,
-                            first + num_values + 1,
-                            d_first + num_values - rem,
-                            temp[num_tiles],
                             binary_op);
     }
     return d_first + num_values;
@@ -564,10 +571,9 @@ IterType exclusive_scan(
     using ValueType = typename std::iterator_traits<IterType>::value_type;
 
     size_t num_values = last - first;
-    size_t tile_size  = 4;
+    size_t tile_size  = tiled::tile_size;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values) / tile_size;
-    size_t rem        = num_values - tile_size * num_tiles;
 
     std::vector<ValueType> temp(num_tiles + 1);
 
@@ -582,20 +588,13 @@ IterType exclusive_scan(
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
 
     // Phase 3: Rescan
-    for (size_t i = 0; i < num_tiles; i++)
+    for (size_t i = 0; i <= num_tiles; i++)
     {
-        std::exclusive_scan(first + i * tile_size,
-                            first + (i + 1) * tile_size,
+        size_t begin = i * tile_size, end = (i + 1) * tile_size;
+        std::exclusive_scan(first + begin,
+                            end > num_values ? first + num_values : first + end,
                             d_first + i * tile_size,
                             temp[i],
-                            binary_op);
-    }
-    if (rem)
-    {
-        std::exclusive_scan(first + num_values - rem,
-                            first + num_values,
-                            d_first + num_values - rem,
-                            temp[num_tiles],
                             binary_op);
     }
     return d_first + num_values;
@@ -673,10 +672,9 @@ IterType exclusive_segmented_scan(
                   "Init must be convertible to First pair type!");
 
     size_t num_values = last - first;
-    size_t tile_size  = 4;
+    size_t tile_size  = tiled::tile_size;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values) / tile_size;
-    size_t rem        = num_values - tile_size * num_tiles;
 
     auto wrapped_bop = [binary_op](PairType x, PairType y)
     {
@@ -711,27 +709,13 @@ IterType exclusive_segmented_scan(
         temp.begin(), temp.end(), temp.begin(), std::make_pair(init, 0), wrapped_bop);
 
     // Phase 3: Rescan
-    for (size_t i = 0; i < num_tiles; i++)
+    for (size_t i = 0; i <= num_tiles; i++)
     {
+        size_t end = (i + 1) * tile_size;
+        end        = end > num_values ? num_values : end;
+
         ValueType sum = temp[i].first;
-        for (size_t j = i * tile_size; j < (i + 1) * tile_size; j++)
-        {
-            if (!first[j].second)
-            {
-                d_first[j].first = sum;
-                sum              = binary_op(sum, first[j].first);
-            }
-            else
-            {
-                d_first[j].first = init;
-                sum              = first[j].first;
-            }
-        }
-    }
-    if (rem)
-    {
-        ValueType sum = temp[num_tiles].first;
-        for (size_t j = num_values - rem; j < num_values; j++)
+        for (size_t j = i * tile_size; j < end; j++)
         {
             if (!first[j].second)
             {
