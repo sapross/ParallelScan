@@ -79,8 +79,6 @@ TEST_CASE("Inclusive Scan Test", "[inc]")
         openmp::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-    // SECTION("Sequential Up-Down-Sweep") { ; }
-    // SECTION("Sequential Tiled") { ; }
 }
 
 TEST_CASE("Exclusive Scan Test", "[ex]")
@@ -97,7 +95,7 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
     std::exclusive_scan(data.begin(), data.end(), reference.begin(), 0);
 
     // Tests
-    SECTION("Sequential Sequential")
+    SECTION("Sequential Naive")
     {
         std::vector<int> result(N, 0);
         sequential::naive::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
@@ -151,9 +149,6 @@ TEST_CASE("Exclusive Scan Test", "[ex]")
         openmp::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
-
-    // SECTION("Sequential Up-Down-Sweep") { ; }
-    // SECTION("Sequential Tiled") { ; }
 }
 
 TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
@@ -178,7 +173,7 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
         {1, 3, 3, 7, 5, 11, 7, 15, 24, 34, 45, 12, 13, 14, 29, 45}); //, 17, 35, 54,
                                                                      // 20});
     // Tests
-    SECTION("Sequential Sequential")
+    SECTION("Sequential Naive")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         sequential::naive::inclusive_segmented_scan(
@@ -291,9 +286,6 @@ TEST_CASE("Inclusive Segmented Scan Test", "[incseg]")
         }
         REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     }
-
-    // SECTION("Sequential Up-Down-Sweep") { ; }
-    // SECTION("Sequential Tiled") { ; }
 }
 
 TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
@@ -318,7 +310,7 @@ TEST_CASE("Exclusive Segmented Scan Test", "[exseg]")
         {0, 1, 0, 3, 0, 5, 0, 7, 15, 24, 34, 0, 0, 0, 14, 29}); //, 0, 17, 35, 0});
 
     // Tests
-    SECTION("Sequential Sequential")
+    SECTION("Sequential Naive")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
 
