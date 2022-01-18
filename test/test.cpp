@@ -818,10 +818,11 @@ TEST_CASE("In-Place Exclusive Segmented Scan Sequential Test", "[in][exseg][seq]
         std::copy(data.begin(), data.end(), result.begin());
         sequential::naive::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), 0);
+
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
 }
-/*
+
 TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
 {
     // Test parameters
@@ -868,6 +869,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
+
         sequential::tiled::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
@@ -886,6 +888,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     //}
     // REQUIRE_THAT(temp, Catch::Matchers::Equals(reference));
     //}
+
     SECTION("OpenMP Up-Down-Sweep")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
@@ -941,4 +944,3 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
 }
-*/

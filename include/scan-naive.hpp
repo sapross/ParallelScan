@@ -40,6 +40,7 @@ template<class IterType, class T, class BinaryOperation>
 IterType exclusive_scan(
     IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
 {
+
     return std::exclusive_scan(first, last, d_first, init, binary_op);
 }
 
@@ -129,17 +130,19 @@ IterType exclusive_segmented_scan(
     ValueType sum        = init;
     for (size_t i = 0; i < num_values; i++)
     {
+        T temp = first[i].first;
         if (!first[i].second)
         {
             d_first[i].first = sum;
-            sum              = binary_op(sum, first[i].first);
+            sum              = binary_op(sum, temp);
         }
         else
         {
             d_first[i].first = init;
-            sum              = first[i].first;
+            sum              = temp;
         }
     }
+
     return first + num_values;
 }
 
@@ -410,7 +413,7 @@ IterType exclusive_segmented_scan(
         }
     }
 
-    d_first[num_values - 1] = std::make_pair(init, 0);
+    d_first[num_values - 1].first = init;
 
     // Down sweep
     for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
@@ -717,18 +720,20 @@ IterType exclusive_segmented_scan(
         ValueType sum = temp[i].first;
         for (size_t j = i * tile_size; j < end; j++)
         {
+            ValueType temp = first[j].first;
             if (!first[j].second)
             {
                 d_first[j].first = sum;
-                sum              = binary_op(sum, first[j].first);
+                sum              = binary_op(sum, temp);
             }
             else
             {
                 d_first[j].first = init;
-                sum              = first[j].first;
+                sum              = temp;
             }
         }
     }
+
     return d_first + num_values;
 }
 
