@@ -638,3 +638,79 @@ SCENARIO("Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
             });
     };
 }
+
+SCENARIO("Inclusive Scan Tile Size", "[.][tilesize]")
+{
+
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    // Benchmark parameters
+    const size_t N         = 1ull << 30;
+    const size_t tile_size = GENERATE(logRange(1ull << 4, 1ull << 28, 2));
+
+    // Logging of variables
+    CAPTURE(tile_size);
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<float> data(N, 0.);
+    std::generate(data.begin(), data.end(), rand);
+
+    // Benchmark
+    BENCHMARK_ADVANCED("inc_tilesize")(Catch::Benchmark::Chronometer meter)
+    {
+        std::vector<float> result(N, 0);
+        sequential::tiled::set_tile_size(tile_size);
+        meter.measure(
+            [&data, &result]() {
+                sequential::tiled::inclusive_scan(
+                    data.begin(), data.end(), result.begin());
+            });
+    };
+}
+
+SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
+{
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    std::default_random_engine         flag_generator;
+    std::uniform_int_distribution<int> flag_distribution(0, 1);
+    auto flag_rand = std::bind(flag_distribution, flag_generator);
+
+    // Benchmark parameters
+    const size_t N         = 1ull << 30;
+    const size_t tile_size = GENERATE(logRange(1ull << 4, 1ull << 28, 2));
+
+    // Logging of variables
+    CAPTURE(tile_size);
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<std::pair<float, int>> data(N);
+    std::generate(data.begin(),
+                  data.end(),
+                  [&rand, &flag_rand]()
+                  {
+                      std::pair<float, int> A;
+                      A.first  = rand();
+                      A.second = flag_rand();
+                      return A;
+                  });
+
+    BENCHMARK_ADVANCED("incseg_tilesize")(Catch::Benchmark::Chronometer meter)
+    {
+        std::vector<std::pair<float, int>> result(N);
+        sequential::tiled::set_tile_size(tile_size);
+
+        meter.measure(
+            [&data, &result]()
+            {
+                sequential::tiled::inclusive_segmented_scan(
+                    data.begin(), data.end(), result.begin());
+            });
+    };
+}
