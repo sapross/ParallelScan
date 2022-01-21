@@ -736,7 +736,7 @@ IterType exclusive_segmented_scan(
             else
             {
                 d_first[j].first = init;
-                sum              = temp;
+                sum              = binary_op(init, temp);
             }
         }
     }

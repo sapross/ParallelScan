@@ -404,13 +404,6 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
                       A.second = flag_rand();
                       return A;
                   });
-    std::cout << "data val:" << std::endl;
-    std::for_each(data.begin(), data.end(), [](auto x) { std::cout << x.first << ", "; });
-    std::cout << std::endl;
-    std::cout << "data flag:" << std::endl;
-    std::for_each(
-        data.begin(), data.end(), [](auto x) { std::cout << x.second << ", "; });
-    std::cout << std::endl;
 
     int init = 5;
 
@@ -421,19 +414,9 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     SECTION("Sequential Up-Down-Sweep")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        std::cout << "reference:" << std::endl;
-        std::for_each(reference.begin(),
-                      reference.end(),
-                      [](auto x) { std::cout << x.first << ", "; });
-        std::cout << std::endl;
 
         sequential::updown::exclusive_segmented_scan(
             data.begin(), data.end(), result.begin(), 0, init);
-
-        std::cout << "result:" << std::endl;
-        std::for_each(
-            result.begin(), result.end(), [](auto x) { std::cout << x.first << ", "; });
-        std::cout << std::endl;
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
@@ -930,20 +913,6 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         std::copy(data.begin(), data.end(), result.begin());
         _tbb::provided::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), init);
-
-        std::cout << "data:" << std::endl;
-        std::for_each(data.begin(),
-                      data.end(),
-                      [](auto x)
-                      { std::cout << "(" << x.first << "|" << x.second << "), "; });
-        std::cout << std::endl;
-        std::cout << "result:" << std::endl;
-        std::for_each(result.begin(),
-                      result.end(),
-                      [](auto x)
-                      { std::cout << "(" << x.first << "|" << x.second << "), "; });
-        std::cout << std::endl;
-
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("TBB Up-Down Sweep")
