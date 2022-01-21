@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <math.h>
 #include <numeric>
-
 namespace sequential
 {
 namespace naive
@@ -374,6 +374,17 @@ IterType exclusive_segmented_scan(IterType        first,
        up-down sweeping scan.
     */
 
+    // std::cout << "Before" << std::endl;
+    // std::for_each(d_first,
+    //               d_first + num_values,
+    //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+    // std::cout << std::endl;
+
+    // std::for_each(d_first,
+    //               d_first + num_values,
+    //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+    // std::cout << std::endl;
+
     // First stage of the up sweep fused with copy
     step = step * 2;
     for (size_t i = 0; i < num_values; i = i + step)
@@ -398,6 +409,23 @@ IterType exclusive_segmented_scan(IterType        first,
                 first[left].second ? first[left].second : first[right].second;
         }
     }
+
+    // std::cout << "After first stage of up" << std::endl;
+    // std::for_each(d_first,
+    //               d_first + num_values,
+    //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+    // std::cout << std::endl;
+
+    // std::for_each(d_first,
+    //               d_first + num_values,
+    //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+    // std::cout << std::endl;
+    // std::cout << "Temp_flags" << std::endl;
+    // std::for_each(temp_flags.begin(),
+    //               temp_flags.end(),
+    //               [](auto x) { std::cout << std::setw(2) << x << ", "; });
+    // std::cout << std::endl;
+
     // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
@@ -407,8 +435,8 @@ IterType exclusive_segmented_scan(IterType        first,
             size_t left = i + step / 2 - 1, right = i + step - 1;
             if (!temp_flags[right])
             {
-                d_first[right].first = identity;
-                binary_op(d_first[left].first, d_first[right].first);
+                d_first[right].first =
+                    binary_op(d_first[left].first, d_first[right].first);
                 if (temp_flags[left])
                 {
                     temp_flags[right] = temp_flags[left];
@@ -419,8 +447,24 @@ IterType exclusive_segmented_scan(IterType        first,
 
     d_first[num_values - 1].first = identity;
 
+    std::cout << "After up" << std::endl;
+    std::for_each(d_first,
+                  d_first + num_values,
+                  [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+    std::cout << std::endl;
+
+    std::for_each(d_first,
+                  d_first + num_values,
+                  [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+    std::cout << std::endl;
+    std::cout << "Temp_flags" << std::endl;
+    std::for_each(temp_flags.begin(),
+                  temp_flags.end(),
+                  [](auto x) { std::cout << std::setw(2) << x << ", "; });
+    std::cout << std::endl;
+
     // Down sweep
-    for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
+    for (int stage = std::floor(std::log2(num_values) - 1); stage > 0; stage--)
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
@@ -455,14 +499,30 @@ IterType exclusive_segmented_scan(IterType        first,
             }
         }
     }
+
+    std::cout << "Before last stage of down" << std::endl;
+    std::for_each(d_first,
+                  d_first + num_values,
+                  [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+    std::cout << std::endl;
+
+    std::for_each(d_first,
+                  d_first + num_values,
+                  [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+    std::cout << std::endl;
+    std::cout << "Temp_flags" << std::endl;
+    std::for_each(temp_flags.begin(),
+                  temp_flags.end(),
+                  [](auto x) { std::cout << std::setw(2) << x << ", "; });
+    std::cout << std::endl;
+
     // Last stage of down-sweep meaning that stage = 0
     // This stage is fused with a cleanup of the segment beginnings.
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
         size_t    left = i, right = i + 1;
-        ValueType t          = binary_op(init, d_first[left].first);
-        d_first[right].first = binary_op(init, d_first[right].first);
+        ValueType t = d_first[left].first;
 
         // Modified rules to cause segment starts to be overwritten with init.
         if (not first[left].second and i != 0)
@@ -475,23 +535,41 @@ IterType exclusive_segmented_scan(IterType        first,
             else
             {
                 d_first[left].first  = d_first[right].first;
-                d_first[right].first = init;
+                d_first[right].first = identity;
             }
         }
         else
         {
             if (not first[right].second)
             {
-                d_first[left].first  = init;
+                d_first[left].first  = identity;
                 d_first[right].first = t;
             }
             else
             {
-                d_first[left].first  = init;
-                d_first[right].first = init;
+                d_first[left].first  = identity;
+                d_first[right].first = identity;
             }
         }
+        d_first[left].first  = binary_op(init, d_first[left].first);
+        d_first[right].first = binary_op(init, d_first[right].first);
     }
+
+    std::cout << "After down" << std::endl;
+    std::for_each(d_first,
+                  d_first + num_values,
+                  [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+    std::cout << std::endl;
+    std::for_each(d_first,
+                  d_first + num_values,
+                  [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+    std::cout << std::endl;
+    std::cout << "Temp_flags" << std::endl;
+    std::for_each(temp_flags.begin(),
+                  temp_flags.end(),
+                  [](auto x) { std::cout << std::setw(2) << x << ", "; });
+    std::cout << std::endl;
+
     return first + num_values;
 }
 

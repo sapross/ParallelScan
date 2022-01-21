@@ -562,7 +562,7 @@ SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
             [&data, &result, init]()
             {
                 openmp::updown::exclusive_segmented_scan(
-                    data.begin(), data.end(), result.begin(), init);
+                    data.begin(), data.end(), result.begin(), .0f, init);
             });
     };
     BENCHMARK_ADVANCED("exseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
