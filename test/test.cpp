@@ -361,7 +361,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Sequential Test", "[out][exseg]
     }
 
     std::vector<int> reference(
-        {0, 1, 0, 3, 0, 5, 0, 7, 15, 24, 34, 0, 0, 0, 14, 29}); //, 0, 17, 35, 0});
+        {1, 2, 1, 4, 1, 6, 1, 8, 16, 25, 35, 1, 1, 1, 15, 30}); //, 0, 17, 35, 0});
 
     // Tests
     SECTION("Sequential Naive")
@@ -369,7 +369,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Sequential Test", "[out][exseg]
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
 
         sequential::naive::exclusive_segmented_scan(
-            data.begin(), data.end(), result.begin(), 0);
+            data.begin(), data.end(), result.begin(), 1);
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
         {
@@ -381,7 +381,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Sequential Test", "[out][exseg]
 TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
 {
     // Test parameters
-    const size_t N = GENERATE(logRange(1ull << 4, 1ull << 10, 2));
+    const size_t N = 16; // GENERATE(logRange(1ull << 4, 1ull << 10, 2));
 
     // Logging of parameters
     CAPTURE(N);
@@ -404,8 +404,15 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
                       A.second = flag_rand();
                       return A;
                   });
+    std::cout << "data val:" << std::endl;
+    std::for_each(data.begin(), data.end(), [](auto x) { std::cout << x.first << ", "; });
+    std::cout << std::endl;
+    std::cout << "data flag:" << std::endl;
+    std::for_each(
+        data.begin(), data.end(), [](auto x) { std::cout << x.second << ", "; });
+    std::cout << std::endl;
 
-    int init = 0;
+    int init = 5;
 
     std::vector<std::pair<int, int>> reference(N);
     sequential::naive::exclusive_segmented_scan(
@@ -414,8 +421,20 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     SECTION("Sequential Up-Down-Sweep")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        std::cout << "reference:" << std::endl;
+        std::for_each(reference.begin(),
+                      reference.end(),
+                      [](auto x) { std::cout << x.first << ", "; });
+        std::cout << std::endl;
+
         sequential::updown::exclusive_segmented_scan(
-            data.begin(), data.end(), result.begin(), init);
+            data.begin(), data.end(), result.begin(), 0, init);
+
+        std::cout << "result:" << std::endl;
+        std::for_each(
+            result.begin(), result.end(), [](auto x) { std::cout << x.first << ", "; });
+        std::cout << std::endl;
+
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("Sequential Tiled")
@@ -861,7 +880,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
         sequential::updown::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), init);
+            result.begin(), result.end(), result.begin(), 0, init);
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
