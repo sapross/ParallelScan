@@ -374,17 +374,6 @@ IterType exclusive_segmented_scan(IterType        first,
        up-down sweeping scan.
     */
 
-    // std::cout << "Before" << std::endl;
-    // std::for_each(d_first,
-    //               d_first + num_values,
-    //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-    // std::cout << std::endl;
-
-    // std::for_each(d_first,
-    //               d_first + num_values,
-    //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-    // std::cout << std::endl;
-
     // First stage of the up sweep fused with copy
     step = step * 2;
     for (size_t i = 0; i < num_values; i = i + step)
@@ -410,22 +399,6 @@ IterType exclusive_segmented_scan(IterType        first,
         }
     }
 
-    // std::cout << "After first stage of up" << std::endl;
-    // std::for_each(d_first,
-    //               d_first + num_values,
-    //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-    // std::cout << std::endl;
-
-    // std::for_each(d_first,
-    //               d_first + num_values,
-    //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-    // std::cout << std::endl;
-    // std::cout << "Temp_flags" << std::endl;
-    // std::for_each(temp_flags.begin(),
-    //               temp_flags.end(),
-    //               [](auto x) { std::cout << std::setw(2) << x << ", "; });
-    // std::cout << std::endl;
-
     // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
@@ -446,22 +419,6 @@ IterType exclusive_segmented_scan(IterType        first,
     }
 
     d_first[num_values - 1].first = identity;
-
-    std::cout << "After up" << std::endl;
-    std::for_each(d_first,
-                  d_first + num_values,
-                  [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-    std::cout << std::endl;
-
-    std::for_each(d_first,
-                  d_first + num_values,
-                  [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-    std::cout << std::endl;
-    std::cout << "Temp_flags" << std::endl;
-    std::for_each(temp_flags.begin(),
-                  temp_flags.end(),
-                  [](auto x) { std::cout << std::setw(2) << x << ", "; });
-    std::cout << std::endl;
 
     // Down sweep
     for (int stage = std::floor(std::log2(num_values) - 1); stage > 0; stage--)
@@ -499,22 +456,6 @@ IterType exclusive_segmented_scan(IterType        first,
             }
         }
     }
-
-    std::cout << "Before last stage of down" << std::endl;
-    std::for_each(d_first,
-                  d_first + num_values,
-                  [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-    std::cout << std::endl;
-
-    std::for_each(d_first,
-                  d_first + num_values,
-                  [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-    std::cout << std::endl;
-    std::cout << "Temp_flags" << std::endl;
-    std::for_each(temp_flags.begin(),
-                  temp_flags.end(),
-                  [](auto x) { std::cout << std::setw(2) << x << ", "; });
-    std::cout << std::endl;
 
     // Last stage of down-sweep meaning that stage = 0
     // This stage is fused with a cleanup of the segment beginnings.
@@ -554,21 +495,6 @@ IterType exclusive_segmented_scan(IterType        first,
         d_first[left].first  = binary_op(init, d_first[left].first);
         d_first[right].first = binary_op(init, d_first[right].first);
     }
-
-    std::cout << "After down" << std::endl;
-    std::for_each(d_first,
-                  d_first + num_values,
-                  [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-    std::cout << std::endl;
-    std::for_each(d_first,
-                  d_first + num_values,
-                  [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-    std::cout << std::endl;
-    std::cout << "Temp_flags" << std::endl;
-    std::for_each(temp_flags.begin(),
-                  temp_flags.end(),
-                  [](auto x) { std::cout << std::setw(2) << x << ", "; });
-    std::cout << std::endl;
 
     return first + num_values;
 }
@@ -748,8 +674,12 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
 // ----------------------------------------------------------------------------------
 
 template<class IterType, class BinaryOperation, class T>
-IterType exclusive_segmented_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+IterType exclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     using PairType  = typename std::iterator_traits<IterType>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
@@ -788,13 +718,13 @@ IterType exclusive_segmented_scan(
     {
         temp[i] = std::reduce(first + i * tile_size,
                               first + (i + 1) * tile_size,
-                              std::make_pair(init, 0),
+                              std::make_pair(identity, 0),
                               wrapped_bop);
     }
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(
-        temp.begin(), temp.end(), temp.begin(), std::make_pair(init, 0), wrapped_bop);
+        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
 
     // Phase 3: Rescan
     for (size_t i = 0; i <= num_tiles; i++)
@@ -802,7 +732,7 @@ IterType exclusive_segmented_scan(
         size_t end = (i + 1) * tile_size;
         end        = end > num_values ? num_values : end;
 
-        ValueType sum = temp[i].first;
+        ValueType sum = binary_op(temp[i].first, init);
         for (size_t j = i * tile_size; j < end; j++)
         {
             ValueType temp = first[j].first;
@@ -823,17 +753,18 @@ IterType exclusive_segmented_scan(
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_first, T init)
+IterType exclusive_segmented_scan(
+    IterType first, IterType last, IterType d_first, T identity, T init)
 {
     return sequential::tiled::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, T init)
+IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
 {
     return sequential::tiled::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 }; // namespace tiled
 }; // namespace sequential

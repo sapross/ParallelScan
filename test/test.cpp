@@ -425,7 +425,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         sequential::tiled::exclusive_segmented_scan(
-            data.begin(), data.end(), result.begin(), init);
+            data.begin(), data.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     // Does not work with provided scan functionality
@@ -453,7 +453,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         openmp::tiled::exclusive_segmented_scan(
-            data.begin(), data.end(), result.begin(), init);
+            data.begin(), data.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("TBB provided")
@@ -829,7 +829,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Sequential Test", "[in][exseg][seq]
 TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
 {
     // Test parameters
-    const size_t N = 32; // GENERATE(logRange(1ull << 4, 1ull << 10, 2));
+    const size_t N = GENERATE(logRange(1ull << 4, 1ull << 10, 2));
 
     // Logging of parameters
     CAPTURE(N);
@@ -863,31 +863,9 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-        std::cout << "Seq UpDown" << std::endl;
-        std::cout << "Input" << std::endl;
-        std::for_each(data.begin(),
-                      data.end(),
-                      [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        std::cout << std::endl;
-        std::for_each(data.begin(),
-                      data.end(),
-                      [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-        std::cout << std::endl;
-
-        std::cout << "Reference" << std::endl;
-        std::for_each(reference.begin(),
-                      reference.end(),
-                      [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        std::cout << std::endl;
 
         sequential::updown::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), 0, init);
-
-        std::cout << "Output" << std::endl;
-        std::for_each(result.begin(),
-                      result.end(),
-                      [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        std::cout << std::endl;
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
@@ -895,9 +873,32 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
+        // std::cout << "Seq Tiled" << std::endl;
+        // std::cout << "Input" << std::endl;
+        // std::for_each(data.begin(),
+        //               data.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        // std::cout << std::endl;
+        // std::for_each(data.begin(),
+        //               data.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+        // std::cout << std::endl;
+
+        // std::cout << "Reference" << std::endl;
+        // std::for_each(reference.begin(),
+        //               reference.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        // std::cout << std::endl;
 
         sequential::tiled::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), init);
+            result.begin(), result.end(), result.begin(), 0, init);
+
+        // std::cout << "Output" << std::endl;
+        // std::for_each(result.begin(),
+        //               result.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        // std::cout << std::endl;
+
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     // Does not work with provided scan functionality
@@ -928,7 +929,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
         openmp::tiled::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), init);
+            result.begin(), result.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("TBB provided")

@@ -509,7 +509,7 @@ SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
             [&data, &result, init]()
             {
                 sequential::tiled::exclusive_segmented_scan(
-                    data.begin(), data.end(), result.begin(), init);
+                    data.begin(), data.end(), result.begin(), .0f, init);
             });
     };
 }
@@ -572,7 +572,7 @@ SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
             [&data, &result, init]()
             {
                 openmp::tiled::exclusive_segmented_scan(
-                    data.begin(), data.end(), result.begin(), init);
+                    data.begin(), data.end(), result.begin(), .0f, init);
             });
     };
 }

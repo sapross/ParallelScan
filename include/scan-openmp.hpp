@@ -413,8 +413,8 @@ IterType exclusive_segmented_scan(IterType        first,
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
         size_t    left = i, right = i + 1;
-        ValueType t          = binary_op(init, d_first[left].first);
-        d_first[right].first = binary_op(init, d_first[right].first);
+        ValueType t = d_first[left].first;
+
         // Modified rules to cause segment starts to be overwritten with init.
         if (i != 0 and not first[left].second)
         {
@@ -426,22 +426,24 @@ IterType exclusive_segmented_scan(IterType        first,
             else
             {
                 d_first[left].first  = d_first[right].first;
-                d_first[right].first = init;
+                d_first[right].first = identity;
             }
         }
         else
         {
             if (!first[right].second)
             {
-                d_first[left].first  = init;
+                d_first[left].first  = identity;
                 d_first[right].first = t;
             }
             else
             {
-                d_first[left].first  = init;
-                d_first[right].first = init;
+                d_first[left].first  = identity;
+                d_first[right].first = identity;
             }
         }
+        d_first[left].first  = binary_op(init, d_first[left].first);
+        d_first[right].first = binary_op(init, d_first[right].first);
     }
     return first + num_values;
 }
@@ -625,8 +627,12 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
 // ----------------------------------------------------------------------------------
 
 template<class IterType, class BinaryOperation, class T>
-IterType exclusive_segmented_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+IterType exclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     using PairType  = typename std::iterator_traits<IterType>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
@@ -666,13 +672,13 @@ IterType exclusive_segmented_scan(
     {
         temp[i] = std::reduce(first + i * tile_size,
                               first + (i + 1) * tile_size,
-                              std::make_pair(init, 0),
+                              std::make_pair(identity, 0),
                               wrapped_bop);
     }
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(
-        temp.begin(), temp.end(), temp.begin(), std::make_pair(init, 0), wrapped_bop);
+        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
 
 // Phase 3: Rescan
 #pragma omp parallel for
@@ -681,7 +687,7 @@ IterType exclusive_segmented_scan(
         size_t end = (i + 1) * tile_size;
         end        = end > num_values ? num_values : end;
 
-        ValueType sum = temp[i].first;
+        ValueType sum = binary_op(init, temp[i].first);
         for (size_t j = i * tile_size; j < end; j++)
         {
             ValueType temp = first[j].first;
@@ -702,17 +708,18 @@ IterType exclusive_segmented_scan(
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_first, T init)
+IterType exclusive_segmented_scan(
+    IterType first, IterType last, IterType d_first, T identity, T init)
 {
     return openmp::tiled::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, T init)
+IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
 {
     return openmp::tiled::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 } // namespace tiled
 } // namespace openmp
