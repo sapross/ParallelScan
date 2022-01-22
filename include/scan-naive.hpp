@@ -389,7 +389,6 @@ IterType exclusive_segmented_scan(IterType        first,
         {
             val_right.first = binary_op(val_left.first, val_right.first);
         }
-
         d_first[left]  = val_left;
         d_first[right] = val_right;
     }
@@ -457,38 +456,43 @@ IterType exclusive_segmented_scan(IterType        first,
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
-        size_t    left = i, right = i + 1;
-        ValueType t = d_first[left].first;
+        size_t   left = i, right = i + 1;
+        PairType val_left = d_first[left], val_right = d_first[right];
+
+        ValueType temp = val_left.first;
 
         // Modified rules to cause segment starts to be overwritten with init.
-        if (not first[left].second and i != 0)
+        if (not val_left.second and i != 0)
         {
-            if (not first[right].second)
+            if (not val_right.second)
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                val_left.first  = val_right.first;
+                val_right.first = binary_op(temp, val_right.first);
             }
             else
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = identity;
+                val_left.first  = val_right.first;
+                val_right.first = identity;
             }
         }
         else
         {
             if (not first[right].second)
             {
-                d_first[left].first  = identity;
-                d_first[right].first = t;
+                val_left.first  = identity;
+                val_right.first = val_left.first;
             }
             else
             {
-                d_first[left].first  = identity;
-                d_first[right].first = identity;
+                val_left.first  = identity;
+                val_right.first = identity;
             }
         }
-        d_first[left].first  = binary_op(init, d_first[left].first);
-        d_first[right].first = binary_op(init, d_first[right].first);
+        val_left.first  = binary_op(init, val_left.first);
+        val_right.first = binary_op(init, val_right.first);
+
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
     }
 
     return first + num_values;
