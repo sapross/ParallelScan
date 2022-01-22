@@ -256,10 +256,10 @@ IterType exclusive_scan(
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
-            ValueType t                   = d_first[i + (1 << stage) - 1];
-            d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
-            d_first[i + (1 << (stage + 1)) - 1] =
-                binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
+            size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
+            ValueType val_left = d_first[left], val_right = d_first[right];
+            d_first[left]  = val_right;
+            d_first[right] = binary_op(val_left, val_right);
         }
     }
 
@@ -378,25 +378,19 @@ IterType exclusive_segmented_scan(IterType        first,
     step = step * 2;
     for (size_t i = 0; i < num_values; i = i + step)
     {
-        size_t left = i + step / 2 - 1, right = i + step - 1;
-        // Copy left operand to d_first.
-        d_first[left].first = first[left].first;
-        temp_flags[left]    = first[left].second;
+        size_t   left = i + step / 2 - 1, right = i + step - 1;
+        PairType val_left = d_first[left], val_right = d_first[right];
 
-        if (first[right].second)
+        // Copy flags into temp_flags.
+        temp_flags[left] = val_left.second;
+        // If left operand is segment start, mark right operand as finished.
+        temp_flags[right] = val_left.second ? val_left.second : val_right.second;
+        if (not val_right.second)
         {
-            // Copy if right flag is set.
-            d_first[right].first = first[right].first;
-            temp_flags[right]    = first[right].second;
+            val_right.first = binary_op(val_left.first, val_right.first);
         }
-        else
-        {
-            // Add if right flag is not set.
-            d_first[right].first = binary_op(first[left].first, first[right].first);
-            // Right flag is copied from the left flag if left flag is set.
-            temp_flags[right] =
-                first[left].second ? first[left].second : first[right].second;
-        }
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
     }
 
     // Remainder stages of the up sweep.
@@ -430,7 +424,7 @@ IterType exclusive_segmented_scan(IterType        first,
               other variants. Flags from the previous phase remain unmodified.
               There are two cases to be observed.
              */
-            ValueType t = d_first[left].first;
+            ValueType val_left = d_first[left].first, val_right = d_first[right].first;
             if (not temp_flags[left])
             {
                 /*Left operand is not a segment beginning:
@@ -441,8 +435,8 @@ IterType exclusive_segmented_scan(IterType        first,
                   a later stage and are currently required to hold intermediate
                   results.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                d_first[left].first  = val_right;
+                d_first[right].first = binary_op(val_left, val_right);
             }
             else
             {
@@ -451,8 +445,8 @@ IterType exclusive_segmented_scan(IterType        first,
                   This rule moves the already correctly calculated values into
                   their right place.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = t;
+                d_first[left].first  = val_right;
+                d_first[right].first = val_left;
             }
         }
     }
@@ -462,38 +456,43 @@ IterType exclusive_segmented_scan(IterType        first,
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
-        size_t    left = i, right = i + 1;
-        ValueType t = d_first[left].first;
+        size_t   left = i, right = i + 1;
+        PairType val_left = d_first[left], val_right = d_first[right];
+
+        ValueType temp = val_left.first;
 
         // Modified rules to cause segment starts to be overwritten with init.
-        if (not first[left].second and i != 0)
+        if (not val_left.second and i != 0)
         {
-            if (not first[right].second)
+            if (not val_right.second)
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                val_left.first  = val_right.first;
+                val_right.first = binary_op(temp, val_right.first);
             }
             else
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = identity;
+                val_left.first  = val_right.first;
+                val_right.first = identity;
             }
         }
         else
         {
             if (not first[right].second)
             {
-                d_first[left].first  = identity;
-                d_first[right].first = t;
+                val_left.first  = identity;
+                val_right.first = val_left.first;
             }
             else
             {
-                d_first[left].first  = identity;
-                d_first[right].first = identity;
+                val_left.first  = identity;
+                val_right.first = identity;
             }
         }
-        d_first[left].first  = binary_op(init, d_first[left].first);
-        d_first[right].first = binary_op(init, d_first[right].first);
+        val_left.first  = binary_op(init, val_left.first);
+        val_right.first = binary_op(init, val_right.first);
+
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
     }
 
     return first + num_values;
