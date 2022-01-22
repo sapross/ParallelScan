@@ -424,7 +424,7 @@ IterType exclusive_segmented_scan(IterType        first,
               other variants. Flags from the previous phase remain unmodified.
               There are two cases to be observed.
              */
-            ValueType t = d_first[left].first;
+            ValueType val_left = d_first[left].first, val_right = d_first[right].first;
             if (not temp_flags[left])
             {
                 /*Left operand is not a segment beginning:
@@ -435,8 +435,8 @@ IterType exclusive_segmented_scan(IterType        first,
                   a later stage and are currently required to hold intermediate
                   results.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                d_first[left].first  = val_right;
+                d_first[right].first = binary_op(val_left, val_right);
             }
             else
             {
@@ -445,8 +445,8 @@ IterType exclusive_segmented_scan(IterType        first,
                   This rule moves the already correctly calculated values into
                   their right place.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = t;
+                d_first[left].first  = val_right;
+                d_first[right].first = val_left;
             }
         }
     }
