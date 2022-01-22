@@ -256,10 +256,10 @@ IterType exclusive_scan(
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
-            ValueType t                   = d_first[i + (1 << stage) - 1];
-            d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
-            d_first[i + (1 << (stage + 1)) - 1] =
-                binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
+            size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
+            ValueType val_left = d_first[left], val_right = d_first[right];
+            d_first[left]  = val_right;
+            d_first[right] = binary_op(val_left, val_right);
         }
     }
 
