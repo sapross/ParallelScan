@@ -378,25 +378,20 @@ IterType exclusive_segmented_scan(IterType        first,
     step = step * 2;
     for (size_t i = 0; i < num_values; i = i + step)
     {
-        size_t left = i + step / 2 - 1, right = i + step - 1;
-        // Copy left operand to d_first.
-        d_first[left].first = first[left].first;
-        temp_flags[left]    = first[left].second;
+        size_t   left = i + step / 2 - 1, right = i + step - 1;
+        PairType val_left = d_first[left], val_right = d_first[right];
 
-        if (first[right].second)
+        // Copy flags into temp_flags.
+        temp_flags[left] = val_left.second;
+        // If left operand is segment start, mark right operand as finished.
+        temp_flags[right] = val_left.second ? val_left.second : val_right.second;
+        if (not val_right.second)
         {
-            // Copy if right flag is set.
-            d_first[right].first = first[right].first;
-            temp_flags[right]    = first[right].second;
+            val_right.first = binary_op(val_left.first, val_right.first);
         }
-        else
-        {
-            // Add if right flag is not set.
-            d_first[right].first = binary_op(first[left].first, first[right].first);
-            // Right flag is copied from the left flag if left flag is set.
-            temp_flags[right] =
-                first[left].second ? first[left].second : first[right].second;
-        }
+
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
     }
 
     // Remainder stages of the up sweep.
