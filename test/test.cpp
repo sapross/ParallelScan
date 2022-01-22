@@ -863,17 +863,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-
-        sequential::updown::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), 0, init);
-
-        REQUIRE_THAT(result, PairsFirstsEqual(reference));
-    }
-    SECTION("Sequential Tiled")
-    {
-        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        std::copy(data.begin(), data.end(), result.begin());
-        // std::cout << "Seq Tiled" << std::endl;
+        // std::cout << "Seq updown" << std::endl;
         // std::cout << "Input" << std::endl;
         // std::for_each(data.begin(),
         //               data.end(),
@@ -890,7 +880,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
         // std::cout << std::endl;
 
-        sequential::tiled::exclusive_segmented_scan(
+        sequential::updown::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), 0, init);
 
         // std::cout << "Output" << std::endl;
@@ -898,6 +888,16 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         //               result.end(),
         //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
         // std::cout << std::endl;
+
+        REQUIRE_THAT(result, PairsFirstsEqual(reference));
+    }
+    SECTION("Sequential Tiled")
+    {
+        std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        std::copy(data.begin(), data.end(), result.begin());
+
+        sequential::tiled::exclusive_segmented_scan(
+            result.begin(), result.end(), result.begin(), 0, init);
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
