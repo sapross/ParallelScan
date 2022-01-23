@@ -456,7 +456,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
             data.begin(), data.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
-    SECTION("TBB provided")
+    /*SECTION("TBB provided")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         _tbb::provided::exclusive_segmented_scan(
@@ -476,7 +476,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
         _tbb::tiled::exclusive_segmented_scan(
             data.begin(), data.end(), result.begin(), init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
-    }
+    }*/
 }
 
 //----------------------------------------------------------------------
@@ -920,8 +920,29 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
+        std::cout << "OpenMP updown" << std::endl;
+        std::cout << "Input" << std::endl;
+        std::for_each(data.begin(),
+                      data.end(),
+                      [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        std::cout << std::endl;
+        std::for_each(data.begin(),
+                      data.end(),
+                      [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+        std::cout << std::endl;
+
+        std::cout << "Reference" << std::endl;
+        std::for_each(reference.begin(),
+                      reference.end(),
+                      [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        std::cout << std::endl;
         openmp::updown::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), 0, init);
+        std::cout << "Output" << std::endl;
+        std::for_each(result.begin(),
+                      result.end(),
+                      [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        std::cout << std::endl;
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("OpenMP Tiled")
@@ -932,7 +953,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
             result.begin(), result.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
-    SECTION("TBB provided")
+    /*SECTION("TBB provided")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
@@ -955,5 +976,5 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         _tbb::tiled::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
-    }
+    }*/
 }
