@@ -17,8 +17,8 @@ IterType inclusive_scan(IterType first, IterType last, IterType d_first)
         sum += *(first + i);
 #pragma omp scan inclusive(sum)
         *(d_first + i) = sum;
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
 template<class IterType> IterType inclusive_scan(IterType first, IterType last)
@@ -39,8 +39,8 @@ IterType exclusive_scan(IterType first, IterType last, IterType d_first, T init)
         *(d_first + i) = sum;
 #pragma omp scan exclusive(sum)
         sum += *(first + i);
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
 template<class IterType, class T>
@@ -75,8 +75,8 @@ IterType inclusive_segmented_scan(IterType first, IterType last, IterType d_firs
         }
 #pragma omp scan inclusive(sum)
         (*(d_first + i)).first = sum;
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
 template<class IterType> IterType inclusive_segmented_scan(IterType first, IterType last)
@@ -110,8 +110,8 @@ IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_firs
         {
             sum = init + (*(first + i)).first;
         }
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
 template<class IterType, class T>
@@ -619,12 +619,14 @@ IterType inclusive_segmented_scan(IterType        first,
 
 // Phase 1: Reduction
 #pragma omp parallel for
+
     for (size_t i = 0; i < num_tiles; i++)
     {
-        temp[i] = std::reduce(first + i * tile_size,
-                              first + (i + 1) * tile_size,
-                              std::make_pair(0, 0),
-                              wrapped_bop);
+        temp[i] = *(first + i * tile_size);
+        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+        {
+            temp[i] = wrapped_bop(temp[i], first[j]);
+        }
     }
 
     // Phase 2: Intermediate Scan (sequential)
@@ -636,24 +638,23 @@ IterType inclusive_segmented_scan(IterType        first,
     {
         size_t end = (i + 1) * tile_size;
         end        = end > num_values ? num_values : end;
+        // std::cout << "begin: " << i * tile_size << ", end: " << end << std::endl;
 
         ValueType sum = temp[i].first;
         for (size_t j = i * tile_size; j < end; j++)
         {
             ValueType temp = first[j].first;
-            if (!first[j].second)
+            if (!first[j].second and j != 0)
             {
-                d_first[j].first = sum;
-                sum              = binary_op(sum, temp);
+                sum = binary_op(sum, temp);
             }
             else
             {
-                d_first[j].first = 0;
-                sum              = temp;
+                sum = temp;
             }
+            d_first[j].first = sum;
         }
     }
-
     return d_first + num_values;
 }
 
