@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <math.h>
 #include <numeric>
-
 namespace sequential
 {
 namespace naive
@@ -139,7 +139,7 @@ IterType exclusive_segmented_scan(
         else
         {
             d_first[i].first = init;
-            sum              = temp;
+            sum              = binary_op(temp, init);
         }
     }
 
@@ -256,10 +256,10 @@ IterType exclusive_scan(
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
-            ValueType t                   = d_first[i + (1 << stage) - 1];
-            d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
-            d_first[i + (1 << (stage + 1)) - 1] =
-                binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
+            size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
+            ValueType val_left = d_first[left], val_right = d_first[right];
+            d_first[left]  = val_right;
+            d_first[right] = binary_op(val_left, val_right);
         }
     }
 
@@ -347,8 +347,12 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
 // ----------------------------------------------------------------------------------
 
 template<class IterType, class BinaryOperation, class T>
-IterType exclusive_segmented_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+IterType exclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     /* Due to the add-swap operation in the down sweep phase a simple wrapper
        of the binary operation is insufficient.
@@ -374,26 +378,22 @@ IterType exclusive_segmented_scan(
     step = step * 2;
     for (size_t i = 0; i < num_values; i = i + step)
     {
-        size_t left = i + step / 2 - 1, right = i + step - 1;
-        // Copy left operand to d_first.
-        d_first[left].first = first[left].first;
-        temp_flags[left]    = first[left].second;
+        size_t   left = i + step / 2 - 1, right = i + step - 1;
+        PairType val_left = first[left], val_right = first[right];
 
-        if (first[right].second)
+        // Copy flags into temp_flags.
+        temp_flags[left] = val_left.second;
+        // If left operand is segment start, mark right operand as finished.
+        temp_flags[right] = val_left.second ? val_left.second : val_right.second;
+        if (not val_right.second)
         {
-            // Copy if right flag is set.
-            d_first[right].first = first[right].first;
-            temp_flags[right]    = first[right].second;
+            val_right.first = binary_op(val_left.first, val_right.first);
         }
-        else
-        {
-            // Add if right flag is not set.
-            d_first[right].first = binary_op(first[left].first, first[right].first);
-            // Right flag is copied from the left flag if left flag is set.
-            temp_flags[right] =
-                first[left].second ? first[left].second : first[right].second;
-        }
+
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
     }
+
     // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
@@ -413,10 +413,10 @@ IterType exclusive_segmented_scan(
         }
     }
 
-    d_first[num_values - 1].first = init;
+    d_first[num_values - 1].first = identity;
 
     // Down sweep
-    for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
+    for (int stage = std::floor(std::log2(num_values) - 1); stage > 0; stage--)
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
@@ -425,7 +425,7 @@ IterType exclusive_segmented_scan(
               other variants. Flags from the previous phase remain unmodified.
               There are two cases to be observed.
              */
-            ValueType t = d_first[left].first;
+            ValueType val_left = d_first[left].first, val_right = d_first[right].first;
             if (not temp_flags[left])
             {
                 /*Left operand is not a segment beginning:
@@ -436,8 +436,8 @@ IterType exclusive_segmented_scan(
                   a later stage and are currently required to hold intermediate
                   results.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                d_first[left].first  = val_right;
+                d_first[right].first = binary_op(val_left, val_right);
             }
             else
             {
@@ -446,61 +446,68 @@ IterType exclusive_segmented_scan(
                   This rule moves the already correctly calculated values into
                   their right place.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = t;
+                d_first[left].first  = val_right;
+                d_first[right].first = val_left;
             }
         }
     }
+
     // Last stage of down-sweep meaning that stage = 0
     // This stage is fused with a cleanup of the segment beginnings.
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
         size_t    left = i, right = i + 1;
-        ValueType t = d_first[left].first;
+        ValueType val_left = d_first[left].first, val_right = d_first[right].first;
+        ValueType temp = val_left;
+
         // Modified rules to cause segment starts to be overwritten with init.
-        if (not first[left].second)
+        if (not first[left].second and i != 0)
         {
             if (not first[right].second)
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                val_left  = val_right;
+                val_right = binary_op(temp, val_right);
             }
             else
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = init;
+                val_left  = d_first[right].first;
+                val_right = identity;
             }
         }
         else
         {
             if (not first[right].second)
             {
-                d_first[left].first  = init;
-                d_first[right].first = t;
+                val_left  = identity;
+                val_right = temp;
             }
             else
             {
-                d_first[left].first  = init;
-                d_first[right].first = init;
+                val_left  = identity;
+                val_right = identity;
             }
         }
+        d_first[left].first  = binary_op(init, val_left);
+        d_first[right].first = binary_op(init, val_right);
     }
+
     return first + num_values;
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_first, T init)
+IterType exclusive_segmented_scan(
+    IterType first, IterType last, IterType d_first, T identity, T init)
 {
     return sequential::updown::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, T init)
+IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
 {
     return sequential::updown::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 
 }; // namespace updown
@@ -663,8 +670,12 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
 // ----------------------------------------------------------------------------------
 
 template<class IterType, class BinaryOperation, class T>
-IterType exclusive_segmented_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+IterType exclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     using PairType  = typename std::iterator_traits<IterType>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
@@ -703,13 +714,13 @@ IterType exclusive_segmented_scan(
     {
         temp[i] = std::reduce(first + i * tile_size,
                               first + (i + 1) * tile_size,
-                              std::make_pair(init, 0),
+                              std::make_pair(identity, 0),
                               wrapped_bop);
     }
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(
-        temp.begin(), temp.end(), temp.begin(), std::make_pair(init, 0), wrapped_bop);
+        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
 
     // Phase 3: Rescan
     for (size_t i = 0; i <= num_tiles; i++)
@@ -717,7 +728,7 @@ IterType exclusive_segmented_scan(
         size_t end = (i + 1) * tile_size;
         end        = end > num_values ? num_values : end;
 
-        ValueType sum = temp[i].first;
+        ValueType sum = binary_op(temp[i].first, init);
         for (size_t j = i * tile_size; j < end; j++)
         {
             ValueType temp = first[j].first;
@@ -729,7 +740,7 @@ IterType exclusive_segmented_scan(
             else
             {
                 d_first[j].first = init;
-                sum              = temp;
+                sum              = binary_op(init, temp);
             }
         }
     }
@@ -738,17 +749,18 @@ IterType exclusive_segmented_scan(
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_first, T init)
+IterType exclusive_segmented_scan(
+    IterType first, IterType last, IterType d_first, T identity, T init)
 {
     return sequential::tiled::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
 template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, T init)
+IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
 {
     return sequential::tiled::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 }; // namespace tiled
 }; // namespace sequential

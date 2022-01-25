@@ -4,69 +4,60 @@ namespace openmp
 {
 namespace provided
 {
-template<class InputIt, class OutputIt>
-OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class IterType>
+IterType inclusive_scan(IterType first, IterType last, IterType d_first)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using ValueType = typename std::iterator_traits<IterType>::value_type;
 
-    size_t     num_values = last - first;
-    OutputType sum        = 0;
+    size_t    num_values = last - first;
+    ValueType sum        = 0;
 #pragma omp      parallel for reduction(inscan, + : sum)
     for (size_t i = 0; i < num_values; ++i)
     {
         sum += *(first + i);
 #pragma omp scan inclusive(sum)
         *(d_first + i) = sum;
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
-template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
+template<class IterType> IterType inclusive_scan(IterType first, IterType last)
 {
     return openmp::provided::inclusive_scan(first, last, first);
 }
 
-template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+template<class IterType, class T>
+IterType exclusive_scan(IterType first, IterType last, IterType d_first, T init)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using ValueType = typename std::iterator_traits<IterType>::value_type;
 
-    size_t     num_values = last - first;
-    OutputType sum        = init;
+    size_t    num_values = last - first;
+    ValueType sum        = init;
 #pragma omp      parallel for reduction(inscan, + : sum)
     for (size_t i = 0; i < num_values; ++i)
     {
         *(d_first + i) = sum;
 #pragma omp scan exclusive(sum)
         sum += *(first + i);
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
-template<class InputIt, class T>
-InputIt exclusive_scan(InputIt first, InputIt last, T init)
+template<class IterType, class T>
+IterType exclusive_scan(IterType first, IterType last, T init)
 {
     return openmp::provided::exclusive_scan(first, last, first, init);
 }
 
 /*Unfortunately, it is not possible to use the provided function
 to implement an inclusive segmented scan*/
-template<class InputIt, class OutputIt>
-OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class IterType>
+IterType inclusive_segmented_scan(IterType first, IterType last, IterType d_first)
 {
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::tuple_element<1, PairType>::type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    using PairType = typename std::iterator_traits<IterType>::value_type;
+    using FlagType = typename std::tuple_element<1, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
 
     size_t num_values = last - first;
     int    sum        = 0;
@@ -81,58 +72,52 @@ OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
         else
         {
             sum = (*(first + i)).first;
-            std::cout << "Sum at " << (*(first + i)).first << "is " << sum << std::endl;
         }
 #pragma omp scan inclusive(sum)
         (*(d_first + i)).first = sum;
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
-template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
+template<class IterType> IterType inclusive_segmented_scan(IterType first, IterType last)
 {
     return openmp::provided::inclusive_segmented_scan(first, last, first);
 }
 
 /*Unfortunately, it is not possible to use the provided function
 to implement an exclusive segmented scan*/
-template<class InputIt, class OutputIt>
-OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
+/*Unfortunately, it is not possible to use the provided function
+to implement an exclusive segmented scan*/
+template<class IterType, class T>
+IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_first, T init)
 {
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::tuple_element<1, PairType>::type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<FlagType, bool>::value,
-                  "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
 
-    size_t num_values = last - first;
-    int    sum        = 0;
+    size_t    num_values = last - first;
+    ValueType sum        = init;
 #pragma omp      parallel for reduction(inscan, + : sum)
     for (size_t i = 0; i < num_values; ++i)
     {
-        (*(d_first + i)).first = sum;
+        (*(d_first + i)).first = sum.first;
 #pragma omp scan exclusive(sum)
         if (!((*(first + i)).second))
         {
-            // std::cout << "Test1 " << (*(first + i)).first << std::endl;
             sum += (*(first + i)).first;
         }
 
         else
         {
-            // std::cout << "Test2 " << (*(first + i)).first << std::endl;
-            sum = (*(first + i)).first;
-            std::cout << "Sum at " << (*(first + i)).first << "is " << sum << std::endl;
+            sum = init + (*(first + i)).first;
         }
-    }
-    return d_first;
+         }
+         return d_first;
 }
 
-template<class InputIt> InputIt exclusive_segmented_scan(InputIt first, InputIt last)
+template<class IterType, class T>
+IterType exclusive_segmented_scan(IterType first, IterType last, T init)
 {
-    return openmp::provided::exclusive_segmented_scan(first, last, first);
+    return openmp::provided::exclusive_segmented_scan(first, last, first, init);
 }
 } // namespace provided
 namespace updown
@@ -140,34 +125,33 @@ namespace updown
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt inclusive_scan(InputIt&        first,
-                        InputIt&        last,
-                        OutputIt&       d_first,
+template<class IterType, class BinaryOperation>
+IterType inclusive_scan(IterType&       first,
+                        IterType&       last,
+                        IterType&       d_first,
                         BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
-
     size_t num_values = last - first;
-    size_t step       = 1;
-    // Up sweep
+    size_t step       = 2;
+// Up sweep
 
-    if (std::distance(first, d_first) != 0)
+// First stage of the up sweep fused with copy.
+#pragma omp parallel for
+    for (size_t i = 0; i < num_values; i = i + step)
     {
-        std::copy(first, last, d_first);
+        size_t left = i + step / 2 - 1, right = i + step - 1;
+        d_first[left]  = first[left];
+        d_first[right] = binary_op(first[left], first[right]);
     }
 
-    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+    for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
 #pragma omp parallel for
         for (size_t i = 0; i < num_values; i = i + step)
         {
-            d_first[i + step - 1] =
-                binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+            size_t left = i + step / 2 - 1, right = i + step - 1;
+            d_first[right] = binary_op(d_first[left], d_first[right]);
         }
     }
     step = 1 << (size_t)(std::floor(std::log2(num_values)));
@@ -184,13 +168,13 @@ OutputIt inclusive_scan(InputIt&        first,
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt>
-OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class IterType>
+IterType inclusive_scan(IterType first, IterType last, IterType d_first)
 {
     return openmp::updown::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
+template<class IterType> IterType inclusive_scan(IterType first, IterType last)
 {
     return openmp::updown::inclusive_scan(first, last, first, std::plus<>());
 }
@@ -199,57 +183,61 @@ template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class T, class BinaryOperation>
-OutputIt exclusive_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+template<class IterType, class T, class BinaryOperation>
+IterType exclusive_scan(
+    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
-    static_assert(std::is_same<InputType, T>::value,
+    using ValueType = typename std::iterator_traits<IterType>::value_type;
+    static_assert(std::is_same<ValueType, T>::value,
                   "Underlying input and init type have to be the same!");
 
     size_t num_values = last - first;
-    size_t step       = 1;
-    // Up sweep
+    size_t step       = 2;
+// Up sweep
 
-    if (std::distance(first, d_first) != 0)
+// First stage of the up sweep fused with copy.
+#pragma omp parallel for
+    for (size_t i = 0; i < num_values; i = i + step)
     {
-        std::copy(first, last, d_first);
+        size_t left = i + step / 2 - 1, right = i + step - 1;
+        d_first[left]  = first[left];
+        d_first[right] = binary_op(first[left], first[right]);
     }
-    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+    for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
 #pragma omp parallel for
         for (size_t i = 0; i < num_values; i = i + step)
         {
-            d_first[i + step - 1] =
-                binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+            size_t left = i + step / 2 - 1, right = i + step - 1;
+            d_first[right] = binary_op(d_first[left], d_first[right]);
         }
     }
+
     d_first[num_values - 1] = init;
+
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
 #pragma omp parallel for
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
-            OutputType t                        = d_first[i + (1 << stage) - 1];
-            d_first[i + (1 << stage) - 1]       = d_first[i + (1 << (stage + 1)) - 1];
-            d_first[i + (1 << (stage + 1)) - 1] = t + d_first[i + (1 << (stage + 1)) - 1];
+            size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
+            ValueType val_left = d_first[left], val_right = d_first[right];
+            d_first[left]  = val_right;
+            d_first[right] = binary_op(val_left, val_right);
         }
     }
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+template<class IterType, class T>
+IterType exclusive_scan(IterType first, IterType last, IterType d_first, T init)
 {
     return openmp::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class T>
-InputIt exclusive_scan(InputIt first, InputIt last, T init)
+template<class IterType, class T>
+IterType exclusive_scan(IterType first, IterType last, T init)
 {
     return openmp::updown::exclusive_scan(first, last, first, init, std::plus<>());
 }
@@ -258,19 +246,16 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt inclusive_segmented_scan(InputIt         first,
-                                  InputIt         last,
-                                  OutputIt        d_first,
+template<class IterType, class BinaryOperation>
+IterType inclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
                                   BinaryOperation binary_op)
 {
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::tuple_element<1, PairType>::type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    using PairType = typename std::iterator_traits<IterType>::value_type;
+    using FlagType = typename std::tuple_element<1, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
-                  "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+                  "Second pair type must be convertible to bool!");
 
     return openmp::updown::inclusive_scan(first,
                                           last,
@@ -294,65 +279,94 @@ OutputIt inclusive_segmented_scan(InputIt         first,
                                           });
 }
 
-template<class InputIt, class OutputIt>
-InputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class IterType>
+IterType inclusive_segmented_scan(IterType first, IterType last, IterType d_first)
 {
     return openmp::updown::inclusive_segmented_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
+template<class IterType> IterType inclusive_segmented_scan(IterType first, IterType last)
 {
     return openmp::updown::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
 
-template<class InputIt, class OutputIt, class BinaryOperation, class T>
-OutputIt exclusive_segmented_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+// ----------------------------------------------------------------------------------
+//  Exclusive Segmented Scan
+// ----------------------------------------------------------------------------------
+
+template<class IterType, class BinaryOperation, class T>
+IterType exclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     /* Due to the add-swap operation in the down sweep phase a simple wrapper
        of the binary operation is insufficient.
      */
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::tuple_element<1, PairType>::type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using FlagType  = typename std::tuple_element<1, PairType>::type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
-                  "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+                  "Second pair type must be convertible to bool!");
+    static_assert(std::is_convertible<T, ValueType>::value,
+                  "Init must be convertible to First pair type!");
 
-    size_t num_values = last - first;
-    size_t step       = 1;
-
-    if (std::distance(first, d_first) != 0)
-    {
-        std::copy(first, last, d_first);
-    }
-
+    size_t                num_values = last - first;
+    size_t                step       = 1;
+    std::vector<FlagType> temp_flags(num_values);
     /* Up sweep
        Essentially the same operation as with the conditional wrapper but
        now unpacked. This step is hence equal to the segmented inclusive
        up-down sweeping scan.
     */
-    for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
+
+    // First stage of the up sweep fused with copy
+    step = step * 2;
+#pragma omp parallel for
+    for (size_t i = 0; i < num_values; i = i + step)
+    {
+        size_t   left = i + step / 2 - 1, right = i + step - 1;
+        PairType val_left = first[left], val_right = first[right];
+
+        // Copy flags into temp_flags.
+        temp_flags[left] = val_left.second;
+        // If left operand is segment start, mark right operand as finished.
+        temp_flags[right] = val_left.second ? val_left.second : val_right.second;
+        if (not val_right.second)
+        {
+            val_right.first = binary_op(val_left.first, val_right.first);
+        }
+
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
+    }
+
+    // Remainder stages of the up sweep.
+    for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
 #pragma omp parallel for
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
-            if (!d_first[right].second)
+            if (!temp_flags[right])
             {
                 d_first[right].first =
                     binary_op(d_first[left].first, d_first[right].first);
-                if (d_first[left].second)
+                if (temp_flags[left])
                 {
-                    d_first[right].second = d_first[left].second;
+                    temp_flags[right] = temp_flags[left];
                 }
             }
         }
     }
-    d_first[num_values - 1] = std::make_pair(init, 0);
-    for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
+
+    d_first[num_values - 1].first = identity;
+
+    // Down sweep
+    for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
     {
 #pragma omp parallel for
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
@@ -362,7 +376,8 @@ OutputIt exclusive_segmented_scan(
               other variants. Flags from the previous phase remain unmodified.
               There are two cases to be observed.
              */
-            if (not d_first[left].second)
+            ValueType val_left = d_first[left].first, val_right = d_first[right].first;
+            if (not temp_flags[left])
             {
                 /*Left operand is not a segment beginning:
                   Independent of the right operand, swap the left value
@@ -372,9 +387,8 @@ OutputIt exclusive_segmented_scan(
                   a later stage and are currently required to hold intermediate
                   results.
                  */
-                OutputType t         = d_first[left];
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t.first, d_first[right].first);
+                d_first[left].first  = val_right;
+                d_first[right].first = binary_op(val_left, val_right);
             }
             else
             {
@@ -383,61 +397,91 @@ OutputIt exclusive_segmented_scan(
                   This rule moves the already correctly calculated values into
                   their right place.
                  */
-                OutputType t         = d_first[left];
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = t.first;
+                d_first[left].first  = val_right;
+                d_first[right].first = val_left;
             }
         }
     }
-// Like with all exclusives variants, this step cannot be omitted or
-// fused with any previous operation.
+
+// Last stage of down-sweep meaning that stage = 0
+// This stage is fused with a cleanup of the segment beginnings.
 #pragma omp parallel for
-    for (size_t i = 0; i < num_values; i++)
+    for (size_t i = 0; i < num_values; i = i + 2)
     {
-        if (first[i].second)
+        size_t    left = i, right = i + 1;
+        ValueType val_left = d_first[left].first, val_right = d_first[right].first;
+        ValueType temp = val_left;
+
+        // Modified rules to cause segment starts to be overwritten with init.
+        if (not first[left].second and i != 0)
         {
-            d_first[i].first = init;
+            if (not first[right].second)
+            {
+                val_left  = val_right;
+                val_right = binary_op(temp, val_right);
+            }
+            else
+            {
+                val_left  = d_first[right].first;
+                val_right = identity;
+            }
         }
+        else
+        {
+            if (not first[right].second)
+            {
+                val_left  = identity;
+                val_right = temp;
+            }
+            else
+            {
+                val_left  = identity;
+                val_right = identity;
+            }
+        }
+        d_first[left].first  = binary_op(init, val_left);
+        d_first[right].first = binary_op(init, val_right);
     }
     return first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+template<class IterType, class T>
+IterType exclusive_segmented_scan(
+    IterType first, IterType last, IterType d_first, T identity, T init)
 {
     return openmp::updown::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
-template<class InputIt, class T>
-InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
+template<class IterType, class T>
+IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
 {
     return openmp::updown::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 
 } // namespace updown
 namespace tiled
 {
+// Controls the number of elements a tile has.
+size_t tile_size = 4;
+void   set_tile_size(size_t size) { tiled::tile_size = size; }
+
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt
-inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation binary_op)
+template<class IterType, class BinaryOperation>
+IterType
+inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using ValueType = typename std::iterator_traits<IterType>::value_type;
 
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values - 1) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values - 1) / tile_size;
-    size_t rem        = num_values - tile_size * num_tiles;
 
-    std::vector<InputType> temp(num_tiles + 1);
+    std::vector<ValueType> temp(num_tiles + 1);
 
 // Phase 1: Reduction om Tiles (parallel)
 #pragma omp parallel for
@@ -450,41 +494,30 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
         }
     }
 
-    // Phase 2: Intermediate Scan (sequential)
-    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
+    // Phase 2: Intermediate Scan (parallel)
+    openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first);
 
 // Phase 3: Rescan on Tiles (parallel)
 #pragma omp parallel for
-    for (size_t i = 0; i < num_tiles; i++)
+    for (size_t i = 0; i <= num_tiles; i++)
     {
-        // std::cout << "std::exclusive_scan(" << 1 + i * tile_size << ","
-        //           << 1 + (i + 1) * tile_size << ", " << i * tile_size << "," << temp[i]
-        //           << ",InputType(0),binary_op);" << std::endl;
-
-        std::exclusive_scan(first + 1 + i * tile_size,
-                            first + 1 + (i + 1) * tile_size,
+        size_t begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
+        std::exclusive_scan(first + begin,
+                            end > num_values + 1 ? first + num_values : first + end,
                             d_first + i * tile_size,
                             temp[i],
-                            binary_op);
-    }
-    if (rem)
-    {
-        std::exclusive_scan(first + num_values - rem + 1,
-                            first + num_values + 1,
-                            d_first + num_values - rem,
-                            temp[num_tiles],
                             binary_op);
     }
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt>
-OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class IterType>
+IterType inclusive_scan(IterType first, IterType last, IterType d_first)
 {
     return openmp::tiled::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
+template<class IterType> IterType inclusive_scan(IterType first, IterType last)
 {
     return openmp::tiled::inclusive_scan(first, last, first, std::plus<>());
 }
@@ -492,30 +525,19 @@ template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class T, class BinaryOperation>
-OutputIt exclusive_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+template<class IterType, class T, class BinaryOperation>
+IterType exclusive_scan(
+    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
-    static_assert(std::is_same<InputType, T>::value,
-                  "Underlying input and init type have to be the same!");
-
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using ValueType = typename std::iterator_traits<IterType>::value_type;
 
     // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values) / tile_size;
-    size_t rem        = num_values - tile_size * num_tiles;
 
-    std::vector<InputType> temp(num_tiles + 1);
+    std::vector<ValueType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
 #pragma omp parallel for
@@ -526,37 +548,31 @@ OutputIt exclusive_scan(
     }
 
     // Phase 2: Intermediate Scan
-    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
+
+    openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init);
 
 // Phase 3: Rescan
 #pragma omp parallel for
-    for (size_t i = 0; i < num_tiles; i++)
+    for (size_t i = 0; i <= num_tiles; i++)
     {
-        std::exclusive_scan(first + i * tile_size,
-                            first + (i + 1) * tile_size,
+        size_t begin = i * tile_size, end = (i + 1) * tile_size;
+        std::exclusive_scan(first + begin,
+                            end > num_values ? first + num_values : first + end,
                             d_first + i * tile_size,
                             temp[i],
-                            binary_op);
-    }
-    if (rem)
-    {
-        std::exclusive_scan(first + num_values - rem,
-                            first + num_values,
-                            d_first + num_values - rem,
-                            temp[num_tiles],
                             binary_op);
     }
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+template<class IterType, class T>
+IterType exclusive_scan(IterType first, IterType last, IterType d_first, T init)
 {
     return openmp::tiled::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class T>
-InputIt exclusive_scan(InputIt first, InputIt last, T init)
+template<class IterType, class T>
+IterType exclusive_scan(IterType first, IterType last, T init)
 {
     return openmp::tiled::exclusive_scan(first, last, first, init, std::plus<>());
 }
@@ -565,46 +581,90 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt inclusive_segmented_scan(InputIt         first,
-                                  InputIt         last,
-                                  OutputIt        d_first,
+template<class IterType, class BinaryOperation>
+IterType inclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
                                   BinaryOperation binary_op)
 {
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::tuple_element<1, PairType>::type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using FlagType  = typename std::tuple_element<1, PairType>::type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
-                  "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+                  "Second pair type must be convertible to bool!");
 
-    return openmp::tiled::inclusive_scan(first,
-                                         last,
-                                         d_first,
-                                         [binary_op](PairType x, PairType y)
-                                         {
-                                             PairType result = y;
-                                             if (!y.second)
-                                             {
-                                                 result.first =
-                                                     binary_op(x.first, y.first);
-                                                 if (x.second)
-                                                 {
-                                                     result.second = x.second;
-                                                 }
-                                             }
-                                             return result;
-                                         });
+    size_t num_values = last - first;
+    size_t tile_size  = tiled::tile_size;
+    tile_size         = (num_values) > tile_size ? tile_size : 1;
+    size_t num_tiles  = (num_values) / tile_size;
+
+    auto wrapped_bop = [binary_op](PairType x, PairType y)
+    {
+        PairType result = y;
+        if (!y.second)
+        {
+            result.first = binary_op(x.first, y.first);
+            // Since additions are reordered
+            // flags need to be carried along
+            // to indicate finished segments!
+            if (x.second)
+            {
+                result.second = x.second;
+            }
+        }
+        return result;
+    };
+
+    std::vector<PairType> temp(num_tiles + 1);
+
+// Phase 1: Reduction
+#pragma omp parallel for
+
+    for (size_t i = 0; i < num_tiles; i++)
+    {
+        temp[i] = *(first + i * tile_size);
+        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+        {
+            temp[i] = wrapped_bop(temp[i], first[j]);
+        }
+    }
+
+    // Phase 2: Intermediate Scan (sequential)
+    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, wrapped_bop);
+
+// Phase 3: Rescan on Tiles (parallel)
+#pragma omp parallel for
+    for (size_t i = 0; i <= num_tiles; i++)
+    {
+        size_t end = (i + 1) * tile_size;
+        end        = end > num_values ? num_values : end;
+        // std::cout << "begin: " << i * tile_size << ", end: " << end << std::endl;
+
+        ValueType sum = temp[i].first;
+        for (size_t j = i * tile_size; j < end; j++)
+        {
+            ValueType temp = first[j].first;
+            if (!first[j].second and j != 0)
+            {
+                sum = binary_op(sum, temp);
+            }
+            else
+            {
+                sum = temp;
+            }
+            d_first[j].first = sum;
+        }
+    }
+    return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt>
-OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
+template<class IterType>
+IterType inclusive_segmented_scan(IterType first, IterType last, IterType d_first)
 {
     return openmp::tiled::inclusive_segmented_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
+template<class IterType> IterType inclusive_segmented_scan(IterType first, IterType last)
 {
     return openmp::tiled::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
@@ -613,58 +673,100 @@ template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt 
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation, class T>
-OutputIt exclusive_segmented_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+template<class IterType, class BinaryOperation, class T>
+IterType exclusive_segmented_scan(IterType        first,
+                                  IterType        last,
+                                  IterType        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using FlagType   = typename std::tuple_element<1, PairType>::type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
+    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using FlagType  = typename std::tuple_element<1, PairType>::type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
-                  "Second Input Iterator type must be convertible to bool!");
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+                  "Second pair type must be convertible to bool!");
+    static_assert(std::is_convertible<T, ValueType>::value,
+                  "Init must be convertible to First pair type!");
 
-    openmp::tiled::exclusive_scan(first,
-                                  last,
-                                  d_first,
-                                  std::make_pair(init, 0),
-                                  [binary_op](PairType x, PairType y)
-                                  {
-                                      PairType result = y;
-                                      if (!y.second)
-                                      {
-                                          result.first = binary_op(x.first, y.first);
-                                          if (x.second)
-                                          {
-                                              result.second = x.second;
-                                          }
-                                      }
-                                      return result;
-                                  });
-    #pragma omp parallel for
-    for (int i = 0; i < (last - first); i++)
+    size_t num_values = last - first;
+    size_t tile_size  = tiled::tile_size;
+    tile_size         = (num_values) > tile_size ? tile_size : 1;
+    size_t num_tiles  = (num_values) / tile_size;
+
+    auto wrapped_bop = [binary_op](PairType x, PairType y)
     {
-        if (first[i].second)
+        PairType result = y;
+        if (!y.second)
         {
-            d_first[i].first = init;
+            result.first = binary_op(x.first, y.first);
+            // Since additions are reordered
+            // flags need to be carried along
+            // to indicate finished segments!
+            if (x.second)
+            {
+                result.second = x.second;
+            }
+        }
+        return result;
+    };
+
+    std::vector<PairType> temp(num_tiles + 1);
+
+// Phase 1: Reduction
+#pragma omp parallel for
+    for (size_t i = 0; i < num_tiles; i++)
+    {
+        temp[i] = std::reduce(first + i * tile_size,
+                              first + (i + 1) * tile_size,
+                              std::make_pair(identity, 0),
+                              wrapped_bop);
+    }
+
+    // Phase 2: Intermediate Scan
+    std::exclusive_scan(
+        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
+
+// Phase 3: Rescan
+#pragma omp parallel for
+    for (size_t i = 0; i <= num_tiles; i++)
+    {
+        size_t end = (i + 1) * tile_size;
+        end        = end > num_values ? num_values : end;
+
+        ValueType sum = binary_op(init, temp[i].first);
+        for (size_t j = i * tile_size; j < end; j++)
+        {
+            ValueType temp = first[j].first;
+            if (!first[j].second)
+            {
+                d_first[j].first = sum;
+                sum              = binary_op(sum, temp);
+            }
+            else
+            {
+                d_first[j].first = init;
+                sum              = binary_op(init, temp);
+            }
         }
     }
-    return first + (last - first);
+
+    return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+template<class IterType, class T>
+IterType exclusive_segmented_scan(
+    IterType first, IterType last, IterType d_first, T identity, T init)
 {
     return openmp::tiled::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
-template<class InputIt, class T>
-InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
+template<class IterType, class T>
+IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
 {
     return openmp::tiled::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 } // namespace tiled
 } // namespace openmp
