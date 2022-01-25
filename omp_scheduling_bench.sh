@@ -1,6 +1,4 @@
-# Run specified benchmarks #
-
-# Run all openmMP implementations with different scheduling
+#!/bin/bash
 
 export OMP_SCHEDULE="static"
 ./build/bench -s -r csv [omp] >> documentation/results/omp_scheduling_static.csv
