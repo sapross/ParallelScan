@@ -477,9 +477,12 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
     using ValueType = typename std::iterator_traits<IterType>::value_type;
 
     size_t num_values = last - first;
-    size_t tile_size  = 4;
-    tile_size         = (num_values - 1) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values - 1) / tile_size;
+    size_t tile_size  = tiled::tile_size;
+    if (num_values < tile_size)
+    {
+        tile_size = num_values;
+    }
+    size_t num_tiles = num_values / tile_size - 1;
 
     std::vector<ValueType> temp(num_tiles + 1);
 
@@ -533,9 +536,12 @@ IterType exclusive_scan(
 
     // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
-    size_t tile_size  = 4;
-    tile_size         = (num_values) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values) / tile_size;
+    size_t tile_size  = tiled::tile_size;
+    if (num_values < tile_size)
+    {
+        tile_size = num_values;
+    }
+    size_t num_tiles = num_values / tile_size - 1;
 
     std::vector<ValueType> temp(num_tiles + 1);
 
@@ -595,8 +601,11 @@ IterType inclusive_segmented_scan(IterType        first,
 
     size_t num_values = last - first;
     size_t tile_size  = tiled::tile_size;
-    tile_size         = (num_values) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values) / tile_size;
+    if (num_values < tile_size)
+    {
+        tile_size = num_values;
+    }
+    size_t num_tiles = num_values / tile_size - 1;
 
     auto wrapped_bop = [binary_op](PairType x, PairType y)
     {
@@ -691,8 +700,11 @@ IterType exclusive_segmented_scan(IterType        first,
 
     size_t num_values = last - first;
     size_t tile_size  = tiled::tile_size;
-    tile_size         = (num_values) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values) / tile_size;
+    if (num_values < tile_size)
+    {
+        tile_size = num_values;
+    }
+    size_t num_tiles = num_values / tile_size - 1;
 
     auto wrapped_bop = [binary_op](PairType x, PairType y)
     {

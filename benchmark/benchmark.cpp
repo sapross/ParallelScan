@@ -655,28 +655,24 @@ SCENARIO("Inclusive Scan Tile Size", "[.][tilesize]")
     CAPTURE(N);
     SUCCEED();
 
-    std::vector<float> data(N, 0.);
+    std::vector<float> data(N);
     std::generate(data.begin(), data.end(), rand);
 
     // Benchmark
     BENCHMARK_ADVANCED("omp_outofplace_inc_tilesize")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<float> result(N, 0);
-        sequential::tiled::set_tile_size(tile_size);
+        std::vector<float> result(N);
+        openmp::tiled::set_tile_size(tile_size);
         meter.measure(
             [&data, &result]()
             { openmp::tiled::inclusive_scan(data.begin(), data.end(), result.begin()); });
     };
     BENCHMARK_ADVANCED("omp_inplace_inc_tilesize")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<float> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        sequential::tiled::set_tile_size(tile_size);
+        openmp::tiled::set_tile_size(tile_size);
         meter.measure(
-            [&result]() {
-                openmp::tiled::inclusive_scan(
-                    result.begin(), result.end(), result.begin());
-            });
+            [&data]()
+            { openmp::tiled::inclusive_scan(data.begin(), data.end(), data.begin()); });
     };
 }
 
@@ -714,7 +710,7 @@ SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
     (Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
-        sequential::tiled::set_tile_size(tile_size);
+        openmp::tiled::set_tile_size(tile_size);
 
         meter.measure(
             [&data, &result]() {
@@ -726,13 +722,11 @@ SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
     (Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
-        sequential::tiled::set_tile_size(tile_size);
-        std::copy(data.begin(), data.end(), result.begin());
+        openmp::tiled::set_tile_size(tile_size);
         meter.measure(
-            [&result]()
-            {
+            [&data]() {
                 openmp::tiled::inclusive_segmented_scan(
-                    result.begin(), result.end(), result.begin());
+                    data.begin(), data.end(), data.begin());
             });
     };
 }
@@ -770,7 +764,7 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
     (Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
-        sequential::tiled::set_tile_size(tile_size);
+        openmp::tiled::set_tile_size(tile_size);
 
         meter.measure(
             [&data, &result]()
@@ -783,13 +777,12 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
     (Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
-        sequential::tiled::set_tile_size(tile_size);
-        std::copy(data.begin(), data.end(), result.begin());
+        openmp::tiled::set_tile_size(tile_size);
         meter.measure(
-            [&result]()
+            [&data]()
             {
                 openmp::tiled::exclusive_segmented_scan(
-                    result.begin(), result.end(), result.begin(), 0, 0);
+                    data.begin(), data.end(), data.begin(), 0, 0);
             });
     };
 }
