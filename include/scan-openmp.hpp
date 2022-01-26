@@ -221,10 +221,10 @@ IterType exclusive_scan(
 #pragma omp parallel for
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
-            ValueType t                   = d_first[i + (1 << stage) - 1];
-            d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
-            d_first[i + (1 << (stage + 1)) - 1] =
-                binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
+            size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
+            ValueType val_left = d_first[left], val_right = d_first[right];
+            d_first[left]  = val_right;
+            d_first[right] = binary_op(val_left, val_right);
         }
     }
     return d_first + num_values;
@@ -327,26 +327,22 @@ IterType exclusive_segmented_scan(IterType        first,
 #pragma omp parallel for
     for (size_t i = 0; i < num_values; i = i + step)
     {
-        size_t left = i + step / 2 - 1, right = i + step - 1;
-        // Copy left operand to d_first.
-        d_first[left].first = first[left].first;
-        temp_flags[left]    = first[left].second;
+        size_t   left = i + step / 2 - 1, right = i + step - 1;
+        PairType val_left = first[left], val_right = first[right];
 
-        if (first[right].second)
+        // Copy flags into temp_flags.
+        temp_flags[left] = val_left.second;
+        // If left operand is segment start, mark right operand as finished.
+        temp_flags[right] = val_left.second ? val_left.second : val_right.second;
+        if (not val_right.second)
         {
-            // Copy if right flag is set.
-            d_first[right].first = first[right].first;
-            temp_flags[right]    = first[right].second;
+            val_right.first = binary_op(val_left.first, val_right.first);
         }
-        else
-        {
-            // Add if right flag is not set.
-            d_first[right].first = binary_op(first[left].first, first[right].first);
-            // Right flag is copied from the left flag if left flag is set.
-            temp_flags[right] =
-                first[left].second ? first[left].second : first[right].second;
-        }
+
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
     }
+
     // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
@@ -380,7 +376,7 @@ IterType exclusive_segmented_scan(IterType        first,
               other variants. Flags from the previous phase remain unmodified.
               There are two cases to be observed.
              */
-            ValueType t = d_first[left].first;
+            ValueType val_left = d_first[left].first, val_right = d_first[right].first;
             if (not temp_flags[left])
             {
                 /*Left operand is not a segment beginning:
@@ -391,8 +387,8 @@ IterType exclusive_segmented_scan(IterType        first,
                   a later stage and are currently required to hold intermediate
                   results.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                d_first[left].first  = val_right;
+                d_first[right].first = binary_op(val_left, val_right);
             }
             else
             {
@@ -401,49 +397,50 @@ IterType exclusive_segmented_scan(IterType        first,
                   This rule moves the already correctly calculated values into
                   their right place.
                  */
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = t;
+                d_first[left].first  = val_right;
+                d_first[right].first = val_left;
             }
         }
     }
+
 // Last stage of down-sweep meaning that stage = 0
 // This stage is fused with a cleanup of the segment beginnings.
 #pragma omp parallel for
     for (size_t i = 0; i < num_values; i = i + 2)
     {
-        //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
         size_t    left = i, right = i + 1;
-        ValueType t = d_first[left].first;
+        ValueType val_left = d_first[left].first, val_right = d_first[right].first;
+        ValueType temp = val_left;
 
         // Modified rules to cause segment starts to be overwritten with init.
-        if (i != 0 and not first[left].second)
+        if (not first[left].second and i != 0)
         {
             if (not first[right].second)
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t, d_first[right].first);
+                val_left  = val_right;
+                val_right = binary_op(temp, val_right);
             }
             else
             {
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = identity;
+                val_left  = d_first[right].first;
+                val_right = identity;
             }
         }
         else
         {
-            if (!first[right].second)
+            if (not first[right].second)
             {
-                d_first[left].first  = identity;
-                d_first[right].first = t;
+                val_left  = identity;
+                val_right = temp;
             }
             else
             {
-                d_first[left].first  = identity;
-                d_first[right].first = identity;
+                val_left  = identity;
+                val_right = identity;
             }
         }
-        d_first[left].first  = binary_op(init, d_first[left].first);
-        d_first[right].first = binary_op(init, d_first[right].first);
+        d_first[left].first  = binary_op(init, val_left);
+        d_first[right].first = binary_op(init, val_right);
     }
     return first + num_values;
 }
@@ -497,8 +494,8 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
         }
     }
 
-    // Phase 2: Intermediate Scan (sequential)
-    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
+    // Phase 2: Intermediate Scan (parallel)
+    openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first);
 
 // Phase 3: Rescan on Tiles (parallel)
 #pragma omp parallel for
@@ -534,7 +531,6 @@ IterType exclusive_scan(
 {
     using ValueType = typename std::iterator_traits<IterType>::value_type;
 
-    // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = 4;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
@@ -552,7 +548,7 @@ IterType exclusive_scan(
 
     // Phase 2: Intermediate Scan
 
-    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
+    openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init);
 
 // Phase 3: Rescan
 #pragma omp parallel for
@@ -590,25 +586,74 @@ IterType inclusive_segmented_scan(IterType        first,
                                   IterType        d_first,
                                   BinaryOperation binary_op)
 {
-    using PairType = typename std::iterator_traits<IterType>::value_type;
+    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using FlagType  = typename std::tuple_element<1, PairType>::type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
+    static_assert(std::is_convertible<FlagType, bool>::value,
+                  "Second pair type must be convertible to bool!");
 
-    return openmp::tiled::inclusive_scan(first,
-                                         last,
-                                         d_first,
-                                         [binary_op](PairType x, PairType y)
-                                         {
-                                             PairType result = y;
-                                             if (!y.second)
-                                             {
-                                                 result.first =
-                                                     binary_op(x.first, y.first);
-                                                 if (x.second)
-                                                 {
-                                                     result.second = x.second;
-                                                 }
-                                             }
-                                             return result;
-                                         });
+    size_t num_values = last - first;
+    size_t tile_size  = tiled::tile_size;
+    tile_size         = (num_values) > tile_size ? tile_size : 1;
+    size_t num_tiles  = (num_values) / tile_size;
+
+    auto wrapped_bop = [binary_op](PairType x, PairType y)
+    {
+        PairType result = y;
+        if (!y.second)
+        {
+            result.first = binary_op(x.first, y.first);
+            // Since additions are reordered
+            // flags need to be carried along
+            // to indicate finished segments!
+            if (x.second)
+            {
+                result.second = x.second;
+            }
+        }
+        return result;
+    };
+
+    std::vector<PairType> temp(num_tiles + 1);
+
+// Phase 1: Reduction
+#pragma omp parallel for
+
+    for (size_t i = 0; i < num_tiles; i++)
+    {
+        temp[i] = *(first + i * tile_size);
+        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+        {
+            temp[i] = wrapped_bop(temp[i], first[j]);
+        }
+    }
+
+    // Phase 2: Intermediate Scan (sequential)
+    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, wrapped_bop);
+
+// Phase 3: Rescan on Tiles (parallel)
+#pragma omp parallel for
+    for (size_t i = 0; i <= num_tiles; i++)
+    {
+        size_t end = (i + 1) * tile_size;
+        end        = end > num_values ? num_values : end;
+
+        ValueType sum = temp[i].first;
+        for (size_t j = i * tile_size; j < end; j++)
+        {
+            ValueType temp = first[j].first;
+            if (!first[j].second and j != 0)
+            {
+                sum = binary_op(sum, temp);
+            }
+            else
+            {
+                sum = temp;
+            }
+            d_first[j].first = sum;
+        }
+    }
+    return d_first + num_values;
 }
 
 template<class IterType>

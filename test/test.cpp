@@ -133,6 +133,7 @@ TEST_CASE("Out-Of-Place Inclusive Scan Test", "[out][inc]")
     SECTION("OpenMP Tiled")
     {
         std::vector<int> result(N, 0);
+
         openmp::tiled::inclusive_scan(data.begin(), data.end(), result.begin());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
@@ -338,7 +339,33 @@ TEST_CASE("Out-Of-Place Inclusive Segmented Scan Test", "[out][incseg]")
     SECTION("OpenMP Tiled")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
+        // std::cout << "OpenMP updown" << std::endl;
+        // std::cout << "Input" << std::endl;
+        // std::for_each(data.begin(),
+        //               data.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        // std::cout << std::endl;
+        // std::for_each(data.begin(),
+        //               data.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+        // std::cout << std::endl;
+
+        // std::cout << "Reference" << std::endl;
+        // std::for_each(reference.begin(),
+        //               reference.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        // std::cout << std::endl;
+
         openmp::tiled::inclusive_segmented_scan(data.begin(), data.end(), result.begin());
+        // std::cout << "Output" << std::endl;
+        // std::for_each(result.begin(),
+        //               result.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
+        // std::cout << std::endl;
+        // std::for_each(result.begin(),
+        //               result.end(),
+        //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
+        // std::cout << std::endl;
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
 }
@@ -382,7 +409,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Sequential Test", "[out][exseg]
 TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
 {
     // Test parameters
-    const size_t N = 16; // GENERATE(logRange(1ull << 4, 1ull << 10, 2));
+    const size_t N = GENERATE(logRange(1ull << 4, 1ull << 10, 2));
 
     // Logging of parameters
     CAPTURE(N);
@@ -456,7 +483,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
             data.begin(), data.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
-    SECTION("TBB provided")
+    /*SECTION("TBB provided")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         _tbb::provided::exclusive_segmented_scan(
@@ -476,7 +503,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
         _tbb::tiled::exclusive_segmented_scan(
             data.begin(), data.end(), result.begin(), init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
-    }
+    }*/
 }
 
 //----------------------------------------------------------------------
@@ -863,31 +890,9 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-        // std::cout << "Seq updown" << std::endl;
-        // std::cout << "Input" << std::endl;
-        // std::for_each(data.begin(),
-        //               data.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
-        // std::for_each(data.begin(),
-        //               data.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-        // std::cout << std::endl;
-
-        // std::cout << "Reference" << std::endl;
-        // std::for_each(reference.begin(),
-        //               reference.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
 
         sequential::updown::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), 0, init);
-
-        // std::cout << "Output" << std::endl;
-        // std::for_each(result.begin(),
-        //               result.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
@@ -920,8 +925,10 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
+
         openmp::updown::exclusive_segmented_scan(
             result.begin(), result.end(), result.begin(), 0, init);
+
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("OpenMP Tiled")
