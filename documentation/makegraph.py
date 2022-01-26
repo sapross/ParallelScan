@@ -26,7 +26,7 @@ class ResultAggregator:
 
     # csv separator
     separator = "\t"
-    header = {0: "Name", 1: "Throughput", 2: "N"}
+    header = {0: "Name", 1: "Throughput"}
     # Datatype used in the benchmarks, in our case float = 4 Bytes
     operand_size = 4.0
 
@@ -55,16 +55,18 @@ class ResultAggregator:
             str(data_path), sep=self.separator, header=None
         )
         for i in range(2, len(new_df.columns)):
-            # label = df[i][0].split(" ")[0]
-            # headers[i] = label
+            label = new_df[i][0].split(" ")[0]
+            self.header[i] = label
             # Extract base10 value from string. Example:
             # N := 16777216 (0x1000000)
             #      ^^^^^^^^
             new_df[i] = new_df[i].str.split(" ").str.get(2)
-
-        new_df[1] = (
-            new_df[2].astype(float) * 4.0 / new_df[1].astype(float)
-        )
+            if label == "N":
+                new_df[1] = (
+                    new_df[i].astype(float)
+                    * 4.0
+                    / new_df[1].astype(float)
+                )
 
         # Insert filename into later column names.
         new_df[0] = new_df[0].apply(
@@ -80,7 +82,7 @@ class ResultAggregator:
                 [self.dataframe, new_df], axis=0
             )
 
-    def get_results(self, benchnames=[]):
+    def get_results(self, benchnames=[], index_col="N"):
         """Pivots dataframe and returns the selected columns.
 
         Parameters:
@@ -90,14 +92,15 @@ class ResultAggregator:
            Pandas.DataFrame: Benchmark results with index of 'N' and
                              selected results column-wise.
         """
-        df = self.dataframe.pivot(
-            columns="Name", values="Throughput", index="N"
-        ).sort_values(by=["N"], key=lambda col: col.astype(int))
+        df = self.dataframe[self.dataframe["Name"].isin(benchnames)]
+        df = df.pivot(
+            columns="Name", values="Throughput", index=index_col
+        ).sort_values(by=[index_col], key=lambda col: col.astype(int))
         # Plotting logscale with index is bugged
         # N must be added again
-        df["N"] = df.index.astype(int)
+        df[index_col] = df.index.astype(int)
 
-        return df[["N"] + benchnames]
+        return df[[index_col] + benchnames]
 
 
 class Plotwrapper:
@@ -131,7 +134,9 @@ class Plotwrapper:
                                       --xscale 'log' --yscale 'linear'
                                       --grid
         """
-        data = self.agg.get_results(list(self.columns.keys()))
+        data = self.agg.get_results(
+            list(self.columns.keys()), index_col
+        )
         data.rename(columns=self.columns, inplace=True)
         data.plot(x=index_col, marker="x")
         plt.title(title)
@@ -147,6 +152,7 @@ class Plotwrapper:
             plt.grid()
 
         plt.savefig("graphs/" + title + ".pdf")
+        plt.close("all")
 
     def file(self, csv: str):
         """Select data file to be read in.
