@@ -534,7 +534,6 @@ IterType exclusive_scan(
 {
     using ValueType = typename std::iterator_traits<IterType>::value_type;
 
-    // std::cout << "Tiled:" << std::endl;
     size_t num_values = last - first;
     size_t tile_size  = tiled::tile_size;
     if (num_values < tile_size)
@@ -647,7 +646,6 @@ IterType inclusive_segmented_scan(IterType        first,
     {
         size_t end = (i + 1) * tile_size;
         end        = end > num_values ? num_values : end;
-        // std::cout << "begin: " << i * tile_size << ", end: " << end << std::endl;
 
         ValueType sum = temp[i].first;
         for (size_t j = i * tile_size; j < end; j++)
