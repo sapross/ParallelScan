@@ -156,8 +156,32 @@ IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_firs
 template<class IterType, class T>
 IterType exclusive_segmented_scan(IterType first, IterType last, T init)
 {
-    return sequential::naive::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using FlagType  = typename std::tuple_element<1, PairType>::type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
+    static_assert(std::is_convertible<FlagType, bool>::value,
+                  "Second pair type must be convertible to bool!");
+    static_assert(std::is_convertible<T, ValueType>::value,
+                  "Init must be convertible to First pair type!");
+
+    size_t    num_values = last - first;
+    ValueType sum        = init;
+    for (size_t i = 0; i < num_values; i++)
+    {
+        T temp = first[i].first;
+        if (!first[i].second)
+        {
+            first[i].first = sum;
+            sum            = sum + temp;
+        }
+        else
+        {
+            first[i].first = init;
+            sum            = temp + init;
+        }
+    }
+
+    return last;
 }
 
 }; // namespace naive

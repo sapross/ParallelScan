@@ -532,21 +532,21 @@ TEST_CASE("In-Place Inclusive Scan Test", "[in][inc]")
     {
         std::vector<int> result(N, 0);
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::naive::inclusive_scan(result.begin(), result.end(), result.begin());
+        sequential::naive::inclusive_scan(result.begin(), result.end());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("Sequential Up-Down-Sweep")
     {
         std::vector<int> result(N, 0);
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::updown::inclusive_scan(result.begin(), result.end(), result.begin());
+        sequential::updown::inclusive_scan(result.begin(), result.end());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("Sequential Tiled")
     {
         std::vector<int> result(N, 0);
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::tiled::inclusive_scan(result.begin(), result.end(), result.begin());
+        sequential::tiled::inclusive_scan(result.begin(), result.end());
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB provided")
@@ -702,8 +702,7 @@ TEST_CASE("In-Place Inclusive Segmented Scan Sequential Test", "[in][incseg][seq
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::naive::inclusive_segmented_scan(
-            result.begin(), result.end(), result.begin());
+        sequential::naive::inclusive_segmented_scan(result.begin(), result.end());
 
         std::vector<int> temp(N);
         for (size_t i = 0; i < N; i++)
@@ -750,16 +749,14 @@ TEST_CASE("In-Place Inclusive Segmented Scan Test", "[in][incseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::updown::inclusive_segmented_scan(
-            result.begin(), result.end(), result.begin());
+        sequential::updown::inclusive_segmented_scan(result.begin(), result.end());
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("Sequential Tiled")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::tiled::inclusive_segmented_scan(
-            result.begin(), result.end(), result.begin());
+        sequential::tiled::inclusive_segmented_scan(result.begin(), result.end());
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("TBB provided")
@@ -846,8 +843,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Sequential Test", "[in][exseg][seq]
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         std::copy(data.begin(), data.end(), result.begin());
-        sequential::naive::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), 0);
+        sequential::naive::exclusive_segmented_scan(result.begin(), result.end(), 0);
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
@@ -892,7 +888,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         std::copy(data.begin(), data.end(), result.begin());
 
         sequential::updown::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), 0, init);
+            result.begin(), result.end(), 0, init);
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
@@ -902,7 +898,7 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
         std::copy(data.begin(), data.end(), result.begin());
 
         sequential::tiled::exclusive_segmented_scan(
-            result.begin(), result.end(), result.begin(), 0, init);
+            result.begin(), result.end(), 0, init);
 
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
