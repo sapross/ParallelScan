@@ -150,7 +150,6 @@ IterType exclusive_scan(IterType first, IterType last, T init)
 
     size_t num_values = last - first;
     size_t step       = 2;
-    // Up sweep
 
     // Up sweep
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
@@ -165,6 +164,7 @@ IterType exclusive_scan(IterType first, IterType last, T init)
 
     first[num_values - 1] = init;
 
+    // Down sweep
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
@@ -261,6 +261,9 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
         }
     }
     step = 1 << (size_t)(std::floor(std::log2(num_values)));
+
+    // Down sweep
+
     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
     {
         step = step / 2;

@@ -40,17 +40,24 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
 
     // Phase 2: Intermediate Scan (parallel)
     openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first);
+    d_first[0] = temp[0];
 
 // Phase 3: Rescan on Tiles (parallel)
 #pragma omp parallel for
     for (size_t i = 0; i <= num_tiles; i++)
     {
-        size_t begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
-        std::exclusive_scan(first + begin,
-                            end > num_values + 1 ? first + num_values : first + end,
-                            d_first + i * tile_size,
-                            temp[i],
-                            binary_op);
+        size_t    begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
+        ValueType sum = temp[i];
+        if (end > num_values)
+        {
+            end = num_values;
+        }
+
+        for (size_t j = begin; j < end; j++)
+        {
+            sum        = binary_op(sum, first[j]);
+            d_first[j] = sum;
+        }
     }
     return d_first + num_values;
 }
@@ -102,11 +109,17 @@ IterType exclusive_scan(
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t begin = i * tile_size, end = (i + 1) * tile_size;
-        std::exclusive_scan(first + begin,
-                            end > num_values ? first + num_values : first + end,
-                            d_first + i * tile_size,
-                            temp[i],
-                            binary_op);
+        if (end > num_values)
+        {
+            end = num_values;
+        }
+
+        ValueType sum = temp[i];
+        for (size_t j = begin; j < end; j++)
+        {
+            d_first[j] = sum;
+            sum        = binary_op(sum, first[j]);
+        }
     }
     return d_first + num_values;
 }
