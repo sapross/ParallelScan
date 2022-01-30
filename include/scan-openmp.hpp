@@ -136,7 +136,7 @@ IterType inclusive_scan(IterType&       first,
 // Up sweep
 
 // First stage of the up sweep fused with copy.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -147,7 +147,7 @@ IterType inclusive_scan(IterType&       first,
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -158,7 +158,7 @@ IterType inclusive_scan(IterType&       first,
     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
     {
         step = step / 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = step; i < (num_values - 1); i = i + step)
         {
             d_first[i + step / 2 - 1] =
@@ -196,7 +196,7 @@ IterType exclusive_scan(
 // Up sweep
 
 // First stage of the up sweep fused with copy.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -206,7 +206,7 @@ IterType exclusive_scan(
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -218,7 +218,7 @@ IterType exclusive_scan(
 
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
@@ -324,7 +324,7 @@ IterType exclusive_segmented_scan(IterType        first,
 
     // First stage of the up sweep fused with copy
     step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t   left = i + step / 2 - 1, right = i + step - 1;
@@ -347,7 +347,7 @@ IterType exclusive_segmented_scan(IterType        first,
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -368,7 +368,7 @@ IterType exclusive_segmented_scan(IterType        first,
     // Down sweep
     for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
     {
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             size_t left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
@@ -405,7 +405,7 @@ IterType exclusive_segmented_scan(IterType        first,
 
 // Last stage of down-sweep meaning that stage = 0
 // This stage is fused with a cleanup of the segment beginnings.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         size_t    left = i, right = i + 1;
@@ -484,7 +484,7 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
     std::vector<ValueType> temp(num_tiles + 1);
 
 // Phase 1: Reduction om Tiles (parallel)
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
         temp[i] = *(first + 1 + i * tile_size);
@@ -498,7 +498,7 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
     openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first);
 
 // Phase 3: Rescan on Tiles (parallel)
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
@@ -539,7 +539,7 @@ IterType exclusive_scan(
     std::vector<ValueType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
         temp[i] = std::reduce(
@@ -551,7 +551,7 @@ IterType exclusive_scan(
     openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init);
 
 // Phase 3: Rescan
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t begin = i * tile_size, end = (i + 1) * tile_size;
@@ -617,7 +617,7 @@ IterType inclusive_segmented_scan(IterType        first,
     std::vector<PairType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
-#pragma omp parallel for
+#pragma omp parallel for simd
 
     for (size_t i = 0; i < num_tiles; i++)
     {
@@ -632,7 +632,7 @@ IterType inclusive_segmented_scan(IterType        first,
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, wrapped_bop);
 
 // Phase 3: Rescan on Tiles (parallel)
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t end = (i + 1) * tile_size;
@@ -712,7 +712,7 @@ IterType exclusive_segmented_scan(IterType        first,
     std::vector<PairType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
         temp[i] = std::reduce(first + i * tile_size,
@@ -726,7 +726,7 @@ IterType exclusive_segmented_scan(IterType        first,
         temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
 
 // Phase 3: Rescan
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t end = (i + 1) * tile_size;
