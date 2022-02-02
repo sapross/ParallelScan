@@ -46,7 +46,7 @@ SCENARIO("Analytical Inclusive Scan Sequential", "[inc] [seq]")
             { sequential::tiled::inclusive_scan(begin, end, data.begin(), binary_op); });
     };
 }
-/*
+
 SCENARIO("Analytical Inclusive Scan OpenMP", "[inc] [omp]")
 {
 
@@ -67,21 +67,22 @@ SCENARIO("Analytical Inclusive Scan OpenMP", "[inc] [omp]")
 
     BENCHMARK_ADVANCED("ana_inc_OMP_provided")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([&data]()
-                      { openmp::provided::inclusive_scan(data.begin(), data.end()); });
+        meter.measure([begin, end, &binary_op, &data]()
+                      { openmp::provided::inclusive_scan(begin, end, data.begin()); });
     };
     BENCHMARK_ADVANCED("ana_inc_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([&data]()
-                      { openmp::updown::inclusive_scan(data.begin(), data.end()); });
+        meter.measure([begin, end, &binary_op, &data]()
+                      { openmp::updown::inclusive_scan(begin, end, data.begin()); });
     };
     BENCHMARK_ADVANCED("ana_inc_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([&data]()
-                      { openmp::tiled::inclusive_scan(data.begin(), data.end()); });
+        meter.measure([begin, end, &binary_op, &data]()
+                      { openmp::tiled::inclusive_scan(begin, end, data.begin()); });
     };
 }
-///*
+
+/*
 SCENARIO("Analytical Inclusive Scan TBB", "[inc] [tbb]")
 {
 

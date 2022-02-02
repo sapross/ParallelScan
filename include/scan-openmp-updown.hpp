@@ -7,11 +7,11 @@ namespace updown
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
-template<class IterType, class BinaryOperation>
-IterType inclusive_scan(IterType&       first,
-                        IterType&       last,
-                        IterType&       d_first,
-                        BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename BinaryOperation>
+OutputIter inclusive_scan(InputIter       first,
+                          InputIter       last,
+                          OutputIter      d_first,
+                          BinaryOperation binary_op)
 {
     size_t num_values = last - first;
     size_t step       = 2;
@@ -50,13 +50,13 @@ IterType inclusive_scan(IterType&       first,
     return d_first + num_values;
 }
 
-template<class IterType>
-IterType inclusive_scan(IterType first, IterType last, IterType d_first)
+template<typename InputIter, typename OutputIter>
+OutputIter inclusive_scan(InputIter first, InputIter last, OutputIter d_first)
 {
     return openmp::updown::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
-template<class IterType> IterType inclusive_scan(IterType first, IterType last)
+template<typename InputIter> InputIter inclusive_scan(InputIter first, InputIter last)
 {
     size_t num_values = last - first;
     size_t step       = 1;
@@ -92,11 +92,14 @@ template<class IterType> IterType inclusive_scan(IterType first, IterType last)
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
 
-template<class IterType, class T, class BinaryOperation>
-IterType exclusive_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename T, typename BinaryOperation>
+OutputIter exclusive_scan(InputIter       first,
+                          InputIter       last,
+                          OutputIter      d_first,
+                          T               init,
+                          BinaryOperation binary_op)
 {
-    using ValueType = typename std::iterator_traits<IterType>::value_type;
+    using ValueType = typename std::iterator_traits<InputIter>::value_type;
     static_assert(std::is_same<ValueType, T>::value,
                   "Underlying input and init type have to be the same!");
 
@@ -139,16 +142,16 @@ IterType exclusive_scan(
     return d_first + num_values;
 }
 
-template<class IterType, class T>
-IterType exclusive_scan(IterType first, IterType last, IterType d_first, T init)
+template<typename InputIter, typename OutputIter, typename T>
+OutputIter exclusive_scan(InputIter first, InputIter last, OutputIter d_first, T init)
 {
     return openmp::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<class IterType, class T>
-IterType exclusive_scan(IterType first, IterType last, T init)
+template<typename InputIter, typename T>
+InputIter exclusive_scan(InputIter first, InputIter last, T init)
 {
-    using ValueType = typename std::iterator_traits<IterType>::value_type;
+    using ValueType = typename std::iterator_traits<InputIter>::value_type;
     static_assert(std::is_same<ValueType, T>::value,
                   "Underlying input and init type have to be the same!");
 
@@ -190,13 +193,13 @@ IterType exclusive_scan(IterType first, IterType last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class IterType, class BinaryOperation>
-IterType inclusive_segmented_scan(IterType        first,
-                                  IterType        last,
-                                  IterType        d_first,
-                                  BinaryOperation binary_op)
+template<typename InputIter, typename BinaryOperation>
+InputIter inclusive_segmented_scan(InputIter       first,
+                                   InputIter       last,
+                                   InputIter       d_first,
+                                   BinaryOperation binary_op)
 {
-    using PairType = typename std::iterator_traits<IterType>::value_type;
+    using PairType = typename std::iterator_traits<InputIter>::value_type;
     using FlagType = typename std::tuple_element<1, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second pair type must be convertible to bool!");
@@ -223,13 +226,14 @@ IterType inclusive_segmented_scan(IterType        first,
                                           });
 }
 
-template<class IterType>
-IterType inclusive_segmented_scan(IterType first, IterType last, IterType d_first)
+template<typename InputIter, typename OutputIter>
+OutputIter inclusive_segmented_scan(InputIter first, InputIter last, OutputIter d_first)
 {
     return openmp::updown::inclusive_segmented_scan(first, last, d_first, std::plus<>());
 }
 
-template<class IterType> IterType inclusive_segmented_scan(IterType first, IterType last)
+template<typename InputIter>
+InputIter inclusive_segmented_scan(InputIter first, InputIter last)
 {
     size_t num_values = last - first;
     size_t step       = 1;
@@ -283,18 +287,18 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class IterType, class BinaryOperation, class T>
-IterType exclusive_segmented_scan(IterType        first,
-                                  IterType        last,
-                                  IterType        d_first,
-                                  T               identity,
-                                  T               init,
-                                  BinaryOperation binary_op)
+template<typename InputIter, typename BinaryOperation, typename T>
+InputIter exclusive_segmented_scan(InputIter       first,
+                                   InputIter       last,
+                                   InputIter       d_first,
+                                   T               identity,
+                                   T               init,
+                                   BinaryOperation binary_op)
 {
     /* Due to the add-swap operation in the down sweep phase a simple wrapper
        of the binary operation is insufficient.
      */
-    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using PairType  = typename std::iterator_traits<InputIter>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
     using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
@@ -434,21 +438,21 @@ IterType exclusive_segmented_scan(IterType        first,
     return first + num_values;
 }
 
-template<class IterType, class T>
-IterType exclusive_segmented_scan(
-    IterType first, IterType last, IterType d_first, T identity, T init)
+template<typename InputIter, typename OutputIter, typename T>
+OutputIter exclusive_segmented_scan(
+    InputIter first, InputIter last, OutputIter d_first, T identity, T init)
 {
     return openmp::updown::exclusive_segmented_scan(
         first, last, d_first, identity, init, std::plus<>());
 }
 
-template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, T identity, T init)
+template<typename InputIter, typename T>
+InputIter exclusive_segmented_scan(InputIter first, InputIter last, T identity, T init)
 {
     /* Due to the add-swap operation in the down sweep phase a simple wrapper
        of the binary operation is insufficient.
      */
-    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using PairType  = typename std::iterator_traits<InputIter>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
     using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
