@@ -624,7 +624,7 @@ SCENARIO("Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
             [&data, &result, init]()
             {
                 _tbb::updown::exclusive_segmented_scan(
-                    data.begin(), data.end(), result.begin(), init);
+                    data.begin(), data.end(), result.begin(), 0.0f, init);
             });
     };
     BENCHMARK_ADVANCED("exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
