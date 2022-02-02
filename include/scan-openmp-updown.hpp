@@ -193,11 +193,11 @@ InputIter exclusive_scan(InputIter first, InputIter last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<typename InputIter, typename BinaryOperation>
-InputIter inclusive_segmented_scan(InputIter       first,
-                                   InputIter       last,
-                                   InputIter       d_first,
-                                   BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename BinaryOperation>
+OutputIter inclusive_segmented_scan(InputIter       first,
+                                    InputIter       last,
+                                    OutputIter      d_first,
+                                    BinaryOperation binary_op)
 {
     using PairType = typename std::iterator_traits<InputIter>::value_type;
     using FlagType = typename std::tuple_element<1, PairType>::type;

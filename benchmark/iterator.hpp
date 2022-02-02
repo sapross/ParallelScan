@@ -67,6 +67,14 @@ template<typename F> class transform_iterator
         return tmp;
     }
 
+    [[nodiscard]] inline friend transform_iterator
+    operator-(const transform_iterator& lhs, const ssize_t idx) noexcept
+    {
+        auto tmp = lhs;
+        tmp.idx_ -= idx;
+        return tmp;
+    }
+
     // Comparision operators
     [[nodiscard]] inline friend bool operator==(const transform_iterator& lhs,
                                                 const transform_iterator& rhs) noexcept

@@ -14,18 +14,16 @@ template<class InputIt, class OutputIt, class BinaryOperation, class T>
 OutputIt inclusive_scan(
     InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
-    using InputType  = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<InputType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using InputType = typename std::iterator_traits<InputIt>::value_type;
+
     using range_type = tbb::blocked_range<size_t>;
 
     tbb::parallel_scan(
         range_type(0, std::distance(first, last)),
         identity,
-        [&](const range_type& r, OutputType sum, bool is_final_scan)
+        [&](const range_type& r, InputType sum, bool is_final_scan)
         {
-            OutputType tmp = sum;
+            InputType tmp = sum;
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 tmp = binary_op(tmp, first[i]);
@@ -34,7 +32,7 @@ OutputIt inclusive_scan(
             }
             return tmp;
         },
-        [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
+        [&](const InputType a, const InputType b) { return binary_op(a, b); });
     return d_first + std::distance(first, last);
 }
 

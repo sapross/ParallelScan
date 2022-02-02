@@ -24,10 +24,12 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     size_t step       = 1;
     // Up sweep
 
-    if (std::distance(first, d_first) != 0)
-    {
-        std::copy(first, last, d_first);
-    }
+    // sdt::distance does not play nice if the iterators are of different type.
+    // if (std::distance(first, d_first) != 0)
+    //{
+    std::copy(first, last, d_first);
+    //}
+
     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
@@ -84,10 +86,10 @@ OutputIt exclusive_scan(
     size_t step       = 1;
 
     // Up sweep
-    if (std::distance(first, d_first) != 0)
-    {
-        std::copy(first, last, d_first);
-    }
+    // if (std::distance(first, d_first) != 0)
+    // {
+    std::copy(first, last, d_first);
+    // }
     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
