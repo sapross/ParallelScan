@@ -213,10 +213,10 @@ OutputIt exclusive_segmented_scan(
     size_t num_values = last - first;
     size_t step       = 1;
 
-    if (std::distance(first, d_first) != 0)
-    {
-        std::copy(first, last, d_first);
-    }
+    // if (std::distance(first, d_first) != 0)
+    // {
+    std::copy(first, last, d_first);
+    // }
 
     /* Up sweep
        Essentially the same operation as with the conditional wrapper but
@@ -281,14 +281,14 @@ OutputIt exclusive_segmented_scan(
     // fused with any previous operation.
     while (first != last)
     {
-        if (first->second)
+        if ((*first).second)
         {
             d_first->first = init;
         }
         first++;
         d_first++;
     }
-    return first;
+    return d_first;
 }
 
 template<class InputIt, class OutputIt, class T>

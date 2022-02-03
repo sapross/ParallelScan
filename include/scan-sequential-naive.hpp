@@ -152,7 +152,7 @@ OutputIter exclusive_segmented_scan(InputIter       first,
         }
     }
 
-    return first + num_values;
+    return d_first + num_values;
 }
 
 template<typename InputIter, typename OutputIter, typename T>

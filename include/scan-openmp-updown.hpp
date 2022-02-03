@@ -287,10 +287,10 @@ InputIter inclusive_segmented_scan(InputIter first, InputIter last)
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<typename InputIter, typename BinaryOperation, typename T>
-InputIter exclusive_segmented_scan(InputIter       first,
+template<typename InputIter, typename OuputIter, typename BinaryOperation, typename T>
+OuputIter exclusive_segmented_scan(InputIter       first,
                                    InputIter       last,
-                                   InputIter       d_first,
+                                   OuputIter       d_first,
                                    T               identity,
                                    T               init,
                                    BinaryOperation binary_op)
@@ -435,7 +435,7 @@ InputIter exclusive_segmented_scan(InputIter       first,
         d_first[left].first  = binary_op(init, val_left);
         d_first[right].first = binary_op(init, val_right);
     }
-    return first + num_values;
+    return d_first + num_values;
 }
 
 template<typename InputIter, typename OutputIter, typename T>

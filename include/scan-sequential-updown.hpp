@@ -438,7 +438,7 @@ OutputIter exclusive_segmented_scan(InputIter       first,
         d_first[right].first = binary_op(init, val_right);
     }
 
-    return first + num_values;
+    return d_first + num_values;
 }
 
 template<typename InputIter, typename OutputIter, typename T>

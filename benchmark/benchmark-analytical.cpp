@@ -202,14 +202,17 @@ SCENARIO("Analytical Exclusive Scan OpenMP", "[ex] [omp]")
     BENCHMARK_ADVANCED("ana_ex_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init]()
-            { openmp::updown::exclusive_scan(begin, end, data.begin(), init); });
+            [begin, end, &binary_op, &data, init]() {
+                openmp::updown::exclusive_scan(begin, end, data.begin(), init, binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_ex_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([begin, end, &binary_op, &data, init]()
-                      { openmp::tiled::exclusive_scan(begin, end, data.begin(), init); });
+        meter.measure(
+            [begin, end, &binary_op, &data, init]() {
+                openmp::tiled::exclusive_scan(begin, end, data.begin(), init, binary_op);
+            });
     };
 }
 
@@ -235,8 +238,9 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
     BENCHMARK_ADVANCED("ana_ex_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init]()
-            { _tbb::provided::exclusive_scan(begin, end, data.begin(), init); });
+            [begin, end, &binary_op, &data, init]() {
+                _tbb::provided::exclusive_scan(begin, end, data.begin(), init, binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_ex_TBB_updown")(Catch::Benchmark::Chronometer meter)
@@ -287,24 +291,30 @@ SCENARIO("Analytical Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { sequential::naive::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                sequential::naive::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_incseg_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { sequential::updown::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                sequential::updown::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_incseg_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { sequential::tiled::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                sequential::tiled::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 }
 
@@ -340,16 +350,20 @@ SCENARIO("Analytical Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { openmp::updown::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                openmp::updown::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_incseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { openmp::tiled::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                openmp::tiled::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 }
 SCENARIO("Analytical Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
@@ -384,8 +398,10 @@ SCENARIO("Analytical Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]() {
-                _tbb::provided::inclusive_segmented_scan(begin, end, data.begin(), false);
+            [begin, end, &binary_op, &data]()
+            {
+                _tbb::provided::inclusive_segmented_scan(
+                    begin, end, data.begin(), false, binary_op);
             });
     };
 
@@ -393,19 +409,22 @@ SCENARIO("Analytical Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { _tbb::updown::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                _tbb::updown::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_incseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data]()
-            { _tbb::tiled::inclusive_segmented_scan(begin, end, data.begin()); });
+            [begin, end, &binary_op, &data]() {
+                _tbb::tiled::inclusive_segmented_scan(
+                    begin, end, data.begin(), binary_op);
+            });
     };
 }
-/*
 
 SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
 {
@@ -417,18 +436,26 @@ SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
     CAPTURE(N);
     SUCCEED();
 
-    std::vector<std::pair<float, int>> data(N);
-    std::generate(begin,
-                  end,
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::vector<std::pair<bool, bool>> data(N);
+    std::fill(data.begin(), data.end(), std::make_pair(false, false));
 
-    bool init = false;
+    pad::transform_iterator begin(0,
+                                  [](ssize_t idx)
+                                  {
+                                      if ((idx % 2) == true)
+                                      {
+                                          return std::make_pair(true, true);
+                                      }
+                                      else
+                                      {
+                                          return std::make_pair(false, false);
+                                      }
+                                  });
+    auto                    end = begin + N;
+
+    auto binary_op = [](bool x, bool y) -> bool { return x ^ y; };
+    bool init      = false;
+    bool identity  = false;
 
     // Benchmark
     BENCHMARK_ADVANCED("ana_exseg_seq_sequential")(Catch::Benchmark::Chronometer meter)
@@ -436,16 +463,20 @@ SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
             [begin, end, &binary_op, &data, init]()
-            { sequential::naive::exclusive_segmented_scan(data.begin(), end, init); });
+            {
+                sequential::naive::exclusive_segmented_scan(
+                    begin, end, data.begin(), init, binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data, init]() {
+            [begin, end, &binary_op, &data, init, identity]()
+            {
                 sequential::updown::exclusive_segmented_scan(
-                    data.begin(), end, .0f, init);
+                    begin, end, data.begin(), identity, init, binary_op);
             });
     };
 
@@ -453,8 +484,10 @@ SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data, init]() {
-                sequential::tiled::exclusive_segmented_scan(data.begin(), end, .0f, init);
+            [begin, end, &binary_op, &data, init, identity]()
+            {
+                sequential::tiled::exclusive_segmented_scan(
+                    begin, end, data.begin(), identity, init, binary_op);
             });
     };
 }
@@ -469,35 +502,50 @@ SCENARIO("Analytical Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
     CAPTURE(N);
     SUCCEED();
 
-    std::vector<std::pair<float, int>> data(N);
-    std::generate(begin,
-                  end,
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::vector<std::pair<bool, bool>> data(N);
+    std::fill(data.begin(), data.end(), std::make_pair(false, false));
 
-    bool init = false;
+    pad::transform_iterator begin(0,
+                                  [](ssize_t idx)
+                                  {
+                                      if ((idx % 2) == true)
+                                      {
+                                          return std::make_pair(true, true);
+                                      }
+                                      else
+                                      {
+                                          return std::make_pair(false, false);
+                                      }
+                                  });
+    auto                    end = begin + N;
+
+    auto binary_op = [](bool x, bool y) -> bool { return x ^ y; };
+    bool init      = false;
+    bool identity  = false;
 
     BENCHMARK_ADVANCED("ana_exseg_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data, init]()
-            { openmp::updown::exclusive_segmented_scan(data.begin(), end, .0f, init); });
+            [begin, end, &binary_op, &data, init, identity]()
+            {
+                openmp::updown::exclusive_segmented_scan(
+                    begin, end, data.begin(), identity, init, binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [begin, end, &binary_op, &data, init]()
-            { openmp::tiled::exclusive_segmented_scan(data.begin(), end, .0f, init); });
+            [begin, end, &binary_op, &data, init, identity]()
+            {
+                openmp::tiled::exclusive_segmented_scan(
+                    begin, end, data.begin(), identity, init, binary_op);
+            });
     };
 }
+
 SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
 {
 
@@ -508,75 +556,50 @@ SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
     CAPTURE(N);
     SUCCEED();
 
-    std::vector<std::pair<float, int>> data(N);
-    std::generate(begin,
-                  end,
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::vector<std::pair<bool, bool>> data(N);
+    std::fill(data.begin(), data.end(), std::make_pair(false, false));
 
-    bool init = false;
+    pad::transform_iterator begin(0,
+                                  [](ssize_t idx)
+                                  {
+                                      if ((idx % 2) == true)
+                                      {
+                                          return std::make_pair(true, true);
+                                      }
+                                      else
+                                      {
+                                          return std::make_pair(false, false);
+                                      }
+                                  });
+    auto                    end = begin + N;
+
+    auto binary_op = [](bool x, bool y) -> bool { return x ^ y; };
+    bool init      = false;
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
-        meter.measure([begin, end, &binary_op, &data, init]()
-                      { _tbb::provided::exclusive_segmented_scan(begin, end, data.begin()
-init); });
+        meter.measure(
+            [begin, end, &binary_op, &data, init]() {
+                _tbb::provided::exclusive_segmented_scan(
+                    begin, end, data.begin(), init, binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
-        meter.measure([begin, end, &binary_op, &data, init]()
-                      { _tbb::updown::exclusive_segmented_scan(begin, end, data.begin()
-init); });
+        meter.measure(
+            [begin, end, &binary_op, &data, init]() {
+                _tbb::updown::exclusive_segmented_scan(
+                    begin, end, data.begin(), init, binary_op);
+            });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
-        meter.measure([begin, end, &binary_op, &data, init]()
-                      { _tbb::tiled::exclusive_segmented_scan(begin, end, data.begin()
-init); });
+        meter.measure(
+            [begin, end, &binary_op, &data, init]() {
+                _tbb::tiled::exclusive_segmented_scan(
+                    begin, end, data.begin(), init, binary_op);
+            });
     };
 }
-
-SCENARIO("Analytical Inclusive Scan Tile Size", "[.][tilesize]")
-{
-
-    // Benchmark parameters
-    const size_t N         = 1ull << 30;
-    const size_t tile_size = GENERATE(logRange(1ull << 4, 1ull << 28, 2));
-
-    // Logging of variables
-    CAPTURE(tile_size);
-    CAPTURE(N);
-    SUCCEED();
-
-    std::vector<float> data(N);
-    std::generate(begin, end, data.begin() rand);
-
-    // Benchmark
-    BENCHMARK_ADVANCED("ana_omp_outofplace_inc_tilesize")
-    (Catch::Benchmark::Chronometer meter)
-    {
-        std::vector<float> result(N);
-        openmp::tiled::set_tile_size(tile_size);
-        meter.measure([begin, end, &binary_op, &data]()
-                      { openmp::tiled::inclusive_scan(begin, end,data.begin()); });
-    };
-
-    BENCHMARK_ADVANCED("ana_omp_inplace_inc_tilesize")
-    (Catch::Benchmark::Chronometer meter)
-    {
-        openmp::tiled::set_tile_size(tile_size);
-        meter.measure([begin, end, &binary_op, &data]()
-                      { openmp::tiled::inclusive_scan(begin, end, data.begin()); });
-    };
-}
-*/

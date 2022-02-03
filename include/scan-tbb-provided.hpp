@@ -194,14 +194,14 @@ OutputIt exclusive_segmented_scan(
     // See implementation under numeric.h
     while (first != last)
     {
-        if (first->second)
+        if ((*first).second)
         {
             d_first->first = init;
         }
         first++;
         d_first++;
     }
-    return first;
+    return d_first;
 }
 
 template<class InputIt, class OutputIt, class T>
