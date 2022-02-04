@@ -64,7 +64,7 @@ class ResultAggregator:
             if label == "N":
                 new_df[1] = (
                     new_df[i].astype(float)
-                    * 4.0
+                    * 8.0
                     / new_df[1].astype(float)
                 )
 
