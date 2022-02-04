@@ -82,7 +82,7 @@ else()
   ## mp-media specific executables
   add_executable(bench-memory-media
 	benchmark/benchmark-main.cpp
-	benchmark/benchmark-analytical.cpp
+	benchmark/benchmark-memory.cpp
 	common/csv_reporter.hpp
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
@@ -122,7 +122,7 @@ else()
   ## ziti-rome specific executables
   add_executable(bench-memory-rome
 	benchmark/benchmark-main.cpp
-	benchmark/benchmark-analytical.cpp
+	benchmark/benchmark-memory.cpp
 	common/csv_reporter.hpp
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
