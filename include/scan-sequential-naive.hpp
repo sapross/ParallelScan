@@ -14,20 +14,22 @@ namespace naive
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
-template<class IterType, class BinaryOperation>
-IterType
-inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename BinaryOperation>
+OutputIter inclusive_scan(InputIter       first,
+                          InputIter       last,
+                          OutputIter      d_first,
+                          BinaryOperation binary_op)
 {
     return std::inclusive_scan(first, last, d_first, binary_op);
 }
 
-template<class IterType>
-IterType inclusive_scan(IterType first, IterType last, IterType d_first)
+template<typename InputIter, typename OutputIter>
+InputIter inclusive_scan(InputIter first, InputIter last, OutputIter d_first)
 {
     return sequential::naive::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
-template<class IterType> IterType inclusive_scan(IterType first, IterType last)
+template<typename InputIter> InputIter inclusive_scan(InputIter first, InputIter last)
 {
     return sequential::naive::inclusive_scan(first, last, first, std::plus<>());
 }
@@ -36,22 +38,25 @@ template<class IterType> IterType inclusive_scan(IterType first, IterType last)
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
 
-template<class IterType, class T, class BinaryOperation>
-IterType exclusive_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename T, typename BinaryOperation>
+OutputIter exclusive_scan(InputIter       first,
+                          InputIter       last,
+                          OutputIter      d_first,
+                          T               init,
+                          BinaryOperation binary_op)
 {
 
     return std::exclusive_scan(first, last, d_first, init, binary_op);
 }
 
-template<class IterType, class T>
-IterType exclusive_scan(IterType first, IterType last, IterType d_first, T init)
+template<typename InputIter, typename OutputIter, typename T>
+OutputIter exclusive_scan(InputIter first, InputIter last, OutputIter d_first, T init)
 {
     return sequential::naive::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<class IterType, class T>
-IterType exclusive_scan(IterType first, IterType last, T init)
+template<typename InputIter, typename T>
+InputIter exclusive_scan(InputIter first, InputIter last, T init)
 {
     return sequential::naive::exclusive_scan(first, last, first, init, std::plus<>());
 }
@@ -60,13 +65,13 @@ IterType exclusive_scan(IterType first, IterType last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class IterType, class BinaryOperation>
-IterType inclusive_segmented_scan(IterType        first,
-                                  IterType        last,
-                                  IterType        d_first,
-                                  BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename BinaryOperation>
+OutputIter inclusive_segmented_scan(InputIter       first,
+                                    InputIter       last,
+                                    OutputIter      d_first,
+                                    BinaryOperation binary_op)
 {
-    using PairType = typename std::iterator_traits<IterType>::value_type;
+    using PairType = typename std::iterator_traits<InputIter>::value_type;
     using FlagType = typename std::tuple_element<1, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
                   "Second Input Iterator type must be convertible to bool!");
@@ -98,14 +103,15 @@ IterType inclusive_segmented_scan(IterType        first,
                                              });
 }
 
-template<class IterType>
-IterType inclusive_segmented_scan(IterType first, IterType last, IterType d_first)
+template<typename InputIter, typename OutputIter>
+OutputIter inclusive_segmented_scan(InputIter first, InputIter last, OutputIter d_first)
 {
     return sequential::naive::inclusive_segmented_scan(
         first, last, d_first, std::plus<>());
 }
 
-template<class IterType> IterType inclusive_segmented_scan(IterType first, IterType last)
+template<typename InputIter>
+InputIter inclusive_segmented_scan(InputIter first, InputIter last)
 {
     return sequential::naive::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
@@ -114,11 +120,14 @@ template<class IterType> IterType inclusive_segmented_scan(IterType first, IterT
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class IterType, class BinaryOperation, class T>
-IterType exclusive_segmented_scan(
-    IterType first, IterType last, IterType d_first, T init, BinaryOperation binary_op)
+template<typename InputIter, typename OutputIter, typename BinaryOperation, typename T>
+OutputIter exclusive_segmented_scan(InputIter       first,
+                                    InputIter       last,
+                                    OutputIter      d_first,
+                                    T               init,
+                                    BinaryOperation binary_op)
 {
-    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using PairType  = typename std::iterator_traits<InputIter>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
     using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
@@ -143,20 +152,21 @@ IterType exclusive_segmented_scan(
         }
     }
 
-    return first + num_values;
+    return d_first + num_values;
 }
 
-template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, IterType d_first, T init)
+template<typename InputIter, typename OutputIter, typename T>
+OutputIter
+exclusive_segmented_scan(InputIter first, InputIter last, OutputIter d_first, T init)
 {
     return sequential::naive::exclusive_segmented_scan(
         first, last, d_first, init, std::plus<>());
 }
 
-template<class IterType, class T>
-IterType exclusive_segmented_scan(IterType first, IterType last, T init)
+template<typename InputIter, typename T>
+InputIter exclusive_segmented_scan(InputIter first, InputIter last, T init)
 {
-    using PairType  = typename std::iterator_traits<IterType>::value_type;
+    using PairType  = typename std::iterator_traits<InputIter>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
     using ValueType = typename std::tuple_element<0, PairType>::type;
     static_assert(std::is_convertible<FlagType, bool>::value,
