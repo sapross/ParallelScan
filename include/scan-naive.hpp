@@ -528,8 +528,11 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
 
     size_t num_values = last - first;
     size_t tile_size  = tiled::tile_size;
-    tile_size         = (num_values - 1) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values - 1) / tile_size;
+    if (num_values - 1 < tile_size)
+    {
+        tile_size = num_values - 1;
+    }
+    size_t num_tiles = (num_values - 1) / tile_size;
 
     std::vector<ValueType> temp(num_tiles + 1);
 
@@ -545,16 +548,23 @@ inclusive_scan(IterType first, IterType last, IterType d_first, BinaryOperation 
 
     // Phase 2: Intermediate Scan
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
+    d_first[0] = first[0];
 
     // Phase 3: Rescan
     for (size_t i = 0; i <= num_tiles; i++)
     {
-        size_t begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
-        std::exclusive_scan(first + begin,
-                            end > num_values + 1 ? first + num_values : first + end,
-                            d_first + i * tile_size,
-                            temp[i],
-                            binary_op);
+        size_t    begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
+        ValueType sum = temp[i];
+        if (end > num_values)
+        {
+            end = num_values;
+        }
+
+        for (size_t j = begin; j < end; j++)
+        {
+            sum        = binary_op(sum, first[j]);
+            d_first[j] = sum;
+        }
     }
     return d_first + num_values;
 }
@@ -582,8 +592,11 @@ IterType exclusive_scan(
 
     size_t num_values = last - first;
     size_t tile_size  = tiled::tile_size;
-    tile_size         = (num_values) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values) / tile_size;
+    if (num_values < tile_size)
+    {
+        tile_size = num_values;
+    }
+    size_t num_tiles = num_values / tile_size - 1;
 
     std::vector<ValueType> temp(num_tiles + 1);
 
@@ -598,15 +611,23 @@ IterType exclusive_scan(
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
 
     // Phase 3: Rescan
+
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t begin = i * tile_size, end = (i + 1) * tile_size;
-        std::exclusive_scan(first + begin,
-                            end > num_values ? first + num_values : first + end,
-                            d_first + i * tile_size,
-                            temp[i],
-                            binary_op);
+        if (end > num_values)
+        {
+            end = num_values;
+        }
+
+        ValueType sum = temp[i];
+        for (size_t j = begin; j < end; j++)
+        {
+            d_first[j] = sum;
+            sum        = binary_op(sum, first[j]);
+        }
     }
+
     return d_first + num_values;
 }
 
@@ -687,8 +708,11 @@ IterType exclusive_segmented_scan(IterType        first,
 
     size_t num_values = last - first;
     size_t tile_size  = tiled::tile_size;
-    tile_size         = (num_values) > tile_size ? tile_size : 1;
-    size_t num_tiles  = (num_values) / tile_size;
+    if (num_values < tile_size)
+    {
+        tile_size = num_values;
+    }
+    size_t num_tiles = num_values / tile_size - 1;
 
     auto wrapped_bop = [binary_op](PairType x, PairType y)
     {
