@@ -25,19 +25,16 @@ SCENARIO("Inclusive Scan Sequential", "[inc] [seq]")
     // Benchmark
     BENCHMARK_ADVANCED("inc_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { sequential::naive::inclusive_scan(data.begin(), data.end()); });
     };
     BENCHMARK_ADVANCED("inc_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { sequential::updown::inclusive_scan(data.begin(), data.end()); });
     };
     BENCHMARK_ADVANCED("inc_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { sequential::tiled::inclusive_scan(data.begin(), data.end()); });
     };
@@ -65,13 +62,11 @@ SCENARIO("Inclusive Scan OpenMP", "[inc] [omp]")
     };
     BENCHMARK_ADVANCED("inc_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { openmp::updown::inclusive_scan(data.begin(), data.end()); });
     };
     BENCHMARK_ADVANCED("inc_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { openmp::tiled::inclusive_scan(data.begin(), data.end()); });
     };
@@ -93,24 +88,24 @@ SCENARIO("Inclusive Scan TBB", "[inc] [tbb]")
 
     std::vector<float> data(N, 0.);
     std::generate(data.begin(), data.end(), rand);
+
     BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data]() {
                 _tbb::provided::inclusive_scan(
                     data.begin(), data.end(), 0.0, data.begin());
             });
     };
+
     BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { _tbb::updown::inclusive_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data]()
                       { _tbb::tiled::inclusive_scan(data.begin(), data.end()); });
     };
@@ -137,21 +132,20 @@ SCENARIO("Exclusive Scan", "[ex] [seq]")
     // Benchmark
     BENCHMARK_ADVANCED("ex_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data, init]()
             { sequential::naive::exclusive_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("ex_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data, init]()
             { sequential::updown::exclusive_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("ex_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data, init]()
             { sequential::tiled::exclusive_scan(data.begin(), data.end(), init); });
@@ -176,21 +170,20 @@ SCENARIO("Exclusive Scan OpenMP", "[ex] [omp]")
 
     BENCHMARK_ADVANCED("ex_OMP_provided")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data, init]()
             { openmp::provided::exclusive_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("ex_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data, init]()
             { openmp::updown::exclusive_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("ex_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data, init]()
                       { openmp::tiled::exclusive_scan(data.begin(), data.end(), init); });
     };
@@ -214,20 +207,19 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
 
     BENCHMARK_ADVANCED("ex_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure(
             [&data, init]()
             { _tbb::provided::exclusive_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("ex_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data, init]()
                       { _tbb::updown::exclusive_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("ex_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
-
         meter.measure([&data, init]()
                       { _tbb::tiled::exclusive_scan(data.begin(), data.end(), init); });
     };
@@ -270,6 +262,7 @@ SCENARIO("Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
             [&data]()
             { sequential::naive::inclusive_segmented_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("incseg_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -277,6 +270,7 @@ SCENARIO("Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
             [&data]()
             { sequential::updown::inclusive_segmented_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("incseg_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -314,16 +308,6 @@ SCENARIO("Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
                       return A;
                   });
 
-    // BENCHMARK_ADVANCED("incseg_OMP_provided")(Catch::Benchmark::Chronometer meter)
-    // {
-    //     std::vector<std::pair<float, int>> result(N);
-    //     meter.measure(
-    //         [&data]()
-    //         {
-    //             openmp::provided::inclusive_segmented_scan(
-    //                 data.begin(), data.end());
-    //         });
-    // };
     BENCHMARK_ADVANCED("incseg_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -331,6 +315,7 @@ SCENARIO("Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
             [&data]()
             { openmp::updown::inclusive_segmented_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("incseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -376,6 +361,7 @@ SCENARIO("Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
                 _tbb::provided::inclusive_segmented_scan(data.begin(), data.end(), 0.0f);
             });
     };
+
     BENCHMARK_ADVANCED("incseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -383,6 +369,7 @@ SCENARIO("Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
             [&data]()
             { _tbb::updown::inclusive_segmented_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("incseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -433,6 +420,7 @@ SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
                     data.begin(), data.end(), init);
             });
     };
+
     BENCHMARK_ADVANCED("exseg_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -442,6 +430,7 @@ SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
                     data.begin(), data.end(), .0f, init);
             });
     };
+
     BENCHMARK_ADVANCED("exseg_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -484,16 +473,6 @@ SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
 
     float init = 0.0;
 
-    // BENCHMARK_ADVANCED("exseg_OMP_provided")(Catch::Benchmark::Chronometer meter)
-    // {
-    //     std::vector<std::pair<float, int>> result(N);
-    //     meter.measure(
-    //         [&data, init]()
-    //         {
-    //             openmp::provided::exclusive_segmented_scan(
-    //                 data.begin(), data.end(), init);
-    //         });
-    // };
     BENCHMARK_ADVANCED("exseg_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -503,6 +482,7 @@ SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
                     data.begin(), data.end(), .0f, init);
             });
     };
+
     BENCHMARK_ADVANCED("exseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -552,6 +532,7 @@ SCENARIO("Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
                 _tbb::provided::exclusive_segmented_scan(data.begin(), data.end(), init);
             });
     };
+
     BENCHMARK_ADVANCED("exseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -559,6 +540,7 @@ SCENARIO("Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
             [&data, init]()
             { _tbb::updown::exclusive_segmented_scan(data.begin(), data.end(), init); });
     };
+
     BENCHMARK_ADVANCED("exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
@@ -595,6 +577,7 @@ SCENARIO("Inclusive Scan Tile Size", "[.][tilesize]")
         meter.measure([&data]()
                       { openmp::tiled::inclusive_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("omp_inplace_inc_tilesize")(Catch::Benchmark::Chronometer meter)
     {
         openmp::tiled::set_tile_size(tile_size);
@@ -644,6 +627,7 @@ SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
             [&data]()
             { openmp::tiled::inclusive_segmented_scan(data.begin(), data.end()); });
     };
+
     BENCHMARK_ADVANCED("omp_inplace_incseg_tilesize")
     (Catch::Benchmark::Chronometer meter)
     {
@@ -696,6 +680,7 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
             [&data]()
             { openmp::tiled::exclusive_segmented_scan(data.begin(), data.end(), 0, 0); });
     };
+
     BENCHMARK_ADVANCED("omp_inplace_exseg_tilesize")
     (Catch::Benchmark::Chronometer meter)
     {
