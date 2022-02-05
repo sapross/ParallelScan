@@ -139,7 +139,7 @@ OutputIter exclusive_scan(InputIter first, InputIter last, OutputIter d_first, T
     return sequential::tiled::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<typename InputIter, typename OutputIter, typename T>
+template<typename InputIter, typename T>
 InputIter exclusive_scan(InputIter first, InputIter last, T init)
 {
     return sequential::tiled::exclusive_scan(first, last, first, init, std::plus<>());
