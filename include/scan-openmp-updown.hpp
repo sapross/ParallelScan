@@ -18,7 +18,7 @@ OutputIter inclusive_scan(InputIter       first,
 // Up sweep
 
 // First stage of the up sweep fused with copy.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -29,7 +29,7 @@ OutputIter inclusive_scan(InputIter       first,
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -40,7 +40,7 @@ OutputIter inclusive_scan(InputIter       first,
     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
     {
         step = step / 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = step; i < (num_values - 1); i = i + step)
         {
             d_first[i + step / 2 - 1] =
@@ -67,7 +67,7 @@ template<typename InputIter> InputIter inclusive_scan(InputIter first, InputIter
 
         step = step * 2;
 
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -79,7 +79,7 @@ template<typename InputIter> InputIter inclusive_scan(InputIter first, InputIter
     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
     {
         step = step / 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = step; i < num_values - 1; i = i + step)
         {
             first[i + step / 2 - 1] = (first[i - 1] + first[i + step / 2 - 1]);
@@ -108,7 +108,7 @@ OutputIter exclusive_scan(InputIter       first,
 // Up sweep
 
 // First stage of the up sweep fused with copy.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -118,7 +118,7 @@ OutputIter exclusive_scan(InputIter       first,
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -130,7 +130,7 @@ OutputIter exclusive_scan(InputIter       first,
 
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
@@ -163,7 +163,7 @@ InputIter exclusive_scan(InputIter first, InputIter last, T init)
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -176,7 +176,7 @@ InputIter exclusive_scan(InputIter first, InputIter last, T init)
 
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             size_t    left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
@@ -243,7 +243,7 @@ InputIter inclusive_segmented_scan(InputIter first, InputIter last)
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -265,7 +265,7 @@ InputIter inclusive_segmented_scan(InputIter first, InputIter last)
     {
         step = step / 2;
 
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = step; i < num_values - 1; i += step)
         {
             size_t left = i - 1, right = i + step / 2 - 1;
@@ -317,7 +317,7 @@ OuputIter exclusive_segmented_scan(InputIter       first,
 
     // First stage of the up sweep fused with copy
     step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t   left = i + step / 2 - 1, right = i + step - 1;
@@ -340,7 +340,7 @@ OuputIter exclusive_segmented_scan(InputIter       first,
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -361,7 +361,7 @@ OuputIter exclusive_segmented_scan(InputIter       first,
     // Down sweep
     for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
     {
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             size_t left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
@@ -398,7 +398,7 @@ OuputIter exclusive_segmented_scan(InputIter       first,
 
 // Last stage of down-sweep meaning that stage = 0
 // This stage is fused with a cleanup of the segment beginnings.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         size_t    left = i, right = i + 1;
@@ -472,7 +472,7 @@ InputIter exclusive_segmented_scan(InputIter first, InputIter last, T identity, 
     // First stage of the up sweep fused with copy of the flags.
     step = step * 2;
 
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + step)
     {
         size_t   left = i + step / 2 - 1, right = i + step - 1;
@@ -494,7 +494,7 @@ InputIter exclusive_segmented_scan(InputIter first, InputIter last, T identity, 
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + step)
         {
             size_t left = i + step / 2 - 1, right = i + step - 1;
@@ -514,7 +514,7 @@ InputIter exclusive_segmented_scan(InputIter first, InputIter last, T identity, 
     // Down sweep
     for (int stage = std::floor(std::log2(num_values) - 1); stage > 0; stage--)
     {
-#pragma omp parallel for
+#pragma omp parallel for simd
         for (size_t i = 0; i < num_values; i = i + (1 << (stage + 1)))
         {
             /*Add-Swap Operation needs to be handled differently than with all the
@@ -551,7 +551,7 @@ InputIter exclusive_segmented_scan(InputIter first, InputIter last, T identity, 
 
     // Last stage of down-sweep meaning that stage = 0
     // This stage is fused with a cleanup of the segment beginnings.
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_values; i = i + 2)
     {
         //        left = i + (1 << 0) - 1, right = i + (1 << (0 + 1)) - 1;
