@@ -32,15 +32,9 @@ ENDIF()
 add_library(scan STATIC
   include/scan.hpp
   include/scan.cpp
-  include/scan-sequential-naive.hpp
-  include/scan-sequential-updown.hpp
-  include/scan-sequential-tiled.hpp
-  include/scan-openmp-provided.hpp
-  include/scan-openmp-updown.hpp
-  include/scan-openmp-tiled.hpp
-  include/scan-tbb-provided.hpp
-  include/scan-tbb-updown.hpp
-  include/scan-tbb-tiled.hpp  
+  include/scan-naive.hpp
+  include/scan-openmp.hpp
+  include/scan-tbb.hpp
   )
 target_include_directories(scan PUBLIC include)
 
@@ -56,7 +50,7 @@ target_include_directories(test PRIVATE common)
 if(NOT ARCHSPECIFIC)
   add_executable(bench-memory
 	benchmark/benchmark-main.cpp
-	benchmark/benchmark-analytical.cpp
+	benchmark/benchmark-memory.cpp
 	common/csv_reporter.hpp
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
@@ -82,7 +76,7 @@ else()
   ## mp-media specific executables
   add_executable(bench-memory-media
 	benchmark/benchmark-main.cpp
-	benchmark/benchmark-analytical.cpp
+	benchmark/benchmark-memory.cpp
 	common/csv_reporter.hpp
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
@@ -122,7 +116,7 @@ else()
   ## ziti-rome specific executables
   add_executable(bench-memory-rome
 	benchmark/benchmark-main.cpp
-	benchmark/benchmark-analytical.cpp
+	benchmark/benchmark-memory.cpp
 	common/csv_reporter.hpp
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
