@@ -270,17 +270,15 @@ def figure16(plotwrapper):
     )
 
 
-"""
-def figure07(plotwrapper):
+def figure18(plotwrapper):
     columns = {
-        "mp-media-gnu_incseg_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_incseg_OMP_provided": "OpenMP Provided Scan",
-        "mp-media-gnu_incseg_OMP_updown": "OpenMP Up-Down Sweep",
-        "mp-media-gnu_incseg_OMP_tiled": "OpenMP Tiled Scan",
+        "ziti-rome-gnu_omp_scheduling_static_inc_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_static_inc_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_static_inc_OMP_tiled": "Tiled",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Parallel Inclusive Segmented Scans",
+        title="Ziti-Rome OpenMP Inclusive Scans with Static Scheduling",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -288,19 +286,295 @@ def figure07(plotwrapper):
     )
 
 
-def figure08(plotwrapper):
+def figure19(plotwrapper):
     columns = {
-        "mp-media-gnu_exseg_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_exseg_OMP_provided": "OpenMP Provided Scan",
-        "mp-media-gnu_exseg_OMP_updown": "OpenMP Up-Down Sweep",
-        "mp-media-gnu_exseg_OMP_tiled": "OpenMP Tiled Scan",
+        "ziti-rome-gnu_omp_scheduling_dynamic_inc_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_dynamic_inc_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_dynamic_inc_OMP_tiled": "Tiled",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Parallel Exclusive Segmented Scans",
+        title="Ziti-Rome OpenMP Inclusive Scans with Dynamic Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure20(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_guided_inc_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_guided_inc_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_guided_inc_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Inclusive Scans with Guided Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure21(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_auto_inc_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_auto_inc_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_auto_inc_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Inclusive Scans with Auto Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+""" def figure22(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_static_ex_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_static_ex_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_static_ex_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Scans with Static Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure23(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_dynamic_ex_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_dynamic_ex_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_dynamic_ex_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Scans with Dynamic Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure24(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_guided_ex_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_guided_ex_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_guided_ex_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Scans with Guided Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+def figure25(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_auto_ex_OMP_provided": "Provided",
+        "ziti-rome-gnu_omp_scheduling_auto_ex_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_auto_ex_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Scans with Auto Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+def figure26(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_static_incseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_static_incseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Inclusive Segmented Scans with Static Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure27(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_dynamic_incseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_dynamic_incseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Inclusive Segmented Scans with Dynamic Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure28(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_guided_incseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_guided_incseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Inclusive Segmented Scans with Guided Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+def figure29(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_auto_incseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_auto_incseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Inclusive Segmented Scans with Auto Scheduling",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 """
+
+
+def figure30(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_static_exseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_static_exseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Segmented Scans with Static Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure31(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_dynamic_exseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_dynamic_exseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Segmented Scans with Dynamic Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure32(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_guided_exseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_guided_exseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Segmented Scans with Guided Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure33(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_omp_scheduling_auto_exseg_OMP_updown": "Updown",
+        "ziti-rome-gnu_omp_scheduling_auto_exseg_OMP_tiled": "Tiled",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome OpenMP Exclusive Segmented Scans with Auto Scheduling",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure34(plotwrapper):
+    columns = {
+        "mp-media-gnu-tilesize_omp_outofplace_inc_tilesize": "Inclusive",
+        "mp-media-gnu-tilesize_omp_outofplace_incseg_tilesize": "Inclusive Segmented",
+        "mp-media-gnu-tilesize_omp_outofplace_exseg_tilesize": "Exclusive Segmented",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="OpenMP Tile Size Benchmark Out-Of-Place (mp-media)",
+        index_col="tile_size",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure35(plotwrapper):
+    columns = {
+        "mp-media-gnu-tilesize_omp_inplace_inc_tilesize": "Inclusive",
+        "mp-media-gnu-tilesize_omp_inplace_incseg_tilesize": "Inclusive Segmented",
+        "mp-media-gnu-tilesize_omp_inplace_exseg_tilesize": "Exclusive Segmented",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="OpenMP Tile Size Benchmark In-Place (mp-media)",
+        index_col="tile_size",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure36(plotwrapper):
+    columns = {
+        "ziti-rome-gnu-tilesize_omp_outofplace_inc_tilesize": "Inclusive",
+        "ziti-rome-gnu-tilesize_omp_outofplace_incseg_tilesize": "Inclusive Segmented",
+        "ziti-rome-gnu-tilesize_omp_outofplace_exseg_tilesize": "Exclusive Segmented",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="OpenMP Tile Size Benchmark Out-Of-Place (ziti-rome)",
+        index_col="tile_size",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure37(plotwrapper):
+    columns = {
+        "ziti-rome-gnu-tilesize_omp_inplace_inc_tilesize": "Inclusive",
+        "ziti-rome-gnu-tilesize_omp_inplace_incseg_tilesize": "Inclusive Segmented",
+        "ziti-rome-gnu-tilesize_omp_inplace_exseg_tilesize": "Exclusive Segmented",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="OpenMP Tile Size Benchmark In-Place (ziti-rome)",
+        index_col="tile_size",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
