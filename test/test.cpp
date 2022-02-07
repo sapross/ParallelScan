@@ -620,72 +620,49 @@ TEST_CASE("In-Place Exclusive Scan Test", "[in][ex]")
     // Tests
     SECTION("Sequential Naive")
     {
-        std::vector<int> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        sequential::naive::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+        sequential::naive::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
     SECTION("Sequential Up-Down-Sweep")
     {
-        std::vector<int> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        sequential::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+        sequential::updown::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
     SECTION("Sequential Up-Down-Sweep Tiled")
     {
-        std::vector<int> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        sequential::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+        sequential::tiled::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB provided")
     {
-        std::vector<int> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        std::cout << "data" << std::endl;
-        std::for_each(data.begin(),
-                      data.end(),
-                      [](auto x) { std::cout << std::setw(2) << x << ", "; });
-        std::cout << std::endl;
-        _tbb::provided::exclusive_scan(result.begin(), result.end(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+        _tbb::provided::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB Up-Down Sweep")
     {
-        std::vector<int> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        _tbb::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+        _tbb::updown::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB Tiled")
     {
-        std::vector<int> result(N, 0);
-        std::copy(data.begin(), data.end(), result.begin());
-        _tbb::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-        REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
+        _tbb::tiled::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
-//     SECTION("OpenMP provided")
-//     {
-//         std::vector<int> result(N, 0);
-//         std::copy(data.begin(), data.end(), result.begin());
-//         openmp::provided::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-//         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-//     }
-//     SECTION("OpenMP Up-Down-Sweep")
-//     {
-//         std::vector<int> result(N, 0);
-//         std::copy(data.begin(), data.end(), result.begin());
-//         openmp::updown::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-//         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-//     }
-//     SECTION("OpenMP Up-Down-Sweep Tiled")
-//     {
-//         std::vector<int> result(N, 0);
-//         std::copy(data.begin(), data.end(), result.begin());
-//         openmp::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
-//         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
-//     }
+    SECTION("OpenMP provided")
+    {
+        openmp::provided::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Up-Down-Sweep")
+    {
+        openmp::updown::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
+    }
+    SECTION("OpenMP Up-Down-Sweep Tiled")
+    {
+        openmp::tiled::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
+        REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
+    }
 }
 
 TEST_CASE("In-Place Inclusive Segmented Scan Sequential Test", "[in][incseg][seq]")
