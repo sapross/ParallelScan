@@ -160,48 +160,51 @@ template<class InputIt, class OutputIt, class BinaryOperation, class T>
 OutputIt exclusive_segmented_scan(
     InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
 {
-    using PairType   = typename std::iterator_traits<InputIt>::value_type;
-    using OutputType = typename std::iterator_traits<OutputIt>::value_type;
-    static_assert(std::is_convertible<PairType, OutputType>::value,
-                  "Input type must be convertible to output type!");
+    using PairType  = typename std::iterator_traits<InputIt>::value_type;
+    using FlagType  = typename std::tuple_element<1, PairType>::type;
+    using ValueType = typename std::tuple_element<0, PairType>::type;
+    static_assert(std::is_convertible<FlagType, bool>::value,
+                  "Second pair type must be converible to bool!");
+    static_assert(std::is_convertible<T, ValueType>::value,
+                  "Init must be convertible to first pair type");
 
     /*Sequential exclusive scan becomes the segmented variant by wrapping the
       passed binary_op into a new conditional binary like with inclusive scan.
     */
     _tbb::provided::exclusive_scan(first,
-                                   last,
-                                   d_first,
-                                   std::make_pair(init, 0),
-                                   [binary_op](PairType x, PairType y)
-                                   {
-                                       PairType result = y;
-                                       if (!y.second)
-                                       {
-                                           result.first = binary_op(x.first, y.first);
-                                           /* Only required if additions are
-                                              reordered!
-                                           */
-                                           if (x.second)
-                                           {
-                                               result.second = x.second;
-                                           }
-                                       }
-                                       return result;
-                                   });
+                         last,
+                         d_first,
+                         std::make_pair(init, 0),
+                         [binary_op](PairType x, PairType y)
+                         {
+                             PairType result = y;
+                             if (!y.second)
+                             {
+                                 result.first = binary_op(x.first, y.first);
+                                 /* Only required if additions are
+                                    reordered!
+                                 */
+                                 if (x.second)
+                                 {
+                                     result.second = x.second;
+                                 }
+                             }
+                             return result;
+                         });
 
     // Reset of segment beginnings to initial value.
     // Using only an operand wrapper it is not possible to omit this step!
     // See implementation under numeric.h
-    while (first != last)
-    {
-        if ((*first).second)
-        {
-            d_first->first = init;
-        }
-        first++;
-        d_first++;
-    }
-    return d_first;
+    // while (first != last)
+    // {
+    //     if (first->second)
+    //     {
+    //         d_first->first = init;
+    //     }
+    //     first++;
+    //     d_first++;
+    // }
+    return d_first + (last - first);
 }
 
 template<class InputIt, class OutputIt, class T>
