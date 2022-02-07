@@ -10,7 +10,7 @@ namespace provided
 // ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class BinaryOperation, class T>
+template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
 OutputIt inclusive_scan(
     InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
@@ -35,13 +35,13 @@ OutputIt inclusive_scan(
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
+template<typename InputIt, typename OutputIt, typename T>
 OutputIt inclusive_scan(InputIt first, InputIt last, T identity, OutputIt d_first)
 {
     return _tbb::provided::inclusive_scan(first, last, d_first, identity, std::plus<>());
 }
 
-template<class InputIt, class T>
+template<typename InputIt, typename T>
 InputIt inclusive_scan(InputIt first, InputIt last, T identity)
 {
     return _tbb::provided::inclusive_scan(first, last, first, identity, std::plus<>());
@@ -50,7 +50,7 @@ InputIt inclusive_scan(InputIt first, InputIt last, T identity)
 // ----------------------------------------------------------------------------------
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class T, class BinaryOperation>
+template<typename InputIt, typename OutputIt, typename T, typename BinaryOperation>
 OutputIt exclusive_scan(
     InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
 {
@@ -80,13 +80,13 @@ OutputIt exclusive_scan(
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
+template<typename InputIt, typename OutputIt, typename T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
     return _tbb::provided::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class T>
+template<typename InputIt, typename T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
     return _tbb::provided::exclusive_scan(first, last, first, init, std::plus<>());
@@ -96,7 +96,7 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 //  Inclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation, class T>
+template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
 OutputIt inclusive_segmented_scan(
     InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
@@ -137,7 +137,7 @@ OutputIt inclusive_segmented_scan(
     return d_first + (last - first);
 }
 
-template<class InputIt, class OutputIt, class T>
+template<typename InputIt, typename OutputIt, typename T>
 OutputIt
 inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T identity)
 {
@@ -145,7 +145,7 @@ inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T identi
         first, last, d_first, identity, std::plus<>());
 }
 
-template<class InputIt, class T>
+template<typename InputIt, typename T>
 InputIt inclusive_segmented_scan(InputIt first, InputIt last, T identity)
 {
     return _tbb::provided::inclusive_segmented_scan(
@@ -156,7 +156,8 @@ InputIt inclusive_segmented_scan(InputIt first, InputIt last, T identity)
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation, class T>
+//ToDo: FIX!
+template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
 OutputIt exclusive_segmented_scan(
     InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
 {
@@ -192,9 +193,9 @@ OutputIt exclusive_segmented_scan(
                              return result;
                          });
 
-    // Reset of segment beginnings to initial value.
-    // Using only an operand wrapper it is not possible to omit this step!
-    // See implementation under numeric.h
+    // // Reset of segment beginnings to initial value.
+    // // Using only an operand wrapper it is not possible to omit this step!
+    // // See implementation under numeric.h
     // while (first != last)
     // {
     //     if (first->second)
@@ -204,17 +205,82 @@ OutputIt exclusive_segmented_scan(
     //     first++;
     //     d_first++;
     // }
-    return d_first + (last - first);
+    // return d_first + (last - first);
+    // using PairType  = typename std::iterator_traits<InputIt>::value_type;
+    // using FlagType  = typename std::tuple_element<1, PairType>::type;
+    // using ValueType = typename std::tuple_element<0, PairType>::type;
+    // static_assert(std::is_convertible<FlagType, bool>::value,
+    //               "Second pair type must be convertible to bool!");
+    // static_assert(std::is_convertible<T, ValueType>::value,
+    //               "Init must be convertible to First pair type!");
+
+    // size_t    num_values = last - first;
+    // ValueType sum        = init;
+
+    // tbb::parallel_scan(
+    //     range_type(size_t(0), num_values),
+    //     init,
+    //     [&](const range_type& r, OutputType sum, bool is_final_scan)
+    //     {
+    //         ValueType tmp = sum;
+    //         for (size_t i = r.begin(); i < r.end(); ++i)
+    //         {
+    //             tmp = binary_op(tmp, first[i]);
+    //             if (is_final_scan)
+    //                 d_first[i + 1] = tmp;
+    //         }
+    //         return tmp;
+    //     },
+    //     [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
+
+    // // _tbb::provided::exclusive_scan(first,
+    // //                      last,
+    // //                      d_first,
+    // //                      std::make_pair(init, 0),
+    // //                      [binary_op](PairType x, PairType y)
+    // //                      {
+    // //                          PairType result = y;
+    // //                          if (!y.second)
+    // //                          {
+    // //                              result.first = binary_op(x.first, y.first);
+    // //                              /* Only required if additions are
+    // //                                 reordered!
+    // //                              */
+    // //                              if (x.second)
+    // //                              {
+    // //                                  result.second = x.second;
+    // //                              }
+    // //                          }
+    // //                          return result;
+    // //                      });
+
+
+    // for (size_t i = 0; i < num_values; i++)
+    // {
+    //     T temp = first[i].first;
+    //     if (!first[i].second)
+    //     {
+    //         d_first[i].first = sum;
+    //         sum              = binary_op(sum, temp);
+    //     }
+    //     else
+    //     {
+    //         d_first[i].first = init;
+    //         sum              = binary_op(temp, init);
+    //     }
+    // }
+
+    // return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt, class T>
+template<typename InputIt, typename OutputIt, typename T>
 OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
     return _tbb::provided::exclusive_segmented_scan(
         first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class T>
+template<typename InputIt, typename T>
 InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
 {
     return _tbb::provided::exclusive_segmented_scan(

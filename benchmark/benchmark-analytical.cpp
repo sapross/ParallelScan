@@ -586,11 +586,11 @@ SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure(
-            [begin, end, &binary_op, &data, init]() {
-                _tbb::updown::exclusive_segmented_scan(
-                    begin, end, data.begin(), init, binary_op);
-            });
+        // meter.measure(
+        //     [begin, end, &binary_op, &data, init]() {
+        //         _tbb::updown::exclusive_segmented_scan(
+        //             begin, end, data.begin(), init, binary_op);
+        //     });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
