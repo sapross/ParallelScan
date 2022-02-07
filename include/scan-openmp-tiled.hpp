@@ -122,7 +122,7 @@ OutputIter exclusive_scan(InputIter       first,
         ValueType sum = temp[i];
         for (size_t j = begin; j < end; j++)
         {
-            ValueType temp = d_first[j];
+            ValueType temp = first[j];
             d_first[j]     = sum;
             sum            = binary_op(sum, temp);
         }

@@ -68,7 +68,7 @@ OutputIt exclusive_scan(
         {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                OutputType tmp = d_first[i];
+                OutputType tmp = first[i];
                 if (is_final_scan)
                     d_first[i] = sum;
                 sum = binary_op(sum, tmp);

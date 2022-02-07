@@ -113,7 +113,6 @@ OutputIter exclusive_scan(InputIter       first,
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
 
     // Phase 3: Rescan
-
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t begin = i * tile_size, end = (i + 1) * tile_size;
@@ -125,7 +124,7 @@ OutputIter exclusive_scan(InputIter       first,
         ValueType sum = temp[i];
         for (size_t j = begin; j < end; j++)
         {
-            ValueType temp = d_first[j];
+            ValueType temp = first[j];
             d_first[j]     = sum;
             sum            = binary_op(sum, temp);
         }
