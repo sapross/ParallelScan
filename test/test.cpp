@@ -614,7 +614,7 @@ TEST_CASE("In-Place Exclusive Scan Test", "[in][ex]")
         sequential::updown::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
         REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
-    SECTION("Sequential Up-Down-Sweep Tiled")
+    SECTION("Sequential Tiled")
     {
 
         sequential::tiled::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
@@ -650,7 +650,7 @@ TEST_CASE("In-Place Exclusive Scan Test", "[in][ex]")
         openmp::updown::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
         REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
-    SECTION("OpenMP Up-Down-Sweep Tiled")
+    SECTION("OpenMP Tiled")
     {
 
         openmp::tiled::exclusive_scan(data.begin(), data.end(), data.begin(), 0);
