@@ -20,7 +20,7 @@ SCENARIO("Inclusive Scan Sequential", "[inc] [seq]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -58,7 +58,7 @@ SCENARIO("Inclusive Scan OpenMP", "[inc] [omp]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -96,7 +96,7 @@ SCENARIO("Inclusive Scan TBB", "[inc] [tbb]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -139,7 +139,7 @@ SCENARIO("Exclusive Scan", "[ex] [seq]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -183,7 +183,7 @@ SCENARIO("Exclusive Scan OpenMP", "[ex] [omp]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -225,7 +225,7 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -598,7 +598,7 @@ SCENARIO("Inclusive Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<float> data(N);
-#pragma openmp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -643,7 +643,7 @@ SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
 
     std::vector<std::pair<float, int>> data(N);
 
-//#pragma omp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < N; i++)
     {
         data[i] = std::make_pair(rand(), flag_rand());
@@ -692,7 +692,7 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<std::pair<float, int>> data(N);
-//#pragma omp parallel for scheduling(static)
+#pragma omp parallel for schedule(static)
     for (size_t i = 0; i < N; i++)
     {
         data[i] = std::make_pair(rand(), flag_rand());

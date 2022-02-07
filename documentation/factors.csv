@@ -1,0 +1,5 @@
+# regex, factor
+# Select all names not containing 'ana' and not containing 'seg'
+"(?!.*ana)(?!.*seg)^(.*)$", 8.0
+# Select all names not containing 'ana' but contain 'seg'
+"(?!.*ana)(?=.*seg)^(.*)$", 16.0
