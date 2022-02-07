@@ -15,11 +15,10 @@ OutputIt inclusive_scan(
     InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
     using InputType = typename std::iterator_traits<InputIt>::value_type;
-
     using range_type = tbb::blocked_range<size_t>;
-
+    size_t num_values = last - first;
     tbb::parallel_scan(
-        range_type(0, std::distance(first, last)),
+        range_type(size_t(0), num_values),
         identity,
         [&](const range_type& r, InputType sum, bool is_final_scan)
         {
@@ -33,7 +32,7 @@ OutputIt inclusive_scan(
             return tmp;
         },
         [&](const InputType a, const InputType b) { return binary_op(a, b); });
-    return d_first + std::distance(first, last);
+    return d_first + num_values;
 }
 
 template<class InputIt, class OutputIt, class T>
@@ -62,8 +61,9 @@ OutputIt exclusive_scan(
     using range_type = tbb::blocked_range<size_t>;
 
     d_first[0] = init;
+    size_t num_values = last - first;
     tbb::parallel_scan(
-        range_type(0, std::distance(first, last)),
+        range_type(size_t(0), num_values),
         init,
         [&](const range_type& r, OutputType sum, bool is_final_scan)
         {
@@ -77,7 +77,7 @@ OutputIt exclusive_scan(
             return tmp;
         },
         [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
-    return d_first + std::distance(first, last);
+    return d_first + num_values;
 }
 
 template<class InputIt, class OutputIt, class T>
@@ -134,7 +134,7 @@ OutputIt inclusive_segmented_scan(
                                        return result;
                                    });
 
-    return d_first + std::distance(first, last);
+    return d_first + (last - first);
 }
 
 template<class InputIt, class OutputIt, class T>

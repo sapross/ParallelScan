@@ -24,35 +24,34 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     size_t step       = 1;
     // Up sweep
 
-    // sdt::distance does not play nice if the iterators are of different type.
-    // if (std::distance(first, d_first) != 0)
-    //{
     std::copy(first, last, d_first);
-    //}
 
+    if (num_values != 0)
+    {
+        std::copy(first, last, d_first);
+    }
     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-        tbb::parallel_for(size_t(0),
-                          num_values,
-                          step,
-                          [&](auto i) {
-                              d_first[i + step - 1] = binary_op(d_first[i + step / 2 - 1],
-                                                                d_first[i + step - 1]);
-                          });
+        tbb::parallel_for(size_t(0), num_values, step,
+                            [&](auto i)
+                                {
+                                    d_first[i + step - 1] =
+                                        binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+                                });
     }
     step = 1 << (size_t)(std::floor(std::log2(num_values)));
     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
     {
         step = step / 2;
-        tbb::parallel_for(step,
-                          num_values - 1,
-                          step,
-                          [&](auto i) {
-                              d_first[i + step / 2 - 1] =
-                                  binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
-                          });
+        tbb::parallel_for(step, num_values -1, step,
+                            [&](auto i)
+                                {
+                                    d_first[i + step / 2 - 1] =
+                                        binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
+                                });
     }
+
     return d_first + num_values;
 }
 
@@ -231,12 +230,12 @@ OutputIt exclusive_segmented_scan(
             size_t left = i + step / 2 - 1, right = i + step - 1;
             if (!d_first[right].second)
             {
-                d_first[right].first =
-                    binary_op(d_first[left].first, d_first[right].first);
-                if (d_first[left].second)
-                {
-                    d_first[right].second = d_first[left].second;
-                }
+                // d_first[right].first =
+                //     binary_op(d_first[left].first, d_first[right].first);
+                // if (d_first[left].second)
+                // {
+                //     d_first[right].second = d_first[left].second;
+                // }
             }
         }
     }
@@ -261,8 +260,8 @@ OutputIt exclusive_segmented_scan(
                   results.
                  */
                 OutputType t         = d_first[left];
-                d_first[left].first  = d_first[right].first;
-                d_first[right].first = binary_op(t.first, d_first[right].first);
+                // d_first[left].first  = d_first[right].first;
+                // d_first[right].first = binary_op(t.first, d_first[right].first);
             }
             else
             {
