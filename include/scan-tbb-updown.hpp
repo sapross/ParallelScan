@@ -338,7 +338,7 @@ OutputIt exclusive_segmented_scan(
                                 d_first[left].first  = binary_op(init, val_left);
                                 d_first[right].first = binary_op(init, val_right);
                             });
-    return first + num_values;
+    return d_first + num_values;
 }
 
 template<class InputIt, class OutputIt, class T>

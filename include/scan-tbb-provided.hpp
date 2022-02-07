@@ -60,7 +60,6 @@ OutputIt exclusive_scan(
                   "Input type must be convertible to output type!");
     using range_type = tbb::blocked_range<size_t>;
 
-    d_first[0] = init;
     size_t num_values = last - first;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
@@ -77,6 +76,7 @@ OutputIt exclusive_scan(
             return tmp;
         },
         [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
+    d_first[0] = init;
     return d_first + num_values;
 }
 
@@ -205,6 +205,16 @@ OutputIt exclusive_segmented_scan(
     //     first++;
     //     d_first++;
     // }
+    // while (first != last)
+    // {
+    //     if ((*first).second)
+    //     {
+    //         d_first->first = init;
+    //     }
+    //     first++;
+    //     d_first++;
+    // }
+    // return d_first;
     // return d_first + (last - first);
     // using PairType  = typename std::iterator_traits<InputIt>::value_type;
     // using FlagType  = typename std::tuple_element<1, PairType>::type;

@@ -508,7 +508,7 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         _tbb::tiled::exclusive_segmented_scan(
-            data.begin(), data.end(), result.begin(), init);
+            data.begin(), data.end(), result.begin(), 0, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
 }
@@ -643,7 +643,12 @@ TEST_CASE("In-Place Exclusive Scan Test", "[in][ex]")
     {
         std::vector<int> result(N, 0);
         std::copy(data.begin(), data.end(), result.begin());
-        _tbb::provided::exclusive_scan(data.begin(), data.end(), result.begin(), 0);
+        std::cout << "data" << std::endl;
+        std::for_each(data.begin(),
+                      data.end(),
+                      [](auto x) { std::cout << std::setw(2) << x << ", "; });
+        std::cout << std::endl;
+        _tbb::provided::exclusive_scan(result.begin(), result.end(), result.begin(), 0);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB Up-Down Sweep")
