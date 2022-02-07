@@ -175,7 +175,7 @@ OutputIt inclusive_segmented_scan(InputIt         first,
                                      return result;
                                  });
 
-    return d_first + num_values);
+    return d_first + num_values;
 }
 
 template<class InputIt, class OutputIt>
