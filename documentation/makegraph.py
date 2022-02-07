@@ -16,6 +16,7 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import fire
+import re
 
 
 class ResultAggregator:
@@ -32,6 +33,9 @@ class ResultAggregator:
 
     def __init__(self):
         self.dataframe = pd.DataFrame()
+        self.factors = pd.read_csv(
+            "factors.csv", header=None, comment="#"
+        )
 
     def __str__(self):
         return str(self.dataframe)
@@ -62,11 +66,9 @@ class ResultAggregator:
             #      ^^^^^^^^
             new_df[i] = new_df[i].str.split(" ").str.get(2)
             if label == "N":
-                new_df[1] = (
-                    new_df[i].astype(float)
-                    * 8.0
-                    / new_df[1].astype(float)
-                )
+                new_df[1] = new_df[i].astype(float) / new_df[
+                    1
+                ].astype(float)
 
         # Insert filename into later column names.
         new_df[0] = new_df[0].apply(
@@ -74,7 +76,12 @@ class ResultAggregator:
         )
 
         new_df = new_df.rename(columns=self.header)
-
+        # Apply factors to rows selected by regex read from factors.csv
+        for index, regex, value in self.factors.itertuples():
+            new_df.loc[
+                new_df["Name"].str.match(regex) == True,
+                "Throughput",
+            ] *= value
         if self.dataframe.empty:
             self.dataframe = new_df
         else:
@@ -151,7 +158,7 @@ class Plotwrapper:
         if grid:
             plt.grid()
 
-        plt.savefig("graphs/" + title + ".pdf")
+        plt.savefig("graphs/" + title + ".png", dpi=200)
         plt.close("all")
 
     def file(self, csv: str):
@@ -184,6 +191,19 @@ class Plotwrapper:
         Usage: makegraph.py filedir 'results' print_names
         """
         print(self.agg.dataframe["Name"].unique())
+
+    def testfactors(self):
+        """Displays matched columns by regex from factors.csv"""
+        factors = pd.read_csv("factors.csv", header=None, comment="#")
+        for index, regex, value in factors.itertuples():
+            print("Regex: ", regex, " Factor: ", value)
+            print("Matched elements:")
+            print(
+                self.agg.dataframe.loc[
+                    self.agg.dataframe["Name"].str.match(regex)
+                    == True,
+                ]
+            )
 
 
 if __name__ == "__main__":
