@@ -3,7 +3,6 @@
 #include "logrange_generator.hpp"
 #include <catch2/catch.hpp>
 
-#include "data.hpp"
 #include "iterator.hpp"
 
 #include "scan.hpp"
