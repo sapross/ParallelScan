@@ -66,14 +66,14 @@ OutputIt exclusive_scan(
         init,
         [&](const range_type& r, OutputType sum, bool is_final_scan)
         {
-            OutputType tmp = sum;
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                tmp = binary_op(tmp, first[i]);
+                OutputType tmp = first[i];
                 if (is_final_scan)
-                    d_first[i + 1] = tmp;
+                    d_first[i] = sum;
+                sum = binary_op(sum, tmp);
             }
-            return tmp;
+            return sum;
         },
         [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
     d_first[0] = init;
