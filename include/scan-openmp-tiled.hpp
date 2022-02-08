@@ -29,7 +29,7 @@ OutputIter inclusive_scan(InputIter       first,
 
     std::vector<ValueType> temp(num_tiles + 1);
 
-// Phase 1: Reduction om Tiles (parallel)
+// Phase 1: Reduction on Tiles (parallel)
 #pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {

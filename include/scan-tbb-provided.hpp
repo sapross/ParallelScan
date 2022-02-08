@@ -224,7 +224,7 @@ OutputIt exclusive_segmented_scan(
     // static_assert(std::is_convertible<T, ValueType>::value,
     //               "Init must be convertible to First pair type!");
 
-    // size_t    num_values = last - first;
+    size_t    num_values = last - first;
     // ValueType sum        = init;
 
     // tbb::parallel_scan(
@@ -280,7 +280,7 @@ OutputIt exclusive_segmented_scan(
     //     }
     // }
 
-    // return d_first + num_values;
+    return d_first + num_values;
 }
 
 template<typename InputIt, typename OutputIt, typename T>
