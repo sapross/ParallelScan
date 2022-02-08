@@ -61,20 +61,19 @@ OutputIt exclusive_scan(
                   "Input type must be convertible to output type!");
     using range_type = tbb::blocked_range<size_t>;
 
-    d_first[0] = init;
     tbb::parallel_scan(
         range_type(0, std::distance(first, last)),
         init,
         [&](const range_type& r, OutputType sum, bool is_final_scan)
         {
-            OutputType tmp = sum;
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                tmp = binary_op(tmp, first[i]);
+                OutputType tmp = first[i];
                 if (is_final_scan)
-                    d_first[i + 1] = tmp;
+                    d_first[i] = sum;
+                sum = binary_op(sum, tmp);
             }
-            return tmp;
+            return sum;
         },
         [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
     return d_first + std::distance(first, last);
