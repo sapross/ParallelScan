@@ -59,16 +59,21 @@ OutputIt exclusive_scan(
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
     using range_type = tbb::blocked_range<size_t>;
-
+    /*
+        ToDo:
+        Problem: in example project d_first[i +1] = sum is used, target vector is one element bigger than here -> In-Place?
+        Maybe required to pass id and init both aswell?
+    */
+    using ValueType = typename std::iterator_traits<InputIt>::value_type;
     size_t num_values = last - first;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         init,
-        [&](const range_type& r, OutputType sum, bool is_final_scan)
+        [&](const range_type& r, ValueType sum, bool is_final_scan)
         {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                OutputType tmp = first[i];
+                ValueType tmp = first[i];
                 if (is_final_scan)
                     d_first[i] = sum;
                 sum = binary_op(sum, tmp);
@@ -223,10 +228,8 @@ OutputIt exclusive_segmented_scan(
     //               "Second pair type must be convertible to bool!");
     // static_assert(std::is_convertible<T, ValueType>::value,
     //               "Init must be convertible to First pair type!");
-
     size_t    num_values = last - first;
     // ValueType sum        = init;
-
     // tbb::parallel_scan(
     //     range_type(size_t(0), num_values),
     //     init,
@@ -242,7 +245,6 @@ OutputIt exclusive_segmented_scan(
     //         return tmp;
     //     },
     //     [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
-
     // // _tbb::provided::exclusive_scan(first,
     // //                      last,
     // //                      d_first,
@@ -263,8 +265,6 @@ OutputIt exclusive_segmented_scan(
     // //                          }
     // //                          return result;
     // //                      });
-
-
     // for (size_t i = 0; i < num_values; i++)
     // {
     //     T temp = first[i].first;

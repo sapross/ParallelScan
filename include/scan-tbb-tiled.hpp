@@ -51,8 +51,12 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
                       });
 
 // Phase 2: Intermediate Scan (parallel)
-    _tbb::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), first[0], binary_op);
-    //std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
+/*
+    ToDo:
+    Problem: exclusive the following exclusive scan requires an identity element for which y0 = id * z0 not an element for initialization y0 = *first
+*/
+    //_tbb::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
+    std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, binary_op);
     d_first[0] = temp[0];
 
 // Phase 3: Rescan on Tiles (parallel)
