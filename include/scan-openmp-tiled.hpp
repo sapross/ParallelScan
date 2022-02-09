@@ -30,7 +30,7 @@ OutputIter inclusive_scan(InputIter       first,
     std::vector<ValueType> temp(num_tiles + 1);
 
 // Phase 1: Reduction om Tiles (parallel)
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
         temp[i] = *(first + 1 + i * tile_size);
@@ -45,7 +45,7 @@ OutputIter inclusive_scan(InputIter       first,
     d_first[0] = temp[0];
 
 // Phase 3: Rescan on Tiles (parallel)
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t    begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
@@ -98,7 +98,7 @@ OutputIter exclusive_scan(InputIter       first,
     std::vector<ValueType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
         temp[i] = std::reduce(
@@ -110,7 +110,7 @@ OutputIter exclusive_scan(InputIter       first,
     openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init);
 
 // Phase 3: Rescan
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t begin = i * tile_size, end = (i + 1) * tile_size;
@@ -122,8 +122,9 @@ OutputIter exclusive_scan(InputIter       first,
         ValueType sum = temp[i];
         for (size_t j = begin; j < end; j++)
         {
-            d_first[j] = sum;
-            sum        = binary_op(sum, first[j]);
+            ValueType temp = first[j];
+            d_first[j]     = sum;
+            sum            = binary_op(sum, temp);
         }
     }
     return d_first + num_values;
@@ -185,7 +186,7 @@ OutputIter inclusive_segmented_scan(InputIter       first,
     std::vector<PairType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
-#pragma omp parallel for
+#pragma omp parallel for simd
 
     for (size_t i = 0; i < num_tiles; i++)
     {
@@ -200,7 +201,7 @@ OutputIter inclusive_segmented_scan(InputIter       first,
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), *first, wrapped_bop);
 
 // Phase 3: Rescan on Tiles (parallel)
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t end = (i + 1) * tile_size;
@@ -284,7 +285,7 @@ OutputIter exclusive_segmented_scan(InputIter       first,
     std::vector<PairType> temp(num_tiles + 1);
 
 // Phase 1: Reduction
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
         temp[i] = std::reduce(first + i * tile_size,
@@ -298,7 +299,7 @@ OutputIter exclusive_segmented_scan(InputIter       first,
         temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
 
 // Phase 3: Rescan
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (size_t i = 0; i <= num_tiles; i++)
     {
         size_t end = (i + 1) * tile_size;

@@ -1,73 +1,48 @@
 def figure01(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_inc_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
+        "mp-media-gnu_inc_seq_sequential": "STL Inc",
+        "mp-media-gnu_ex_seq_sequential": "STL Ex",
+        "mp-media-gnu_inc_seq_updown": "Up-Down Inc",
+        "mp-media-gnu_ex_seq_updown": "Up-Down Ex",
+        "mp-media-gnu_inc_seq_tiled": "Tiled Inc",
+        "mp-media-gnu_ex_seq_tiled": "Tiled Ex",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Mp-Media Sequential Inclusive Scans",
+        title="Mp-Media Sequential Scans",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
-
 
 def figure02(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_inc_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
+        "mp-media-gnu_incseg_seq_sequential": "STL Inc",
+        "mp-media-gnu_exseg_seq_sequential": "STL Ex",
+        "mp-media-gnu_incseg_seq_updown": "Up-Down Inc",
+        "mp-media-gnu_exseg_seq_updown": "Up-Down Ex",
+        "mp-media-gnu_incseg_seq_tiled": "Tiled Inc",
+        "mp-media-gnu_exseg_seq_tiled": "Tiled Ex",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Mp-Media Sequential Exclusive Scans",
+        title="Mp-Media Sequential Segmented Scans",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
-
 
 def figure03(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_inc_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Sequential Segmented Exclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure04(plotwrapper):
-    columns = {
-        "mp-media-gnu_inc_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_inc_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Sequential Segmented Inclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure05(plotwrapper):
-    columns = {
-        "mp-media-gnu_inc_seq_sequential": "Naive (STL)",
+        "mp-media-gnu_inc_seq_sequential": "STL",
         "mp-media-gnu_inc_OMP_provided": "OpenMP Provided Scan",
+        "mp-media-gnu_inc_TBB_provided": "TBB Provided Scan",
         "mp-media-gnu_inc_OMP_updown": "OpenMP Up-Down Sweep",
+        "mp-media-gnu_inc_TBB_updown": "TBB Up-Down Sweep",
         "mp-media-gnu_inc_OMP_tiled": "OpenMP Tiled Scan",
+        "mp-media-gnu_inc_TBB_tiled": "TBB Tiled Scan",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -78,17 +53,18 @@ def figure05(plotwrapper):
         grid=True,
     )
 
-
-def figure06(plotwrapper):
+def figure04(plotwrapper):
     columns = {
-        "mp-media-gnu_ex_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_ex_OMP_provided": "OpenMP Provided Scan",
-        "mp-media-gnu_ex_OMP_updown": "OpenMP Up-Down Sweep",
-        "mp-media-gnu_ex_OMP_tiled": "OpenMP Tiled Scan",
+        "mp-media-gnu_incseg_seq_sequential": "STL",
+        "mp-media-gnu_incseg_TBB_provided": "TBB Provided Scan",
+        "mp-media-gnu_incseg_OMP_updown": "OpenMP Up-Down Sweep",
+        "mp-media-gnu_incseg_TBB_updown": "TBB Up-Down Sweep",
+        "mp-media-gnu_incseg_OMP_tiled": "OpenMP Tiled Scan",
+        "mp-media-gnu_incseg_TBB_tiled": "TBB Tiled Scan",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Mp-Media Parallel Exclusive Scans",
+        title="Mp-Media Parallel Inclusive Segmented Scans",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -98,11 +74,11 @@ def figure06(plotwrapper):
 
 def figure07(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "Naive (STL)",
+        "mp-media-gnu_inc_seq_sequential": "STL",
+        "mp-media-gnu-algopt_inc_seq_sequential": "AlgOpt STL",
         "mp-media-gnu_inc_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
-        "mp-media-gnu-algopt_inc_seq_sequential": "AlgOpt Naive (STL)",
         "mp-media-gnu-algopt_inc_seq_updown": "AlgOpt Up-Down Sweep",
+        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
         "mp-media-gnu-algopt_inc_seq_tiled": "AlgOpt Tiled Scan",
     }
     plotwrapper.columns = columns
@@ -118,10 +94,10 @@ def figure07(plotwrapper):
 def figure08(plotwrapper):
     columns = {
         "mp-media-gnu_ex_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_ex_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_ex_seq_tiled": "Tiled Scan",
         "mp-media-gnu-algopt_ex_seq_sequential": "AlgOpt Naive (STL)",
+        "mp-media-gnu_ex_seq_updown": "Up-Down Sweep",
         "mp-media-gnu-algopt_ex_seq_updown": "AlgOpt Up-Down Sweep",
+        "mp-media-gnu_ex_seq_tiled": "Tiled Scan",
         "mp-media-gnu-algopt_ex_seq_tiled": "AlgOpt Tiled Scan",
     }
     plotwrapper.columns = columns
@@ -174,74 +150,49 @@ def figure10(plotwrapper):
 
 def figure11(plotwrapper):
     columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "Naive (STL)",
-        "ziti-rome-gnu_inc_seq_updown": "Up-Down Sweep",
-        "ziti-rome-gnu_inc_seq_tiled": "Tiled Scan",
+        "ziti-rome-gnu_inc_seq_sequential": "STL Inc",
+        "ziti-rome-gnu_ex_seq_sequential": "STL Ex",
+        "ziti-rome-gnu_inc_seq_updown": "Up-Down Inc",
+        "ziti-rome-gnu_ex_seq_updown": "Up-Down Ex",
+        "ziti-rome-gnu_inc_seq_tiled": "Tiled Inc",
+        "ziti-rome-gnu_ex_seq_tiled": "Tiled Ex",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome Sequential Inclusive Scans",
+        title="Ziti-Rome Sequential Scans",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
-
 
 def figure12(plotwrapper):
     columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "Naive (STL)",
-        "ziti-rome-gnu_inc_seq_updown": "Up-Down Sweep",
-        "ziti-rome-gnu_inc_seq_tiled": "Tiled Scan",
+        "ziti-rome-gnu_incseg_seq_sequential": "STL Inc",
+        "ziti-rome-gnu_exseg_seq_sequential": "STL Ex",
+        "ziti-rome-gnu_incseg_seq_updown": "Up-Down Inc",
+        "ziti-rome-gnu_exseg_seq_updown": "Up-Down Ex",
+        "ziti-rome-gnu_incseg_seq_tiled": "Tiled Inc",
+        "ziti-rome-gnu_exseg_seq_tiled": "Tiled Ex",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome Sequential Exclusive Scans",
+        title="Ziti-Rome Sequential Segmented Scans",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
-
 
 def figure13(plotwrapper):
     columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "Naive (STL)",
-        "ziti-rome-gnu_inc_seq_updown": "Up-Down Sweep",
-        "ziti-rome-gnu_inc_seq_tiled": "Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Sequential Segmented Exclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure14(plotwrapper):
-    columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "Naive (STL)",
-        "ziti-rome-gnu_inc_seq_updown": "Up-Down Sweep",
-        "ziti-rome-gnu_inc_seq_tiled": "Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Sequential Segmented Inclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure15(plotwrapper):
-    columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "Naive (STL)",
+        "ziti-rome-gnu_inc_seq_sequential": "STL",
         "ziti-rome-gnu_inc_OMP_provided": "OpenMP Provided Scan",
+        "ziti-rome-gnu_inc_TBB_provided": "TBB Provided Scan",
         "ziti-rome-gnu_inc_OMP_updown": "OpenMP Up-Down Sweep",
+        "ziti-rome-gnu_inc_TBB_updown": "TBB Up-Down Sweep",
         "ziti-rome-gnu_inc_OMP_tiled": "OpenMP Tiled Scan",
+        "ziti-rome-gnu_inc_TBB_tiled": "TBB Tiled Scan",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -252,6 +203,23 @@ def figure15(plotwrapper):
         grid=True,
     )
 
+def figure14(plotwrapper):
+    columns = {
+        "ziti-rome-gnu_incseg_seq_sequential": "STL",
+        "ziti-rome-gnu_incseg_TBB_provided": "TBB Provided Scan",
+        "ziti-rome-gnu_incseg_OMP_updown": "OpenMP Up-Down Sweep",
+        "ziti-rome-gnu_incseg_TBB_updown": "TBB Up-Down Sweep",
+        "ziti-rome-gnu_incseg_OMP_tiled": "OpenMP Tiled Scan",
+        "ziti-rome-gnu_incseg_TBB_tiled": "TBB Tiled Scan",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Ziti-Rome Parallel Inclusive Segmented Scans",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
 
 def figure16(plotwrapper):
     columns = {

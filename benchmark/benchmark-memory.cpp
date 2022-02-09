@@ -20,7 +20,11 @@ SCENARIO("Inclusive Scan Sequential", "[inc] [seq]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
 
     // Benchmark
     BENCHMARK_ADVANCED("inc_seq_sequential")(Catch::Benchmark::Chronometer meter)
@@ -54,7 +58,12 @@ SCENARIO("Inclusive Scan OpenMP", "[inc] [omp]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
+
     BENCHMARK_ADVANCED("inc_OMP_provided")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure([&data]()
@@ -87,7 +96,11 @@ SCENARIO("Inclusive Scan TBB", "[inc] [tbb]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
 
     BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
@@ -126,7 +139,12 @@ SCENARIO("Exclusive Scan", "[ex] [seq]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
+
     float init = 0.0;
 
     // Benchmark
@@ -165,7 +183,12 @@ SCENARIO("Exclusive Scan OpenMP", "[ex] [omp]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
+
     float init = 0.0;
 
     BENCHMARK_ADVANCED("ex_OMP_provided")(Catch::Benchmark::Chronometer meter)
@@ -202,7 +225,12 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
+
     float init = 0.0;
 
     BENCHMARK_ADVANCED("ex_TBB_provided")(Catch::Benchmark::Chronometer meter)
@@ -567,7 +595,11 @@ SCENARIO("Inclusive Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<float> data(N);
-    std::generate(data.begin(), data.end(), rand);
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = rand();
+    }
 
     // Benchmark
     BENCHMARK_ADVANCED("omp_outofplace_inc_tilesize")(Catch::Benchmark::Chronometer meter)
@@ -607,15 +639,12 @@ SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<std::pair<float, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
+
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < N; i++)
+    {
+        data[i] = std::make_pair(rand(), flag_rand());
+    }
 
     BENCHMARK_ADVANCED("omp_outofplace_incseg_tilesize")
     (Catch::Benchmark::Chronometer meter)
@@ -660,15 +689,11 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<std::pair<float, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
+#pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < N; i++)
+    {
+        data[i] = std::make_pair(rand(), flag_rand());
+    }
 
     BENCHMARK_ADVANCED("omp_outofplace_exseg_tilesize")
     (Catch::Benchmark::Chronometer meter)
