@@ -347,8 +347,8 @@ def figure40(plotwrapper):
         yscale="linear",
         grid=True,
     )
-"""
-    def figure57(plotwrapper):
+
+def figure41(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_scheduling_static_inc_OMP_provided": "Static",
         "ziti_rome_gnu_omp_scheduling_dynamic_inc_OMP_provided": "Dynamic",
@@ -364,7 +364,7 @@ def figure40(plotwrapper):
         grid=True,
     )
 
-def figure57(plotwrapper):
+def figure42(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_scheduling_static_inc_OMP_updown": "Static",
         "ziti_rome_gnu_omp_scheduling_dynamic_inc_OMP_updown": "Dynamic",
@@ -380,7 +380,7 @@ def figure57(plotwrapper):
         grid=True,
     )
 
-def figure57(plotwrapper):
+def figure43(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "Static",
         "ziti_rome_gnu_omp_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
@@ -395,4 +395,3 @@ def figure57(plotwrapper):
         yscale="linear",
         grid=True,
     )
-"""
