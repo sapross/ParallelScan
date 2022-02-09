@@ -39,10 +39,6 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
                       size_t(1),
                       [&](auto i)
                       {
-                        //   temp[i] = std::reduce(first + 1 + i * tile_size,
-                        //                         first + 1 + (i + 1) * tile_size,
-                        //                         InputType(),
-                        //                         binary_op);
                         temp[i] = *(first + 1 + i * tile_size);
                         for (size_t j = 2 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
                         {

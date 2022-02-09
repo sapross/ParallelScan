@@ -177,26 +177,43 @@ OutputIt exclusive_segmented_scan(
     /*Sequential exclusive scan becomes the segmented variant by wrapping the
       passed binary_op into a new conditional binary like with inclusive scan.
     */
-    _tbb::provided::exclusive_scan(first,
-                         last,
-                         d_first,
-                         std::make_pair(init, 0),
-                         [binary_op](PairType x, PairType y)
-                         {
-                             PairType result = y;
-                             if (!y.second)
-                             {
-                                 result.first = binary_op(x.first, y.first);
-                                 /* Only required if additions are
-                                    reordered!
-                                 */
-                                 if (x.second)
-                                 {
-                                     result.second = x.second;
-                                 }
-                             }
-                             return result;
-                         });
+    // _tbb::provided::exclusive_scan(first,
+    //                      last,
+    //                      d_first,
+    //                      std::make_pair(init, 0),
+    //                      [binary_op](PairType x, PairType y)
+    //                      {
+    //                          PairType result = y;
+    //                          if (!y.second)
+    //                          {
+    //                              result.first = binary_op(x.first, y.first);
+    //                              /* Only required if additions are
+    //                                 reordered!
+    //                              */
+    //                              if (x.second)
+    //                              {
+    //                                  result.second = x.second;
+    //                              }
+    //                          }
+    //                          return result;
+    //                      });
+
+    size_t num_values = last - first;
+    tbb::parallel_scan(
+        range_type(size_t(0), num_values),
+        init,
+        [&](const range_type& r, ValueType sum, bool is_final_scan)
+        {
+            for (size_t i = r.begin(); i < r.end(); ++i)
+            {
+                ValueType tmp = first[i];
+                if (is_final_scan)
+                    d_first[i] = sum;
+                sum = binary_op(sum, tmp);
+            }
+            return sum;
+        },
+        [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
 
     // // Reset of segment beginnings to initial value.
     // // Using only an operand wrapper it is not possible to omit this step!
