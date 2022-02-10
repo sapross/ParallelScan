@@ -490,28 +490,8 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         // std::vector<std::pair<int, int>> result1(N, std::make_pair(0, 0));
-        // _tbb::provided::exclusive_segmented_scan(
-        //     data.begin(), data.end(), result.begin(), ident, init);
-        // _tbb::tiled::exclusive_segmented_scan(data.begin(), data.end(), result1.begin(), 0, init);
-        // std::cout << "input: " << std::endl;
-        // std::for_each(data.begin(),
-        //               data.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
-        // std::for_each(data.begin(),
-        //               data.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-        // std::cout << std::endl;
-        // std::cout << "result provided: " << std::endl;
-        // std::for_each(result.begin(),
-        //               result.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
-        // std::cout << "result reference: " << std::endl;
-        // std::for_each(result1.begin(),
-        //               result1.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
+        _tbb::provided::exclusive_segmented_scan(
+            data.begin(), data.end(), result.begin(), ident, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
     SECTION("TBB Up-Down Sweep")
@@ -526,25 +506,6 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
         _tbb::tiled::exclusive_segmented_scan(
             data.begin(), data.end(), result.begin(), ident, init);
-        // std::cout << "data:" << std::endl;
-        // std::for_each(data.begin(),
-        //               data.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
-        // std::for_each(data.begin(),
-        //               data.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.second << ", "; });
-        // std::cout << std::endl;
-        // std::cout << "Reference" << std::endl;
-        // std::for_each(reference.begin(),
-        //               reference.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
-        // std::cout << "result:" << std::endl;
-        // std::for_each(result.begin(),
-        //               result.end(),
-        //               [](auto x) { std::cout << std::setw(2) << x.first << ", "; });
-        // std::cout << std::endl;
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
     }
 }
@@ -946,9 +907,9 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     SECTION("TBB provided")
     {
 
-        // _tbb::provided::exclusive_segmented_scan(
-        //     data.begin(), data.end(), data.begin(), init);
-        // REQUIRE_THAT(data, PairsFirstsEqual(reference));
+        _tbb::provided::exclusive_segmented_scan(
+            data.begin(), data.end(), data.begin(), ident, init);
+        REQUIRE_THAT(data, PairsFirstsEqual(reference));
     }
     SECTION("TBB Up-Down Sweep")
     {

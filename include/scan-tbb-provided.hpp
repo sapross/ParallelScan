@@ -20,8 +20,7 @@ OutputIt inclusive_scan(
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         identity,
-        [&](const range_type& r, InputType sum, bool is_final_scan)
-        {
+        [&](const range_type& r, InputType sum, bool is_final_scan) {
             InputType tmp = sum;
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
@@ -63,23 +62,16 @@ OutputIt exclusive_scan(InputIt         first,
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
     using range_type = tbb::blocked_range<size_t>;
-    /*
-        ToDo:
-        Problem: in example project d_first[i +1] = sum is used, target vector is one
-       element bigger than here -> In-Place? Maybe required to pass id and init both
-       aswell?
-    */
     using ValueType   = typename std::iterator_traits<InputIt>::value_type;
     size_t num_values = last - first;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         identity,
-        [&](const range_type& r, ValueType sum, bool is_final_scan)
-        {
+        [&](const range_type& r, ValueType sum, bool is_final_scan) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 if (i == 0)
-                    sum = binary_op(sum, init);
+                    sum = init; // binary_op(sum, init);
                 ValueType tmp = first[i];
                 if (is_final_scan)
                     d_first[i] = sum;
@@ -131,8 +123,7 @@ OutputIt inclusive_segmented_scan(
                                    last,
                                    d_first,
                                    std::make_pair(identity, 0),
-                                   [binary_op](PairType x, PairType y)
-                                   {
+                                   [binary_op](PairType x, PairType y) {
                                        PairType result = y;
                                        if (!y.second)
                                        {
@@ -170,10 +161,13 @@ InputIt inclusive_segmented_scan(InputIt first, InputIt last, T identity)
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-// ToDo: FIX!
 template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
-OutputIt exclusive_segmented_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+OutputIt exclusive_segmented_scan(InputIt         first,
+                                  InputIt         last,
+                                  OutputIt        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     using PairType  = typename std::iterator_traits<InputIt>::value_type;
     using FlagType  = typename std::tuple_element<1, PairType>::type;
@@ -183,14 +177,18 @@ OutputIt exclusive_segmented_scan(
     static_assert(std::is_convertible<T, ValueType>::value,
                   "Init must be convertible to first pair type");
 
+    size_t num_values = last - first;
+    using range_type  = tbb::blocked_range<size_t>;
+
     /*Sequential exclusive scan becomes the segmented variant by wrapping the
       passed binary_op into a new conditional binary like with inclusive scan.
     */
     // _tbb::provided::exclusive_scan(first,
     //                      last,
     //                      d_first,
-    //                      std::make_pair(init, 0),
-    //                      [binary_op](PairType x, PairType y)
+    //                      std::make_pair(identity, FlagType()),
+    //                      std::make_pair(init, FlagType()),
+    //                      [binary_op, init](PairType x, PairType y)
     //                      {
     //                          PairType result = y;
     //                          if (!y.second)
@@ -204,28 +202,67 @@ OutputIt exclusive_segmented_scan(
     //                                  result.second = x.second;
     //                              }
     //                          }
+    //                          else
+    //                          {
+    //                              result.first = binary_op(init, y.first);
+    //                          }
     //                          return result;
     //                      });
 
-    size_t num_values = last - first;
-    using range_type  = tbb::blocked_range<size_t>;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
-        init,
-        [&](const range_type& r, ValueType sum, bool is_final_scan)
-        {
+        std::make_pair(identity, FlagType()),
+        [&](const range_type& r, PairType sum, bool is_final_scan) {
+            // if(is_final_scan)
+            //     sum = binary_op(sum, init);
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                PairType tmp = first[i];
-                if (is_final_scan)
-                    d_first[i] = std::make_pair(sum, first[i].second);
-                if (!tmp.second)
-                    sum = binary_op(sum, tmp.first);
+                ValueType temp = first[i].first;
+
+                if (i == 0)
+                {
+                    sum.first = binary_op(sum.first, init);
+                }
+                if (!first[i].second)
+                {
+                    if (is_final_scan)
+                        d_first[i] = sum;
+                    sum.first = binary_op(sum.first, temp);
+                }
+                else
+                {
+                    if (is_final_scan)
+                        d_first[i].first = init;
+                    sum.first  = binary_op(init, temp);
+                    sum.second = first[i].second;
+                }
             }
             return sum;
         },
-        [&](const ValueType& a, const ValueType& b) { return binary_op(a, b); });
+        [&](const PairType& a, const PairType& b) {
+            PairType result = b;
+            if (!b.second)
+                result.first = binary_op(a.first, result.first);
+            return result;
+        });
+    d_first[0].first = init;
 
+    // tbb::parallel_scan(
+    //     range_type(size_t(0), num_values),
+    //     init,
+    //     [&](const range_type& r, ValueType sum, bool is_final_scan)
+    //     {
+    //         for (size_t i = r.begin(); i < r.end(); ++i)
+    //         {
+    //             PairType tmp = first[i];
+    //             if (is_final_scan)
+    //                 d_first[i] = std::make_pair(sum, first[i].second);
+    //             if (!tmp.second)
+    //                 sum = binary_op(sum, tmp.first);
+    //         }
+    //         return sum;
+    //     },
+    //     [&](const ValueType& a, const ValueType& b) { return binary_op(a, b); });
     // // Reset of segment beginnings to initial value.
     // // Using only an operand wrapper it is not possible to omit this step!
     // // See implementation under numeric.h
@@ -306,22 +343,22 @@ OutputIt exclusive_segmented_scan(
     //         sum              = binary_op(temp, init);
     //     }
     // }
-
     return d_first + num_values;
 }
 
 template<typename InputIt, typename OutputIt, typename T>
-OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+OutputIt exclusive_segmented_scan(
+    InputIt first, InputIt last, OutputIt d_first, T identity, T init)
 {
     return _tbb::provided::exclusive_segmented_scan(
-        first, last, d_first, init, std::plus<>());
+        first, last, d_first, identity, init, std::plus<>());
 }
 
 template<typename InputIt, typename T>
-InputIt exclusive_segmented_scan(InputIt first, InputIt last, T init)
+InputIt exclusive_segmented_scan(InputIt first, InputIt last, T identity, T init)
 {
     return _tbb::provided::exclusive_segmented_scan(
-        first, last, first, init, std::plus<>());
+        first, last, first, identity, init, std::plus<>());
 }
 
 } // namespace provided

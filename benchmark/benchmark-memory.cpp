@@ -551,13 +551,14 @@ SCENARIO("Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
                   });
 
     float init = 0.0;
+    float identity = 0.0;
 
     BENCHMARK_ADVANCED("exseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
         std::vector<std::pair<float, int>> result(N);
         meter.measure(
-            [&data, init]() {
-                _tbb::provided::exclusive_segmented_scan(data.begin(), data.end(),  init);
+            [&data, init, identity]() {
+                _tbb::provided::exclusive_segmented_scan(data.begin(), data.end(), identity, init);
             });
     };
 
