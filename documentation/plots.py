@@ -492,22 +492,6 @@ def figure49(plotwrapper):
         grid=True,
     )
 
-def figure50(plotwrapper):
-    columns = {
-        "mp_media_icx_omp_no_simd_scheduling_static_inc_OMP_provided": "Static",
-        "mp_media_icx_omp_no_simd_scheduling_dynamic_inc_OMP_provided": "Dynamic",
-        "mp_media_icx_omp_no_simd_scheduling_guided_inc_OMP_provided": "Guided",
-        "mp_media_icx_omp_no_simd_scheduling_auto_inc_OMP_provided": "Auto",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="MP-Media OpenMP Provided Inclusive Scan with Different Scheduling (icx)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
 def figure51(plotwrapper):
     columns = {
         "mp_media_icx_omp_no_simd_scheduling_static_inc_OMP_updown": "Static",
@@ -534,22 +518,6 @@ def figure52(plotwrapper):
     plotwrapper.columns = columns
     plotwrapper.plot(
         title="MP-Media OpenMP Tiled Inclusive Scans with Different Scheduling (icx)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-def figure53(plotwrapper):
-    columns = {
-        "mp_media_icx_omp_scheduling_static_inc_OMP_provided": "Static",
-        "mp_media_icx_omp_scheduling_dynamic_inc_OMP_provided": "Dynamic",
-        "mp_media_icx_omp_scheduling_guided_inc_OMP_provided": "Guided",
-        "mp_media_icx_omp_scheduling_auto_inc_OMP_provided": "Auto",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="MP-Media OpenMP Provided Inclusive Scan with Different Scheduling and SIMD (icx)",
         index_col="N",
         xscale="log",
         yscale="linear",
