@@ -14,8 +14,8 @@ template<typename InputIt, typename OutputIt, typename BinaryOperation, typename
 OutputIt inclusive_scan(
     InputIt first, InputIt last, OutputIt d_first, T identity, BinaryOperation binary_op)
 {
-    using InputType = typename std::iterator_traits<InputIt>::value_type;
-    using range_type = tbb::blocked_range<size_t>;
+    using InputType   = typename std::iterator_traits<InputIt>::value_type;
+    using range_type  = tbb::blocked_range<size_t>;
     size_t num_values = last - first;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
@@ -51,8 +51,12 @@ InputIt inclusive_scan(InputIt first, InputIt last, T identity)
 //  Exclusive Scan
 // ----------------------------------------------------------------------------------
 template<typename InputIt, typename OutputIt, typename T, typename BinaryOperation>
-OutputIt exclusive_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+OutputIt exclusive_scan(InputIt         first,
+                        InputIt         last,
+                        OutputIt        d_first,
+                        T               identity,
+                        T               init,
+                        BinaryOperation binary_op)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
@@ -61,18 +65,21 @@ OutputIt exclusive_scan(
     using range_type = tbb::blocked_range<size_t>;
     /*
         ToDo:
-        Problem: in example project d_first[i +1] = sum is used, target vector is one element bigger than here -> In-Place?
-        Maybe required to pass id and init both aswell?
+        Problem: in example project d_first[i +1] = sum is used, target vector is one
+       element bigger than here -> In-Place? Maybe required to pass id and init both
+       aswell?
     */
-    using ValueType = typename std::iterator_traits<InputIt>::value_type;
+    using ValueType   = typename std::iterator_traits<InputIt>::value_type;
     size_t num_values = last - first;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
-        init,
+        identity,
         [&](const range_type& r, ValueType sum, bool is_final_scan)
         {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
+                if (i == 0)
+                    sum = binary_op(sum, init);
                 ValueType tmp = first[i];
                 if (is_final_scan)
                     d_first[i] = sum;
@@ -86,15 +93,17 @@ OutputIt exclusive_scan(
 }
 
 template<typename InputIt, typename OutputIt, typename T>
-OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T identity, T init)
 {
-    return _tbb::provided::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return _tbb::provided::exclusive_scan(
+        first, last, d_first, identity, init, std::plus<>());
 }
 
 template<typename InputIt, typename T>
-InputIt exclusive_scan(InputIt first, InputIt last, T init)
+InputIt exclusive_scan(InputIt first, InputIt last, T identity, T init)
 {
-    return _tbb::provided::exclusive_scan(first, last, first, init, std::plus<>());
+    return _tbb::provided::exclusive_scan(
+        first, last, first, identity, init, std::plus<>());
 }
 
 // ----------------------------------------------------------------------------------
@@ -161,7 +170,7 @@ InputIt inclusive_segmented_scan(InputIt first, InputIt last, T identity)
 //  Exclusive Segmented Scan
 // ----------------------------------------------------------------------------------
 
-//ToDo: FIX!
+// ToDo: FIX!
 template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
 OutputIt exclusive_segmented_scan(
     InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
@@ -199,6 +208,7 @@ OutputIt exclusive_segmented_scan(
     //                      });
 
     size_t num_values = last - first;
+    using range_type  = tbb::blocked_range<size_t>;
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         init,
@@ -206,14 +216,15 @@ OutputIt exclusive_segmented_scan(
         {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                ValueType tmp = first[i];
+                PairType tmp = first[i];
                 if (is_final_scan)
-                    d_first[i] = sum;
-                sum = binary_op(sum, tmp);
+                    d_first[i] = std::make_pair(sum, first[i].second);
+                if (!tmp.second)
+                    sum = binary_op(sum, tmp.first);
             }
             return sum;
         },
-        [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
+        [&](const ValueType& a, const ValueType& b) { return binary_op(a, b); });
 
     // // Reset of segment beginnings to initial value.
     // // Using only an operand wrapper it is not possible to omit this step!
@@ -245,7 +256,6 @@ OutputIt exclusive_segmented_scan(
     //               "Second pair type must be convertible to bool!");
     // static_assert(std::is_convertible<T, ValueType>::value,
     //               "Init must be convertible to First pair type!");
-    size_t    num_values = last - first;
     // ValueType sum        = init;
     // tbb::parallel_scan(
     //     range_type(size_t(0), num_values),

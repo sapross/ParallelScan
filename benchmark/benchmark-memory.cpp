@@ -237,7 +237,7 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
     {
         meter.measure(
             [&data, init]()
-            { _tbb::provided::exclusive_scan(data.begin(), data.end(), init); });
+            { _tbb::provided::exclusive_scan(data.begin(), data.end(), init, init); });
     };
 
     BENCHMARK_ADVANCED("ex_TBB_updown")(Catch::Benchmark::Chronometer meter)
@@ -249,7 +249,7 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
     BENCHMARK_ADVANCED("ex_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure([&data, init]()
-                      { _tbb::tiled::exclusive_scan(data.begin(), data.end(), init); });
+                      { _tbb::tiled::exclusive_scan(data.begin(), data.end(), init, init); });
     };
 }
 

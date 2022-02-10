@@ -238,7 +238,7 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
     {
         meter.measure(
             [begin, end, &binary_op, &data, init]() {
-                _tbb::provided::exclusive_scan(begin, end, data.begin(), init, binary_op);
+                _tbb::provided::exclusive_scan(begin, end, data.begin(), init, init, binary_op);
             });
     };
 
@@ -253,7 +253,7 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
     {
         meter.measure(
             [begin, end, &binary_op, &data, init]()
-            { _tbb::tiled::exclusive_scan(begin, end, data.begin(), init, binary_op); });
+            { _tbb::tiled::exclusive_scan(begin, end, data.begin(), init, init, binary_op); });
     };
 }
 

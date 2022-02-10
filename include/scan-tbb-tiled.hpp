@@ -96,7 +96,7 @@ template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 
 template<class InputIt, class OutputIt, class T, class BinaryOperation>
 OutputIt exclusive_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+    InputIt first, InputIt last, OutputIt d_first, T identity, T init, BinaryOperation binary_op)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
@@ -129,7 +129,7 @@ OutputIt exclusive_scan(
     // Phase 2: Intermediate Scan (sequential)
 
     _tbb::provided::exclusive_scan(
-        temp.begin(), temp.end(), temp.begin(), init, binary_op);
+        temp.begin(), temp.end(), temp.begin(), identity, init, binary_op);
 
     // Phase 3: Rescan on Tiles (parallel)
     tbb::parallel_for(size_t(0),
@@ -155,15 +155,15 @@ OutputIt exclusive_scan(
 }
 
 template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
+OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T identity, T init)
 {
-    return _tbb::tiled::exclusive_scan(first, last, d_first, init, std::plus<>());
+    return _tbb::tiled::exclusive_scan(first, last, d_first, identity, init, std::plus<>());
 }
 
 template<class InputIt, class T>
-InputIt exclusive_scan(InputIt first, InputIt last, T init)
+InputIt exclusive_scan(InputIt first, InputIt last, T identity, T init)
 {
-    return _tbb::tiled::exclusive_scan(first, last, first, init, std::plus<>());
+    return _tbb::tiled::exclusive_scan(first, last, first, identity, init, std::plus<>());
 }
 
 // // ----------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ OutputIt exclusive_segmented_scan(InputIt         first,
 
     // Phase 2: Intermediate Scan (parallel)
     _tbb::provided::exclusive_scan(
-        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, 0), wrapped_bop);
+        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, FlagType()), std::make_pair(init, FlagType()) , wrapped_bop);
 
     // Phase 3: Rescan on Tiles (parallel)
     tbb::parallel_for(size_t(0),
