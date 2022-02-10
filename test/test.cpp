@@ -150,7 +150,7 @@ TEST_CASE("Out-Of-Place Exclusive Scan Test", "[out][ex]")
     std::uniform_int_distribution<int> distribution(1, 10);
     auto                               randnum = std::bind(distribution, generator);
 
-    int init = 2;
+    int init  = 2;
     int ident = 0;
 
     std::vector<int> data(N, 1);
@@ -169,7 +169,8 @@ TEST_CASE("Out-Of-Place Exclusive Scan Test", "[out][ex]")
     SECTION("Sequential Up-Down-Sweep")
     {
         std::vector<int> result(N, 0);
-        sequential::updown::exclusive_scan(data.begin(), data.end(), result.begin(), init);
+        sequential::updown::exclusive_scan(
+            data.begin(), data.end(), result.begin(), init);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("Sequential Up-Down-Sweep Tiled")
@@ -181,7 +182,8 @@ TEST_CASE("Out-Of-Place Exclusive Scan Test", "[out][ex]")
     SECTION("TBB provided")
     {
         std::vector<int> result(N, 0);
-        _tbb::provided::exclusive_scan(data.begin(), data.end(), result.begin(), ident, init);
+        _tbb::provided::exclusive_scan(
+            data.begin(), data.end(), result.begin(), ident, init);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB Up-Down Sweep")
@@ -193,7 +195,8 @@ TEST_CASE("Out-Of-Place Exclusive Scan Test", "[out][ex]")
     SECTION("TBB Tiled")
     {
         std::vector<int> result(N, 0);
-        _tbb::tiled::exclusive_scan(data.begin(), data.end(), result.begin(), ident, init);
+        _tbb::tiled::exclusive_scan(
+            data.begin(), data.end(), result.begin(), ident, init);
         REQUIRE_THAT(result, Catch::Matchers::Equals(reference));
     }
     SECTION("OpenMP provided")
@@ -272,15 +275,12 @@ TEST_CASE("Out-Of-Place Inclusive Segmented Scan Test", "[out][incseg]")
     auto flag_rand = std::bind(flag_distribution, flag_generator);
 
     std::vector<std::pair<int, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&randnum, &flag_rand]()
-                  {
-                      std::pair<int, int> A;
-                      A.first  = randnum();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::generate(data.begin(), data.end(), [&randnum, &flag_rand]() {
+        std::pair<int, int> A;
+        A.first  = randnum();
+        A.second = flag_rand();
+        return A;
+    });
 
     std::vector<std::pair<int, int>> reference(N);
     sequential::naive::inclusive_segmented_scan(
@@ -426,17 +426,14 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     auto flag_rand = std::bind(flag_distribution, flag_generator);
 
     std::vector<std::pair<int, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&randnum, &flag_rand]()
-                  {
-                      std::pair<int, int> A;
-                      A.first  = randnum();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::generate(data.begin(), data.end(), [&randnum, &flag_rand]() {
+        std::pair<int, int> A;
+        A.first  = randnum();
+        A.second = flag_rand();
+        return A;
+    });
 
-    int init = 1;
+    int init  = 1;
     int ident = 0;
 
     std::vector<std::pair<int, int>> reference(N);
@@ -489,7 +486,6 @@ TEST_CASE("Out-Of-Place Exclusive Segmented Scan Test", "[out][exseg]")
     SECTION("TBB provided")
     {
         std::vector<std::pair<int, int>> result(N, std::make_pair(0, 0));
-        // std::vector<std::pair<int, int>> result1(N, std::make_pair(0, 0));
         _tbb::provided::exclusive_segmented_scan(
             data.begin(), data.end(), result.begin(), ident, init);
         REQUIRE_THAT(result, PairsFirstsEqual(reference));
@@ -601,7 +597,7 @@ TEST_CASE("In-Place Exclusive Scan Test", "[in][ex]")
     std::uniform_int_distribution<int> distribution(1, 10);
     auto                               randnum = std::bind(distribution, generator);
 
-    int init = 2;
+    int init  = 2;
     int ident = 0;
 
     std::vector<int> data(N, 1);
@@ -632,7 +628,8 @@ TEST_CASE("In-Place Exclusive Scan Test", "[in][ex]")
     SECTION("TBB provided")
     {
 
-        _tbb::provided::exclusive_scan(data.begin(), data.end(), data.begin(), ident, init);
+        _tbb::provided::exclusive_scan(
+            data.begin(), data.end(), data.begin(), ident, init);
         REQUIRE_THAT(data, Catch::Matchers::Equals(reference));
     }
     SECTION("TBB Up-Down Sweep")
@@ -721,15 +718,12 @@ TEST_CASE("In-Place Inclusive Segmented Scan Test", "[in][incseg]")
     auto flag_rand = std::bind(flag_distribution, flag_generator);
 
     std::vector<std::pair<int, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&randnum, &flag_rand]()
-                  {
-                      std::pair<int, int> A;
-                      A.first  = randnum();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::generate(data.begin(), data.end(), [&randnum, &flag_rand]() {
+        std::pair<int, int> A;
+        A.first  = randnum();
+        A.second = flag_rand();
+        return A;
+    });
 
     std::vector<std::pair<int, int>> reference(N);
     sequential::naive::inclusive_segmented_scan(
@@ -843,19 +837,16 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     std::uniform_int_distribution<int> flag_distribution(0, 1);
     auto flag_rand = std::bind(flag_distribution, flag_generator);
 
-    int init = 2;
+    int init  = 2;
     int ident = 0;
 
     std::vector<std::pair<int, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&randnum, &flag_rand]()
-                  {
-                      std::pair<int, int> A;
-                      A.first  = randnum();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    std::generate(data.begin(), data.end(), [&randnum, &flag_rand]() {
+        std::pair<int, int> A;
+        A.first  = randnum();
+        A.second = flag_rand();
+        return A;
+    });
 
     std::vector<std::pair<int, int>> reference(N);
     sequential::naive::exclusive_segmented_scan(
@@ -864,14 +855,16 @@ TEST_CASE("In-Place Exclusive Segmented Scan Test", "[in][exseg]")
     SECTION("Sequential Up-Down-Sweep")
     {
 
-        sequential::updown::exclusive_segmented_scan(data.begin(), data.end(), ident, init);
+        sequential::updown::exclusive_segmented_scan(
+            data.begin(), data.end(), ident, init);
 
         REQUIRE_THAT(data, PairsFirstsEqual(reference));
     }
     SECTION("Sequential Tiled")
     {
 
-        sequential::tiled::exclusive_segmented_scan(data.begin(), data.end(), ident, init);
+        sequential::tiled::exclusive_segmented_scan(
+            data.begin(), data.end(), ident, init);
 
         REQUIRE_THAT(data, PairsFirstsEqual(reference));
     }

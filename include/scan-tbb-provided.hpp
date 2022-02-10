@@ -61,7 +61,7 @@ OutputIt exclusive_scan(InputIt         first,
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
-    using range_type = tbb::blocked_range<size_t>;
+    using range_type  = tbb::blocked_range<size_t>;
     using ValueType   = typename std::iterator_traits<InputIt>::value_type;
     size_t num_values = last - first;
     tbb::parallel_scan(
@@ -179,36 +179,6 @@ OutputIt exclusive_segmented_scan(InputIt         first,
 
     size_t num_values = last - first;
     using range_type  = tbb::blocked_range<size_t>;
-
-    /*Sequential exclusive scan becomes the segmented variant by wrapping the
-      passed binary_op into a new conditional binary like with inclusive scan.
-    */
-    // _tbb::provided::exclusive_scan(first,
-    //                      last,
-    //                      d_first,
-    //                      std::make_pair(identity, FlagType()),
-    //                      std::make_pair(init, FlagType()),
-    //                      [binary_op, init](PairType x, PairType y)
-    //                      {
-    //                          PairType result = y;
-    //                          if (!y.second)
-    //                          {
-    //                              result.first = binary_op(x.first, y.first);
-    //                              /* Only required if additions are
-    //                                 reordered!
-    //                              */
-    //                              if (x.second)
-    //                              {
-    //                                  result.second = x.second;
-    //                              }
-    //                          }
-    //                          else
-    //                          {
-    //                              result.first = binary_op(init, y.first);
-    //                          }
-    //                          return result;
-    //                      });
-
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         std::make_pair(identity, FlagType()),
@@ -247,102 +217,6 @@ OutputIt exclusive_segmented_scan(InputIt         first,
         });
     d_first[0].first = init;
 
-    // tbb::parallel_scan(
-    //     range_type(size_t(0), num_values),
-    //     init,
-    //     [&](const range_type& r, ValueType sum, bool is_final_scan)
-    //     {
-    //         for (size_t i = r.begin(); i < r.end(); ++i)
-    //         {
-    //             PairType tmp = first[i];
-    //             if (is_final_scan)
-    //                 d_first[i] = std::make_pair(sum, first[i].second);
-    //             if (!tmp.second)
-    //                 sum = binary_op(sum, tmp.first);
-    //         }
-    //         return sum;
-    //     },
-    //     [&](const ValueType& a, const ValueType& b) { return binary_op(a, b); });
-    // // Reset of segment beginnings to initial value.
-    // // Using only an operand wrapper it is not possible to omit this step!
-    // // See implementation under numeric.h
-    // while (first != last)
-    // {
-    //     if (first->second)
-    //     {
-    //         d_first->first = init;
-    //     }
-    //     first++;
-    //     d_first++;
-    // }
-    // while (first != last)
-    // {
-    //     if ((*first).second)
-    //     {
-    //         d_first->first = init;
-    //     }
-    //     first++;
-    //     d_first++;
-    // }
-    // return d_first;
-    // return d_first + (last - first);
-    // using PairType  = typename std::iterator_traits<InputIt>::value_type;
-    // using FlagType  = typename std::tuple_element<1, PairType>::type;
-    // using ValueType = typename std::tuple_element<0, PairType>::type;
-    // static_assert(std::is_convertible<FlagType, bool>::value,
-    //               "Second pair type must be convertible to bool!");
-    // static_assert(std::is_convertible<T, ValueType>::value,
-    //               "Init must be convertible to First pair type!");
-    // ValueType sum        = init;
-    // tbb::parallel_scan(
-    //     range_type(size_t(0), num_values),
-    //     init,
-    //     [&](const range_type& r, OutputType sum, bool is_final_scan)
-    //     {
-    //         ValueType tmp = sum;
-    //         for (size_t i = r.begin(); i < r.end(); ++i)
-    //         {
-    //             tmp = binary_op(tmp, first[i]);
-    //             if (is_final_scan)
-    //                 d_first[i + 1] = tmp;
-    //         }
-    //         return tmp;
-    //     },
-    //     [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
-    // // _tbb::provided::exclusive_scan(first,
-    // //                      last,
-    // //                      d_first,
-    // //                      std::make_pair(init, 0),
-    // //                      [binary_op](PairType x, PairType y)
-    // //                      {
-    // //                          PairType result = y;
-    // //                          if (!y.second)
-    // //                          {
-    // //                              result.first = binary_op(x.first, y.first);
-    // //                              /* Only required if additions are
-    // //                                 reordered!
-    // //                              */
-    // //                              if (x.second)
-    // //                              {
-    // //                                  result.second = x.second;
-    // //                              }
-    // //                          }
-    // //                          return result;
-    // //                      });
-    // for (size_t i = 0; i < num_values; i++)
-    // {
-    //     T temp = first[i].first;
-    //     if (!first[i].second)
-    //     {
-    //         d_first[i].first = sum;
-    //         sum              = binary_op(sum, temp);
-    //     }
-    //     else
-    //     {
-    //         d_first[i].first = init;
-    //         sum              = binary_op(temp, init);
-    //     }
-    // }
     return d_first + num_values;
 }
 

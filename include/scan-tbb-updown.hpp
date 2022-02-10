@@ -22,8 +22,8 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
 
     size_t num_values = last - first;
     size_t step       = 1;
-    // Up sweep
 
+    // Up sweep
     if ((last - first) != 0)
     {
         std::copy(first, last, d_first);
@@ -31,23 +31,20 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-        tbb::parallel_for(size_t(0), num_values, step,
-                            [&](auto i)
-                                {
-                                    d_first[i + step - 1] =
-                                        binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
-                                });
+        tbb::parallel_for(size_t(0), num_values, step, [&](auto i) {
+            d_first[i + step - 1] =
+                binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+        });
     }
+    // Down sweep
     step = 1 << (size_t)(std::floor(std::log2(num_values)));
     for (int stage = std::floor(std::log2(num_values - 2)); stage > 0; stage--)
     {
         step = step / 2;
-        tbb::parallel_for(step, num_values -1, step,
-                            [&](auto i)
-                                {
-                                    d_first[i + step / 2 - 1] =
-                                        binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
-                                });
+        tbb::parallel_for(step, num_values - 1, step, [&](auto i) {
+            d_first[i + step / 2 - 1] =
+                binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
+        });
     }
 
     return d_first + num_values;
@@ -83,37 +80,27 @@ OutputIt exclusive_scan(
     size_t step       = 1;
 
     // Up sweep
-    // if (std::distance(first, d_first) != 0)
-    // {
     std::copy(first, last, d_first);
-    // }
     for (size_t stage = 0; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-        tbb::parallel_for(size_t(0),
-                          num_values,
-                          step,
-                          [&](auto i) {
-                              d_first[i + step - 1] = binary_op(d_first[i + step / 2 - 1],
-                                                                d_first[i + step - 1]);
-                          });
+        tbb::parallel_for(size_t(0), num_values, step, [&](auto i) {
+            d_first[i + step - 1] =
+                binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
+        });
     }
     d_first[num_values - 1] = init;
 
+    // Down sweep
     for (int stage = std::floor(std::log2(num_values)) - 1; stage >= 0; stage--)
     {
         size_t downstep = (1 << (stage + 1));
-        tbb::parallel_for(size_t(0),
-                          size_t(num_values),
-                          downstep,
-                          [&](auto i)
-                          {
-                              OutputType t = d_first[i + (1 << stage) - 1];
-                              d_first[i + (1 << stage) - 1] =
-                                  d_first[i + (1 << (stage + 1)) - 1];
-                              d_first[i + (1 << (stage + 1)) - 1] =
-                                  binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
-                          });
+        tbb::parallel_for(size_t(0), size_t(num_values), downstep, [&](auto i) {
+            OutputType t                  = d_first[i + (1 << stage) - 1];
+            d_first[i + (1 << stage) - 1] = d_first[i + (1 << (stage + 1)) - 1];
+            d_first[i + (1 << (stage + 1)) - 1] =
+                binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
+        });
     }
 
     return d_first + num_values;
@@ -155,25 +142,22 @@ OutputIt inclusive_segmented_scan(InputIt         first,
       operand y, resetting the sum to the value of y yields the correct result.
      */
     size_t num_values = last - first;
-    _tbb::updown::inclusive_scan(first,
-                                 last,
-                                 d_first,
-                                 [binary_op](PairType x, PairType y)
-                                 {
-                                     PairType result = y;
-                                     if (!y.second)
-                                     {
-                                         result.first = binary_op(x.first, y.first);
-                                         /* Only required if additions are
-                                            reordered!
-                                         */
-                                         if (x.second)
-                                         {
-                                             result.second = x.second;
-                                         }
-                                     }
-                                     return result;
-                                 });
+    _tbb::updown::inclusive_scan(
+        first, last, d_first, [binary_op](PairType x, PairType y) {
+            PairType result = y;
+            if (!y.second)
+            {
+                result.first = binary_op(x.first, y.first);
+                /* Only required if additions are
+                   reordered!
+                */
+                if (x.second)
+                {
+                    result.second = x.second;
+                }
+            }
+            return result;
+        });
 
     return d_first + num_values;
 }
@@ -194,8 +178,12 @@ template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt 
 // // ----------------------------------------------------------------------------------
 
 template<class InputIt, class OutputIt, class BinaryOperation, class T>
-OutputIt exclusive_segmented_scan(
-    InputIt first, InputIt last, OutputIt d_first, T identity, T init, BinaryOperation binary_op)
+OutputIt exclusive_segmented_scan(InputIt         first,
+                                  InputIt         last,
+                                  OutputIt        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
 {
     /* Due to the add-swap operation in the down sweep phase a simple wrapper
        of the binary operation is insufficient.
@@ -216,45 +204,40 @@ OutputIt exclusive_segmented_scan(
        now unpacked. This step is hence equal to the segmented inclusive
        up-down sweeping scan.
     */
-
     // First stage of the up sweep fused with copy
     step = step * 2;
-    tbb::parallel_for(size_t(0), num_values, step,
-                            [&](auto i)
-                                {
-                                    size_t   left = i + step / 2 - 1, right = i + step - 1;
-                                    PairType val_left = first[left], val_right = first[right];
+    tbb::parallel_for(size_t(0), num_values, step, [&](auto i) {
+        size_t   left = i + step / 2 - 1, right = i + step - 1;
+        PairType val_left = first[left], val_right = first[right];
 
-                                    // Copy flags into temp_flags.
-                                    temp_flags[left] = val_left.second;
-                                    // If left operand is segment start, mark right operand as finished.
-                                    temp_flags[right] = val_left.second ? val_left.second : val_right.second;
-                                    if (not val_right.second)
-                                    {
-                                        val_right.first = binary_op(val_left.first, val_right.first);
-                                    }
+        // Copy flags into temp_flags.
+        temp_flags[left] = val_left.second;
+        // If left operand is segment start, mark right operand as finished.
+        temp_flags[right] = val_left.second ? val_left.second : val_right.second;
+        if (not val_right.second)
+        {
+            val_right.first = binary_op(val_left.first, val_right.first);
+        }
 
-                                    d_first[left]  = val_left;
-                                    d_first[right] = val_right;
-                                });
+        d_first[left]  = val_left;
+        d_first[right] = val_right;
+    });
     // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
         step = step * 2;
-        tbb::parallel_for(size_t(0), num_values, step,
-                            [&](auto i)
-                            {
-                                size_t left = i + step / 2 - 1, right = i + step - 1;
-                                if (!temp_flags[right])
-                                {
-                                    d_first[right].first =
-                                        binary_op(d_first[left].first, d_first[right].first);
-                                    if (temp_flags[left])
-                                    {
-                                        temp_flags[right] = temp_flags[left];
-                                    }
-                                }
-                            });
+        tbb::parallel_for(size_t(0), num_values, step, [&](auto i) {
+            size_t left = i + step / 2 - 1, right = i + step - 1;
+            if (!temp_flags[right])
+            {
+                d_first[right].first =
+                    binary_op(d_first[left].first, d_first[right].first);
+                if (temp_flags[left])
+                {
+                    temp_flags[right] = temp_flags[left];
+                }
+            }
+        });
     }
 
     d_first[num_values - 1].first = identity;
@@ -263,86 +246,83 @@ OutputIt exclusive_segmented_scan(
     for (int stage = std::floor(std::log2(num_values)) - 1; stage > 0; stage--)
     {
         step = (1 << (stage + 1));
-        tbb::parallel_for(size_t(0), num_values, step,
-                            [&](auto i)
-                            {
-                                size_t left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
-                                /*Add-Swap Operation needs to be handled differently than with all the
-                                other variants. Flags from the previous phase remain unmodified.
-                                There are two cases to be observed.
-                                */
-                                ValueType val_left = d_first[left].first, val_right = d_first[right].first;
-                                if (not temp_flags[left])
-                                {
-                                    /*Left operand is not a segment beginning:
-                                    Independent of the right operand, swap the left value
-                                    with the right and save the sum in the right operand.
+        tbb::parallel_for(size_t(0), num_values, step, [&](auto i) {
+            size_t left = i + (1 << stage) - 1, right = i + (1 << (stage + 1)) - 1;
+            /*Add-Swap Operation needs to be handled differently than with all the
+            other variants. Flags from the previous phase remain unmodified.
+            There are two cases to be observed.
+            */
+            ValueType val_left = d_first[left].first, val_right = d_first[right].first;
+            if (not temp_flags[left])
+            {
+                /*Left operand is not a segment beginning:
+                Independent of the right operand, swap the left value
+                with the right and save the sum in the right operand.
 
-                                    The segment beginnings will be reset to the init value at
-                                    a later stage and are currently required to hold intermediate
-                                    results.
-                                    */
-                                    d_first[left].first  = val_right;
-                                    d_first[right].first = binary_op(val_left, val_right);
-                                }
-                                else
-                                {
-                                    /*Left operand is a segment beginning:
-                                    Independent of the right operand, swap the operand values.
-                                    This rule moves the already correctly calculated values into
-                                    their right place.
-                                    */
-                                    d_first[left].first  = val_right;
-                                    d_first[right].first = val_left;
-                                }
-                            });
+                The segment beginnings will be reset to the init value at
+                a later stage and are currently required to hold intermediate
+                results.
+                */
+                d_first[left].first  = val_right;
+                d_first[right].first = binary_op(val_left, val_right);
+            }
+            else
+            {
+                /*Left operand is a segment beginning:
+                Independent of the right operand, swap the operand values.
+                This rule moves the already correctly calculated values into
+                their right place.
+                */
+                d_first[left].first  = val_right;
+                d_first[right].first = val_left;
+            }
+        });
     }
 
-// Last stage of down-sweep meaning that stage = 0
-// This stage is fused with a cleanup of the segment beginnings.
+    // Last stage of down-sweep meaning that stage = 0
+    // This stage is fused with a cleanup of the segment beginnings.
     step = 2;
-    tbb::parallel_for(size_t(0), num_values, step,
-                            [&](auto i)
-                            {
-                                size_t    left = i, right = i + 1;
-                                ValueType val_left = d_first[left].first, val_right = d_first[right].first;
-                                ValueType temp = val_left;
+    tbb::parallel_for(size_t(0), num_values, step, [&](auto i) {
+        size_t    left = i, right = i + 1;
+        ValueType val_left = d_first[left].first, val_right = d_first[right].first;
+        ValueType temp = val_left;
 
-                                // Modified rules to cause segment starts to be overwritten with init.
-                                if (not first[left].second and i != 0)
-                                {
-                                    if (not first[right].second)
-                                    {
-                                        val_left  = val_right;
-                                        val_right = binary_op(temp, val_right);
-                                    }
-                                    else
-                                    {
-                                        val_left  = d_first[right].first;
-                                        val_right = identity;
-                                    }
-                                }
-                                else
-                                {
-                                    if (not first[right].second)
-                                    {
-                                        val_left  = identity;
-                                        val_right = temp;
-                                    }
-                                    else
-                                    {
-                                        val_left  = identity;
-                                        val_right = identity;
-                                    }
-                                }
-                                d_first[left].first  = binary_op(init, val_left);
-                                d_first[right].first = binary_op(init, val_right);
-                            });
+        // Modified rules to cause segment starts to be overwritten with init.
+        if (not first[left].second and i != 0)
+        {
+            if (not first[right].second)
+            {
+                val_left  = val_right;
+                val_right = binary_op(temp, val_right);
+            }
+            else
+            {
+                val_left  = d_first[right].first;
+                val_right = identity;
+            }
+        }
+        else
+        {
+            if (not first[right].second)
+            {
+                val_left  = identity;
+                val_right = temp;
+            }
+            else
+            {
+                val_left  = identity;
+                val_right = identity;
+            }
+        }
+        d_first[left].first  = binary_op(init, val_left);
+        d_first[right].first = binary_op(init, val_right);
+    });
     return d_first + num_values;
 }
 
 template<class InputIt, class OutputIt, class T>
-OutputIt exclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first,T identity, T init)
+OutputIt exclusive_segmented_scan(
+    InputIt first, InputIt last, OutputIt d_first, T identity, T init)
 {
     return _tbb::updown::exclusive_segmented_scan(
         first, last, d_first, identity, init, std::plus<>());
