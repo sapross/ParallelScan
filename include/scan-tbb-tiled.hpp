@@ -263,15 +263,17 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                       size_t(1),
                       [&](auto i)
                       {
-                          temp[i] = std::reduce(first + i * tile_size,
-                                                first + (i + 1) * tile_size,
-                                                std::make_pair(identity, 0),
-                                                wrapped_bop);
+                          temp[i] = *(first + i * tile_size);
+                          for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+                          {
+                              temp[i] = wrapped_bop(temp[i], *(first + j));
+                          }
                       });
 
     // Phase 2: Intermediate Scan (parallel)
     _tbb::provided::exclusive_scan(
-        temp.begin(), temp.end(), temp.begin(), std::make_pair(identity, FlagType()), std::make_pair(init, FlagType()) , wrapped_bop);
+        temp.begin(), temp.end(), temp.begin(), std::make_pair(ValueType(), FlagType()), std::make_pair(identity, FlagType()) , wrapped_bop);
+    //std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), std::make_pair(init, false), wrapped_bop);
 
     // Phase 3: Rescan on Tiles (parallel)
     tbb::parallel_for(size_t(0),
