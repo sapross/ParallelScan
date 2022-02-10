@@ -302,10 +302,10 @@ def figure37(plotwrapper):
 
 def figure38(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_inc_OMP_provided": "Static",
-        "mp_media_gnu_omp_scheduling_dynamic_inc_OMP_provided": "Dynamic",
-        "mp_media_gnu_omp_scheduling_guided_inc_OMP_provided": "Guided",
-        "mp_media_gnu_omp_scheduling_auto_inc_OMP_provided": "Auto",
+        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_provided": "Static",
+        "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_provided": "Dynamic",
+        "mp_media_gnu_omp_scheduling_guided_media2_inc_OMP_provided": "Guided",
+        "mp_media_gnu_omp_scheduling_auto_media2_inc_OMP_provided": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -318,14 +318,14 @@ def figure38(plotwrapper):
 
 def figure39(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_inc_OMP_updown": "Static",
-        "mp_media_gnu_omp_scheduling_dynamic_inc_OMP_updown": "Dynamic",
-        "mp_media_gnu_omp_scheduling_guided_inc_OMP_updown": "Guided",
-        "mp_media_gnu_omp_scheduling_auto_inc_OMP_updown": "Auto",
+        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_updown": "Static",
+        "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_updown": "Dynamic",
+        "mp_media_gnu_omp_scheduling_guided_media2_inc_OMP_updown": "Guided",
+        "mp_media_gnu_omp_scheduling_auto_media2_inc_OMP_updown": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Rome OpenMP Updown Inclusive Scans with Different Scheduling and SIMD (gnu)",
+        title="MP-Media OpenMP Updown Inclusive Scans with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -334,10 +334,10 @@ def figure39(plotwrapper):
 
 def figure40(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_inc_OMP_tiled": "Static",
-        "mp_media_gnu_omp_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
-        "mp_media_gnu_omp_scheduling_guided_inc_OMP_tiled": "Guided",
-        "mp_media_gnu_omp_scheduling_auto_inc_OMP_tiled": "Auto",
+        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "Static",
+        "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_tiled": "Dynamic",
+        "mp_media_gnu_omp_scheduling_guided_media2_inc_OMP_tiled": "Guided",
+        "mp_media_gnu_omp_scheduling_auto_media2_inc_OMP_tiled": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -398,10 +398,10 @@ def figure43(plotwrapper):
 
 def figure44(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_no_simd_scheduling_static_inc_OMP_provided": "Static",
-        "mp_media_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_provided": "Dynamic",
-        "mp_media_gnu_omp_no_simd_scheduling_guided_inc_OMP_provided": "Guided",
-        "mp_media_gnu_omp_no_simd_scheduling_auto_inc_OMP_provided": "Auto",
+        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_provided": "Static",
+        "mp_media_gnu_omp_no_simd_scheduling_dynamic_media2_inc_OMP_provided": "Dynamic",
+        "mp_media_gnu_omp_no_simd_scheduling_guided_media2_inc_OMP_provided": "Guided",
+        "mp_media_gnu_omp_no_simd_scheduling_auto_media2_inc_OMP_provided": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -414,26 +414,26 @@ def figure44(plotwrapper):
 
 def figure45(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_no_simd_scheduling_static_inc_OMP_updown": "Static",
-        "mp_media_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_updown": "Dynamic",
-        "mp_media_gnu_omp_no_simd_scheduling_guided_inc_OMP_updown": "Guided",
-        "mp_media_gnu_omp_no_simd_scheduling_auto_inc_OMP_updown": "Auto",
+        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_updown": "Static",
+        "mp_media_gnu_omp_no_simd_scheduling_dynamic_media2_inc_OMP_updown": "Dynamic",
+        "mp_media_gnu_omp_no_simd_scheduling_guided_media2_inc_OMP_updown": "Guided",
+        "mp_media_gnu_omp_no_simd_scheduling_auto_media2_inc_OMP_updown": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Rome OpenMP Updown Inclusive Scans with Different Scheduling (gnu)",
+        title="MP-Media OpenMP Updown Inclusive Scans with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure40(plotwrapper):
+def figure46(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "Static",
-        "mp_media_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
-        "mp_media_gnu_omp_no_simd_scheduling_guided_inc_OMP_tiled": "Guided",
-        "mp_media_gnu_omp_no_simd_scheduling_auto_inc_OMP_tiled": "Auto",
+        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "Static",
+        "mp_media_gnu_omp_no_simd_scheduling_dynamic_media2_inc_OMP_tiled": "Dynamic",
+        "mp_media_gnu_omp_no_simd_scheduling_guided_media2_inc_OMP_tiled": "Guided",
+        "mp_media_gnu_omp_no_simd_scheduling_auto_media2_inc_OMP_tiled": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -444,7 +444,7 @@ def figure40(plotwrapper):
         grid=True,
     )
 
-def figure41(plotwrapper):
+def figure47(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_provided": "Static",
         "ziti_rome_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_provided": "Dynamic",
@@ -460,7 +460,7 @@ def figure41(plotwrapper):
         grid=True,
     )
 
-def figure42(plotwrapper):
+def figure48(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_updown": "Static",
         "ziti_rome_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_updown": "Dynamic",
@@ -476,7 +476,7 @@ def figure42(plotwrapper):
         grid=True,
     )
 
-def figure43(plotwrapper):
+def figure49(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "Static",
         "ziti_rome_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
