@@ -105,11 +105,21 @@ OutputIter exclusive_scan(InputIter       first,
     // Phase 1: Reduction
     for (size_t i = 0; i < num_tiles; i++)
     {
-        temp[i] = std::reduce(
-            first + i * tile_size, first + (i + 1) * tile_size, init, binary_op);
+        temp[i] = *(first + i * tile_size);
+        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+        {
+            temp[i] = binary_op(temp[i], *(first + j));
+        }
     }
 
     // Phase 2: Intermediate Scan
+    // std::cout << "temp before:" << std::endl;
+    // std::for_each(temp.begin(), temp.end(), [](auto x) { std::cout << x << ", "; });
+    // std::cout << std::endl;
+    // std::cout << "temp after:" << std::endl;
+    // std::for_each(temp.begin(), temp.end(), [](auto x) { std::cout << x << ", "; });
+    // std::cout << std::endl;
+
     std::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init, binary_op);
 
     // Phase 3: Rescan
