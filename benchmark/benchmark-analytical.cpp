@@ -238,7 +238,7 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
     {
         meter.measure(
             [begin, end, &binary_op, &data, init]() {
-                _tbb::provided::exclusive_scan(begin, end, data.begin(), init, binary_op);
+                _tbb::provided::exclusive_scan(begin, end, data.begin(), init, init, binary_op);
             });
     };
 
@@ -253,7 +253,7 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
     {
         meter.measure(
             [begin, end, &binary_op, &data, init]()
-            { _tbb::tiled::exclusive_scan(begin, end, data.begin(), init, binary_op); });
+            { _tbb::tiled::exclusive_scan(begin, end, data.begin(), init, init, binary_op); });
     };
 }
 
@@ -574,31 +574,32 @@ SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
 
     auto binary_op = [](bool x, bool y) -> bool { return x ^ y; };
     bool init      = false;
+    bool identity  = false;
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init]() {
+            [begin, end, &binary_op, &data, init, identity]() {
                 _tbb::provided::exclusive_segmented_scan(
-                    begin, end, data.begin(), init, binary_op);
+                    begin, end, data.begin(), identity, init, binary_op);
             });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init]() {
+            [begin, end, &binary_op, &data, init, identity]() {
                 _tbb::updown::exclusive_segmented_scan(
-                    begin, end, data.begin(), init, binary_op);
+                    begin, end, data.begin(), identity, init, binary_op);
             });
     };
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init]() {
+            [begin, end, &binary_op, &data, init, identity]() {
                 _tbb::tiled::exclusive_segmented_scan(
-                    begin, end, data.begin(), init, binary_op);
+                    begin, end, data.begin(), identity, init, binary_op);
             });
     };
 }

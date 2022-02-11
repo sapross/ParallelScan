@@ -29,7 +29,7 @@ OutputIter inclusive_scan(InputIter       first,
 
     std::vector<ValueType> temp(num_tiles + 1);
 
-// Phase 1: Reduction om Tiles (parallel)
+// Phase 1: Reduction on Tiles (parallel)
 #pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
@@ -101,12 +101,14 @@ OutputIter exclusive_scan(InputIter       first,
 #pragma omp parallel for simd
     for (size_t i = 0; i < num_tiles; i++)
     {
-        temp[i] = std::reduce(
-            first + i * tile_size, first + (i + 1) * tile_size, init, binary_op);
+        temp[i] = *(first + i * tile_size);
+        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+        {
+            temp[i] = binary_op(temp[i], *(first + j));
+        }
     }
 
     // Phase 2: Intermediate Scan
-
     openmp::provided::exclusive_scan(temp.begin(), temp.end(), temp.begin(), init);
 
 // Phase 3: Rescan
