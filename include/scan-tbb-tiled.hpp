@@ -7,6 +7,11 @@ namespace _tbb
 {
 namespace tiled
 {
+// ----------------------------------------------------------------------------------
+//  Partitioners for tbb
+//  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner, affinity_partitioner
+// ----------------------------------------------------------------------------------
+auto for_part = tbb::auto_partitioner();
 // Controls the number of elements a tile has.
 size_t tile_size = 4;
 void   set_tile_size(size_t size) { tiled::tile_size = size; }
@@ -34,13 +39,18 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     std::vector<ValueType> temp(num_tiles + 1);
 
     // Phase 1: Reduction om Tiles (parallel)
-    tbb::parallel_for(size_t(0), num_tiles, size_t(1), [&](auto i) {
-        temp[i] = *(first + 1 + i * tile_size);
-        for (size_t j = 2 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
-        {
-            temp[i] = binary_op(temp[i], *(first + j));
-        }
-    });
+    tbb::parallel_for(
+        size_t(0),
+        num_tiles,
+        size_t(1),
+        [&](auto i) {
+            temp[i] = *(first + 1 + i * tile_size);
+            for (size_t j = 2 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
+            {
+                temp[i] = binary_op(temp[i], *(first + j));
+            }
+        },
+        for_part);
 
     // Phase 2: Intermediate Scan (parallel)
     _tbb::provided::exclusive_scan(
@@ -48,20 +58,25 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
 
     d_first[0] = temp[0];
     // Phase 3: Rescan on Tiles (parallel)
-    tbb::parallel_for(size_t(0), num_tiles + 1, size_t(1), [&](auto i) {
-        size_t    begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
-        ValueType sum = temp[i];
-        if (end > num_values)
-        {
-            end = num_values;
-        }
+    tbb::parallel_for(
+        size_t(0),
+        num_tiles + 1,
+        size_t(1),
+        [&](auto i) {
+            size_t    begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
+            ValueType sum = temp[i];
+            if (end > num_values)
+            {
+                end = num_values;
+            }
 
-        for (size_t j = begin; j < end; j++)
-        {
-            sum        = binary_op(sum, first[j]);
-            d_first[j] = sum;
-        }
-    });
+            for (size_t j = begin; j < end; j++)
+            {
+                sum        = binary_op(sum, first[j]);
+                d_first[j] = sum;
+            }
+        },
+        for_part);
     return d_first + num_values;
 }
 
@@ -104,34 +119,44 @@ OutputIt exclusive_scan(InputIt         first,
     std::vector<InputType> temp(num_tiles + 1);
 
     // Phase 1: Reduction om Tiles (parallel)
-    tbb::parallel_for(size_t(0), num_tiles, size_t(1), [&](auto i) {
-        temp[i] = *(first + i * tile_size);
-        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
-        {
-            temp[i] = binary_op(temp[i], *(first + j));
-        }
-    });
+    tbb::parallel_for(
+        size_t(0),
+        num_tiles,
+        size_t(1),
+        [&](auto i) {
+            temp[i] = *(first + i * tile_size);
+            for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+            {
+                temp[i] = binary_op(temp[i], *(first + j));
+            }
+        },
+        for_part);
 
     // Phase 2: Intermediate Scan (parallel)
     _tbb::provided::exclusive_scan(
         temp.begin(), temp.end(), temp.begin(), identity, init, binary_op);
 
     // Phase 3: Rescan on Tiles (parallel)
-    tbb::parallel_for(size_t(0), num_tiles + 1, size_t(1), [&](auto i) {
-        size_t begin = i * tile_size, end = (i + 1) * tile_size;
-        if (end > num_values)
-        {
-            end = num_values;
-        }
+    tbb::parallel_for(
+        size_t(0),
+        num_tiles + 1,
+        size_t(1),
+        [&](auto i) {
+            size_t begin = i * tile_size, end = (i + 1) * tile_size;
+            if (end > num_values)
+            {
+                end = num_values;
+            }
 
-        ValueType sum = temp[i];
-        for (size_t j = begin; j < end; j++)
-        {
-            ValueType temp = first[j];
-            d_first[j]     = sum;
-            sum            = binary_op(sum, temp);
-        }
-    });
+            ValueType sum = temp[i];
+            for (size_t j = begin; j < end; j++)
+            {
+                ValueType temp = first[j];
+                d_first[j]     = sum;
+                sum            = binary_op(sum, temp);
+            }
+        },
+        for_part);
     return d_first + num_values;
 }
 
@@ -236,13 +261,18 @@ OutputIt exclusive_segmented_scan(InputIt         first,
     std::vector<PairType> temp(num_tiles + 1);
 
     // Phase 1: Reduction on Tiles (parallel)
-    tbb::parallel_for(size_t(0), num_tiles, size_t(1), [&](auto i) {
-        temp[i] = *(first + i * tile_size);
-        for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
-        {
-            temp[i] = wrapped_bop(temp[i], *(first + j));
-        }
-    });
+    tbb::parallel_for(
+        size_t(0),
+        num_tiles,
+        size_t(1),
+        [&](auto i) {
+            temp[i] = *(first + i * tile_size);
+            for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
+            {
+                temp[i] = wrapped_bop(temp[i], *(first + j));
+            }
+        },
+        for_part);
 
     // Phase 2: Intermediate Scan (parallel)
     _tbb::provided::exclusive_scan(temp.begin(),
@@ -253,26 +283,31 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                                    wrapped_bop);
 
     // Phase 3: Rescan on Tiles (parallel)
-    tbb::parallel_for(size_t(0), num_tiles + 1, size_t(1), [&](auto i) {
-        size_t end = (i + 1) * tile_size;
-        end        = end > num_values ? num_values : end;
+    tbb::parallel_for(
+        size_t(0),
+        num_tiles + 1,
+        size_t(1),
+        [&](auto i) {
+            size_t end = (i + 1) * tile_size;
+            end        = end > num_values ? num_values : end;
 
-        ValueType sum = binary_op(init, temp[i].first);
-        for (size_t j = i * tile_size; j < end; j++)
-        {
-            ValueType temp = first[j].first;
-            if (!first[j].second)
+            ValueType sum = binary_op(init, temp[i].first);
+            for (size_t j = i * tile_size; j < end; j++)
             {
-                d_first[j].first = sum;
-                sum              = binary_op(sum, temp);
+                ValueType temp = first[j].first;
+                if (!first[j].second)
+                {
+                    d_first[j].first = sum;
+                    sum              = binary_op(sum, temp);
+                }
+                else
+                {
+                    d_first[j].first = init;
+                    sum              = binary_op(init, temp);
+                }
             }
-            else
-            {
-                d_first[j].first = init;
-                sum              = binary_op(init, temp);
-            }
-        }
-    });
+        },
+        for_part);
     return d_first + num_values;
 }
 
