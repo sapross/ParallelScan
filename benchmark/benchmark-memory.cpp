@@ -236,13 +236,15 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
         data[i] = rand();
     }
 
-    float init = 0.0;
+    float init     = .0f;
+    float identity = .0f;
 
     BENCHMARK_ADVANCED("ex_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [&data, init]()
-            { _tbb::provided::exclusive_scan(data.begin(), data.end(), init, init); });
+            [&data, init, identity]() {
+                _tbb::provided::exclusive_scan(data.begin(), data.end(), identity, init);
+            });
     };
 
     BENCHMARK_ADVANCED("ex_TBB_updown")(Catch::Benchmark::Chronometer meter)
@@ -255,8 +257,8 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
     {
         _tbb::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
-            [&data, init]()
-            { _tbb::tiled::exclusive_scan(data.begin(), data.end(), init, init); });
+            [&data, init, identity]()
+            { _tbb::tiled::exclusive_scan(data.begin(), data.end(), identity, init); });
     };
 }
 
