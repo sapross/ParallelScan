@@ -144,7 +144,7 @@ OutputIter exclusive_scan(InputIter first, InputIter last, OutputIter d_first, T
     return sequential::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<typename InputIter,  typename T>
+template<typename InputIter, typename T>
 InputIter exclusive_scan(InputIter first, InputIter last, T init)
 {
     using ValueType = typename std::iterator_traits<InputIter>::value_type;
