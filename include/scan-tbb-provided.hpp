@@ -9,7 +9,7 @@ namespace provided
 {
 // ----------------------------------------------------------------------------------
 //  Partitioners for tbb
-//  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner, affinity_partitioner
+//  Valid for parallel_scan : auto_partitioner, simple_partitioner
 // ----------------------------------------------------------------------------------
 auto scan_part = tbb::auto_partitioner();
 // ----------------------------------------------------------------------------------
