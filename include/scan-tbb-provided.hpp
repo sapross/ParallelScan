@@ -8,6 +8,11 @@ namespace _tbb
 namespace provided
 {
 // ----------------------------------------------------------------------------------
+//  Partitioners for tbb
+//  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner, affinity_partitioner
+// ----------------------------------------------------------------------------------
+auto scan_part = tbb::auto_partitioner();
+// ----------------------------------------------------------------------------------
 //  Inclusive Scan
 // ----------------------------------------------------------------------------------
 template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
@@ -30,7 +35,8 @@ OutputIt inclusive_scan(
             }
             return tmp;
         },
-        [&](const InputType a, const InputType b) { return binary_op(a, b); });
+        [&](const InputType a, const InputType b) { return binary_op(a, b); },
+        scan_part);
     return d_first + num_values;
 }
 
@@ -79,7 +85,8 @@ OutputIt exclusive_scan(InputIt         first,
             }
             return sum;
         },
-        [&](const InputType& a, const InputType& b) { return binary_op(a, b); });
+        [&](const InputType& a, const InputType& b) { return binary_op(a, b); },
+        scan_part);
     d_first[0] = init;
     return d_first + num_values;
 }
@@ -183,8 +190,6 @@ OutputIt exclusive_segmented_scan(InputIt         first,
         range_type(size_t(0), num_values),
         std::make_pair(identity, FlagType()),
         [&](const range_type& r, PairType sum, bool is_final_scan) {
-            // if(is_final_scan)
-            //     sum = binary_op(sum, init);
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 ValueType temp = first[i].first;
@@ -214,7 +219,8 @@ OutputIt exclusive_segmented_scan(InputIt         first,
             if (!b.second)
                 result.first = binary_op(a.first, result.first);
             return result;
-        });
+        },
+        scan_part);
     d_first[0].first = init;
 
     return d_first + num_values;
