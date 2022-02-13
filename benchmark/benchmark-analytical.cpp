@@ -40,6 +40,7 @@ SCENARIO("Analytical Inclusive Scan Sequential", "[inc] [seq]")
     };
     BENCHMARK_ADVANCED("ana_inc_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        sequential::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
             [begin, end, &binary_op, &data]()
             { sequential::tiled::inclusive_scan(begin, end, data.begin(), binary_op); });
@@ -77,6 +78,7 @@ SCENARIO("Analytical Inclusive Scan OpenMP", "[inc] [omp]")
     };
     BENCHMARK_ADVANCED("ana_inc_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        openmp::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
             [begin, end, &binary_op, &data]()
             { openmp::tiled::inclusive_scan(begin, end, data.begin(), binary_op); });
@@ -119,6 +121,7 @@ SCENARIO("Analytical Inclusive Scan TBB", "[inc] [tbb]")
 
     BENCHMARK_ADVANCED("ana_inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        _tbb::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
             [begin, end, &binary_op, &data]()
             { _tbb::tiled::inclusive_scan(begin, end, data.begin(), binary_op); });
@@ -165,6 +168,7 @@ SCENARIO("Analytical Exclusive Scan", "[ex] [seq]")
 
     BENCHMARK_ADVANCED("ana_ex_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        sequential::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
             [begin, end, &binary_op, &data, init]() {
                 sequential::tiled::exclusive_scan(
@@ -208,6 +212,7 @@ SCENARIO("Analytical Exclusive Scan OpenMP", "[ex] [omp]")
 
     BENCHMARK_ADVANCED("ana_ex_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        openmp::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
             [begin, end, &binary_op, &data, init]() {
                 openmp::tiled::exclusive_scan(begin, end, data.begin(), init, binary_op);
@@ -238,7 +243,8 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
     {
         meter.measure(
             [begin, end, &binary_op, &data, init]() {
-                _tbb::provided::exclusive_scan(begin, end, data.begin(), init, init, binary_op);
+                _tbb::provided::exclusive_scan(
+                    begin, end, data.begin(), init, init, binary_op);
             });
     };
 
@@ -251,9 +257,12 @@ SCENARIO("Analytical Exclusive Scan TBB", "[ex] [tbb]")
 
     BENCHMARK_ADVANCED("ana_ex_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        _tbb::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
-            [begin, end, &binary_op, &data, init]()
-            { _tbb::tiled::exclusive_scan(begin, end, data.begin(), init, init, binary_op); });
+            [begin, end, &binary_op, &data, init]() {
+                _tbb::tiled::exclusive_scan(
+                    begin, end, data.begin(), init, init, binary_op);
+            });
     };
 }
 
@@ -288,7 +297,7 @@ SCENARIO("Analytical Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
     // Benchmark
     BENCHMARK_ADVANCED("ana_incseg_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 sequential::naive::inclusive_segmented_scan(
@@ -298,7 +307,7 @@ SCENARIO("Analytical Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
 
     BENCHMARK_ADVANCED("ana_incseg_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 sequential::updown::inclusive_segmented_scan(
@@ -308,7 +317,8 @@ SCENARIO("Analytical Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
 
     BENCHMARK_ADVANCED("ana_incseg_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+        sequential::tiled::set_tile_size(N / TILERATIO);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 sequential::tiled::inclusive_segmented_scan(
@@ -347,7 +357,7 @@ SCENARIO("Analytical Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
 
     BENCHMARK_ADVANCED("ana_incseg_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 openmp::updown::inclusive_segmented_scan(
@@ -357,7 +367,8 @@ SCENARIO("Analytical Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
 
     BENCHMARK_ADVANCED("ana_incseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+        openmp::tiled::set_tile_size(N / TILERATIO);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 openmp::tiled::inclusive_segmented_scan(
@@ -395,7 +406,7 @@ SCENARIO("Analytical Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
 
     BENCHMARK_ADVANCED("ana_incseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data]()
             {
@@ -406,7 +417,7 @@ SCENARIO("Analytical Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
 
     BENCHMARK_ADVANCED("ana_incseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 _tbb::updown::inclusive_segmented_scan(
@@ -416,7 +427,8 @@ SCENARIO("Analytical Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
 
     BENCHMARK_ADVANCED("ana_incseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+        _tbb::tiled::set_tile_size(N / TILERATIO);
+
         meter.measure(
             [begin, end, &binary_op, &data]() {
                 _tbb::tiled::inclusive_segmented_scan(
@@ -459,7 +471,7 @@ SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
     // Benchmark
     BENCHMARK_ADVANCED("ana_exseg_seq_sequential")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data, init]()
             {
@@ -470,7 +482,7 @@ SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
 
     BENCHMARK_ADVANCED("ana_exseg_seq_updown")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data, init, identity]()
             {
@@ -481,7 +493,8 @@ SCENARIO("Analytical Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
 
     BENCHMARK_ADVANCED("ana_exseg_seq_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+        sequential::tiled::set_tile_size(N / TILERATIO);
+
         meter.measure(
             [begin, end, &binary_op, &data, init, identity]()
             {
@@ -524,7 +537,7 @@ SCENARIO("Analytical Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
 
     BENCHMARK_ADVANCED("ana_exseg_OMP_updown")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+
         meter.measure(
             [begin, end, &binary_op, &data, init, identity]()
             {
@@ -535,7 +548,8 @@ SCENARIO("Analytical Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
 
     BENCHMARK_ADVANCED("ana_exseg_OMP_tiled")(Catch::Benchmark::Chronometer meter)
     {
-        std::vector<std::pair<float, int>> result(N);
+        openmp::tiled::set_tile_size(N / TILERATIO);
+
         meter.measure(
             [begin, end, &binary_op, &data, init, identity]()
             {
@@ -579,7 +593,8 @@ SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
     BENCHMARK_ADVANCED("ana_exseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init, identity]() {
+            [begin, end, &binary_op, &data, init, identity]()
+            {
                 _tbb::provided::exclusive_segmented_scan(
                     begin, end, data.begin(), identity, init, binary_op);
             });
@@ -588,7 +603,8 @@ SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
     BENCHMARK_ADVANCED("ana_exseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [begin, end, &binary_op, &data, init, identity]() {
+            [begin, end, &binary_op, &data, init, identity]()
+            {
                 _tbb::updown::exclusive_segmented_scan(
                     begin, end, data.begin(), identity, init, binary_op);
             });
@@ -596,8 +612,10 @@ SCENARIO("Analytical Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
 
     BENCHMARK_ADVANCED("ana_exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
+        _tbb::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
-            [begin, end, &binary_op, &data, init, identity]() {
+            [begin, end, &binary_op, &data, init, identity]()
+            {
                 _tbb::tiled::exclusive_segmented_scan(
                     begin, end, data.begin(), identity, init, binary_op);
             });

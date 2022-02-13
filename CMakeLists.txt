@@ -53,7 +53,9 @@ target_compile_features(test PRIVATE cxx_std_20)
 target_link_libraries(test PUBLIC scan Catch2 TBB::tbb)
 target_include_directories(test PRIVATE common)
 
+
 if(NOT ARCHSPECIFIC)
+  
   add_executable(bench-memory
 	benchmark/benchmark-main.cpp
 	benchmark/benchmark-memory.cpp
@@ -61,10 +63,11 @@ if(NOT ARCHSPECIFIC)
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
 	)
-  target_compile_definitions(bench-memory PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+  target_compile_definitions(bench-memory PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING TILERATIO=16)
   target_compile_features(bench-memory PRIVATE cxx_std_20)
   target_include_directories(bench-memory PRIVATE common)
   target_link_libraries(bench-memory PUBLIC scan Catch2 TBB::tbb)
+ 
 
   add_executable(bench-analytical
 	benchmark/benchmark-main.cpp
@@ -73,7 +76,7 @@ if(NOT ARCHSPECIFIC)
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
 	)
-  target_compile_definitions(bench-analytical PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+  target_compile_definitions(bench-analytical PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING TILERATIO=16)
   target_compile_features(bench-analytical PRIVATE cxx_std_20)
   target_include_directories(bench-analytical PRIVATE common)
   target_link_libraries(bench-analytical PUBLIC scan Catch2 TBB::tbb)
@@ -87,7 +90,7 @@ else()
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
 	)
-  target_compile_definitions(bench-memory-media PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+  target_compile_definitions(bench-memory-media PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING TILERATIO=128)
   target_compile_features(bench-memory-media PRIVATE cxx_std_20)
   target_include_directories(bench-memory-media PRIVATE common)
   target_link_libraries(bench-memory-media PUBLIC scan Catch2 TBB::tbb)
@@ -107,7 +110,7 @@ else()
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
 	)
-  target_compile_definitions(bench-analytical-media PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+  target_compile_definitions(bench-analytical-media PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING TILERATIO=128)
   target_compile_features(bench-analytical-media PRIVATE cxx_std_20)
   target_include_directories(bench-analytical-media PRIVATE common)
   target_link_libraries(bench-analytical-media PUBLIC scan Catch2 TBB::tbb)
@@ -127,7 +130,7 @@ else()
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
 	)
-  target_compile_definitions(bench-memory-rome PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+  target_compile_definitions(bench-memory-rome PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING TILERATIO=1024)
   target_compile_features(bench-memory-rome PRIVATE cxx_std_20)
   target_include_directories(bench-memory-rome PRIVATE common)
   target_link_libraries(bench-memory-rome PUBLIC scan Catch2 TBB::tbb)
@@ -147,7 +150,7 @@ else()
 	common/csv_reporter.cpp
 	common/logrange_generator.hpp
 	)
-  target_compile_definitions(bench-analytical-rome PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+  target_compile_definitions(bench-analytical-rome PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING TILERATIO=1024)
   target_compile_features(bench-analytical-rome PRIVATE cxx_std_20)
   target_include_directories(bench-analytical-rome PRIVATE common)
   target_link_libraries(bench-analytical-rome PUBLIC scan Catch2 TBB::tbb)

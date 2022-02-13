@@ -191,19 +191,22 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
 
-    return _tbb::tiled::inclusive_scan(
-        first, last, d_first, [binary_op](PairType x, PairType y) {
-            PairType result = y;
-            if (!y.second)
-            {
-                result.first = binary_op(x.first, y.first);
-                if (x.second)
-                {
-                    result.second = x.second;
-                }
-            }
-            return result;
-        });
+    return _tbb::tiled::inclusive_scan(first,
+                                       last,
+                                       d_first,
+                                       [binary_op](PairType x, PairType y)
+                                       {
+                                           PairType result = y;
+                                           if (!y.second)
+                                           {
+                                               result.first = binary_op(x.first, y.first);
+                                               if (x.second)
+                                               {
+                                                   result.second = x.second;
+                                               }
+                                           }
+                                           return result;
+                                       });
 }
 
 template<class InputIt, class OutputIt>
@@ -238,11 +241,12 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                   "Input type must be convertible to output type!");
 
     size_t num_values = last - first;
-    size_t tile_size  = 4;
+    size_t tile_size  = tiled::tile_size;
     tile_size         = (num_values) > tile_size ? tile_size : 1;
     size_t num_tiles  = (num_values) / tile_size;
 
-    auto wrapped_bop = [binary_op](PairType x, PairType y) {
+    auto wrapped_bop = [binary_op](PairType x, PairType y)
+    {
         PairType result = y;
         if (!y.second)
         {
