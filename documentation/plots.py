@@ -16,6 +16,7 @@ def figure01(plotwrapper):
         grid=True,
     )
 
+
 def figure02(plotwrapper):
     columns = {
         "mp-media-gnu_incseg_seq_sequential": "STL Inc",
@@ -33,6 +34,7 @@ def figure02(plotwrapper):
         yscale="linear",
         grid=True,
     )
+
 
 def figure03(plotwrapper):
     columns = {
@@ -52,6 +54,7 @@ def figure03(plotwrapper):
         yscale="linear",
         grid=True,
     )
+
 
 def figure04(plotwrapper):
     columns = {
@@ -166,6 +169,7 @@ def figure11(plotwrapper):
         grid=True,
     )
 
+
 def figure12(plotwrapper):
     columns = {
         "ziti-rome-gnu_incseg_seq_sequential": "STL Inc",
@@ -183,6 +187,7 @@ def figure12(plotwrapper):
         yscale="linear",
         grid=True,
     )
+
 
 def figure13(plotwrapper):
     columns = {
@@ -203,6 +208,7 @@ def figure13(plotwrapper):
         grid=True,
     )
 
+
 def figure14(plotwrapper):
     columns = {
         "ziti-rome-gnu_incseg_seq_sequential": "STL",
@@ -220,6 +226,7 @@ def figure14(plotwrapper):
         yscale="linear",
         grid=True,
     )
+
 
 def figure16(plotwrapper):
     columns = {
@@ -542,6 +549,74 @@ def figure37(plotwrapper):
     plotwrapper.plot(
         title="OpenMP Tile Size Benchmark In-Place (ziti-rome)",
         index_col="tile_size",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure_tiledopt_media(plotwrapper):
+    columns = {
+        "mp-media-gnu-algopt_inc_OMP_tiled": "Inclusive",
+        "mp-media-gnu-tiled_inc_OMP_tiled": "Inclusive Optimized",
+        "mp-media-gnu-algopt_ex_OMP_tiled": "Exclusive",
+        "mp-media-gnu-tiled_ex_OMP_tiled": "Exclusive Optimized",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Tiled Benchmark Optimized (mp-media)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure_tiledopt_seg_media(plotwrapper):
+    columns = {
+        "mp-media-gnu-algopt_incseg_OMP_tiled": "Inclusive",
+        "mp-media-gnu-tiled_incseg_OMP_tiled": "Inclusive Optimized",
+        "mp-media-gnu-algopt_exseg_OMP_tiled": "Exclusive",
+        "mp-media-gnu-tiled_exseg_OMP_tiled": "Exclusive Optimized",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Tiled Benchmark Optimized Segmented (mp-media)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure_tiledopt_rome(plotwrapper):
+    columns = {
+        "ziti-rome-gnu-algopt_inc_OMP_tiled": "Inclusive",
+        "ziti-rome-gnu-algopt_ex_OMP_tiled": "Exclusive",
+        "ziti-rome-gnu-tiled_inc_OMP_tiled": "Inclusive Optimized",
+        "ziti-rome-gnu-tiled_ex_OMP_tiled": "Exclusive Optimized",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Tiled Benchmark Optimized (ziti-rome)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure_tiledopt_seg_rome(plotwrapper):
+    columns = {
+        "ziti-rome-gnu-algopt_incseg_OMP_tiled": "Inclusive",
+        "ziti-rome-gnu-algopt_exseg_OMP_tiled": "Exclusive",
+        "ziti-rome-gnu-tiled_incseg_OMP_tiled": "Inclusive Optimized",
+        "ziti-rome-gnu-tiled_exseg_OMP_tiled": "Exclusive Optimized",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="Tiled Benchmark Optimized Segmented (ziti-rome)",
+        index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
