@@ -12,7 +12,7 @@ namespace updown
 //  Partitioners for tbb
 //  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner, affinity_partitioner
 // ----------------------------------------------------------------------------------
-auto for_part = tbb::auto_partitioner();
+auto for_part = tbb::simple_partitioner();
 // // ----------------------------------------------------------------------------------
 // //  Inclusive Scan
 // // ----------------------------------------------------------------------------------
@@ -24,7 +24,6 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
     static_assert(std::is_convertible<InputType, OutputType>::value,
                   "Input type must be convertible to output type!");
-
     size_t num_values = last - first;
     size_t step       = 1;
 

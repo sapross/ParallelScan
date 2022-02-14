@@ -626,3 +626,35 @@ def figure_tiledopt_seg_rome(plotwrapper):
         yscale="linear",
         grid=True,
     )
+
+def figure_partitioners_tbb_rome(plotwrapper):
+    columns = {
+        "ziti-rome-gnu-tbb-autopart_inc_TBB_updown" : "auto",
+        "ziti-rome-gnu-tbb-affinitypart_inc_TBB_updown" : "affinity",
+        "ziti-rome-gnu-tbb-simplepart_inc_TBB_updown" : "simple",
+        "ziti-rome-gnu-tbb-staticpart_inc_TBB_updown": "static",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="TBB Partitioner Updown Benchmark (ziti-rome)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+def figure_partitioners_tbb_media(plotwrapper):
+    columns = {
+        "mp-media-gnu-tbb-autopart_inc_TBB_updown" : "auto",
+        "mp-media-gnu-tbb-affinitypart_inc_TBB_updown" : "affinity",
+        "mp-media-gnu-tbb-simplepart_inc_TBB_updown" : "simple",
+        "mp-media-gnu-tbb-staticpart_inc_TBB_updown": "static",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="TBB Partitioner Updown Benchmark (mp-media)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
