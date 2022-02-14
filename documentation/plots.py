@@ -626,3 +626,13 @@ def figure_tiledopt_seg_rome(plotwrapper):
         yscale="linear",
         grid=True,
     )
+
+def figure_partitioners_tbb_rome(plotwrapper):
+    columns = {
+        "ziti-"
+    }
+
+def figure_partitioners_tbb_media(plotwrapper):
+    columns = {
+        
+    }
