@@ -636,7 +636,7 @@ def figure_partitioners_tbb_rome(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="TBB Partitioner Benchmark (ziti-rome)",
+        title="TBB Partitioner Updown Benchmark (ziti-rome)",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -652,7 +652,7 @@ def figure_partitioners_tbb_media(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="TBB Partitioner Benchmark (mp-media)",
+        title="TBB Partitioner Updown Benchmark (mp-media)",
         index_col="N",
         xscale="log",
         yscale="linear",
