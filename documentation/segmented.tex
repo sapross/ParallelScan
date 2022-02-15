@@ -11,41 +11,44 @@
     [binary_op](PairType left, PairType right){
         PairType new_right = right;
         if (not right.flag)
-            new_right.value = binary_op(left.value, right.value);
+            new_right.value =
+                binary_op(left.value, right.value);
         return new_right;
     });
     \end{lstlisting}
 \end{frame} 
+% 
+% \begin{frame}{Segmented Scan}{Problem with the Wrapper}
+%  \centering
+%  \includegraphics[width=\textwidth]{wiki/ProblemSegmentedUpDown}
+% \end{frame}
+% 
+% \begin{frame}[fragile]{Segmented Scan}{Solution}
+%     \begin{lstlisting}[language=C++, frame=single, gobble=4]
+%     [binary_op](PairType left, PairType right){
+%         PairType new_right = right;
+%         if (not right.flag)
+%             new_right.value =
+%                 binary_op(left.value, right.value);
+%             if(left.flag){
+%                 new_right.flag = left.flag;
+%             }
+%         }
+%         return new_right;
+%     });
+%     \end{lstlisting}
+% \end{frame}
 
-\begin{frame}{Segmented Scan}{Problem with the Wrapper}
- \centering
- \includegraphics[width=\textwidth]{wiki/ProblemSegmentedUpDown}
-\end{frame}
+% \begin{frame}[fragile]{Segmented Scan}{Solution}
+%     \begin{lstlisting}[language=C++, frame=single, gobble=4]
+%     if(left.flag)
+%         new_right.flag = left.flag;
+%     \end{lstlisting}
+%     \missingfigure{Explanation of operator}
+% \end{frame}
 
 \begin{frame}[fragile]{Segmented Scan}{Solution}
-    \begin{lstlisting}[language=C++, frame=single, gobble=4]
-    [binary_op](PairType left, PairType right){
-        PairType new_right = right;
-        if (not right.flag)
-            new_right.value = binary_op(left.value, right.value);
-            if(left.flag){
-                new_right.flag = left.flag;
-            }
-        }
-        return new_right;
-    });
-    \end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]{Segmented Scan}{Solution}
-    \begin{lstlisting}[language=C++, frame=single, gobble=4]
-    if(left.flag)
-        new_right.flag = left.flag;
-    \end{lstlisting}
-    \missingfigure{Explanation of operator}
-\end{frame}
-
-\begin{frame}[fragile]{Segmented Scan}{Solution}
+\todo{shorter }
 Works for:
 \begin{itemize}
  \item STL Scans
