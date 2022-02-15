@@ -11,7 +11,7 @@ namespace tiled
 //  Partitioners for tbb
 //  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner, affinity_partitioner
 // ----------------------------------------------------------------------------------
-auto for_part = tbb::auto_partitioner();
+auto for_part = tbb::simple_partitioner();
 // Controls the number of elements a tile has.
 size_t tile_size = 4;
 void   set_tile_size(size_t size) { tiled::tile_size = size; }

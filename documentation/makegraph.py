@@ -55,6 +55,7 @@ class ResultAggregator:
             Returns:
                None
         """
+        print(data_path)
         new_df = pd.read_csv(
             str(data_path), sep=self.separator, header=None
         )
@@ -133,6 +134,7 @@ class Plotwrapper:
         index_col: str = "N",
         xscale: str = "log",
         yscale: str = "linear",
+        ylabel: str = "GB/s",
         grid: bool = True,
     ):
         """Plots data from ResultAggregator with benchmarks selected from
@@ -141,6 +143,7 @@ class Plotwrapper:
                                       --xscale 'log' --yscale 'linear'
                                       --grid
         """
+        print(title)
         data = self.agg.get_results(
             list(self.columns.keys()), index_col
         )
@@ -148,7 +151,7 @@ class Plotwrapper:
         data.plot(x=index_col, marker="x")
         plt.title(title)
         plt.xlabel(index_col)
-        plt.ylabel("GB/s")
+        plt.ylabel(ylabel)
         if xscale == "log":
             plt.xscale("log", base=2)
         else:

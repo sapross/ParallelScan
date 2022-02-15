@@ -1,313 +1,257 @@
-def figure01(plotwrapper):
+systems = ["mp-media", "ziti-rome"]
+
+# ---------------------------------------------------------------------------------
+# Sequential Plots
+# ---------------------------------------------------------------------------------
+def figure_sequential(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "STL Inc",
-        "mp-media-gnu_ex_seq_sequential": "STL Ex",
-        "mp-media-gnu_inc_seq_updown": "Up-Down Inc",
-        "mp-media-gnu_ex_seq_updown": "Up-Down Ex",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Inc",
-        "mp-media-gnu_ex_seq_tiled": "Tiled Ex",
+        "gnu_inc_seq_sequential": "STL Inc",
+        "gnu_ex_seq_sequential": "STL Ex",
+        "gnu_inc_seq_updown": "Up-Down Inc",
+        "gnu_ex_seq_updown": "Up-Down Ex",
+        "gnu_inc_seq_tiled": "Tiled Inc",
+        "gnu_ex_seq_tiled": "Tiled Ex",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Sequential Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Sequential Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure02(plotwrapper):
+def figure_sequential_segmented(plotwrapper):
     columns = {
-        "mp-media-gnu_incseg_seq_sequential": "STL Inc",
-        "mp-media-gnu_exseg_seq_sequential": "STL Ex",
-        "mp-media-gnu_incseg_seq_updown": "Up-Down Inc",
-        "mp-media-gnu_exseg_seq_updown": "Up-Down Ex",
-        "mp-media-gnu_incseg_seq_tiled": "Tiled Inc",
-        "mp-media-gnu_exseg_seq_tiled": "Tiled Ex",
+        "gnu_incseg_seq_sequential": "STL Inc",
+        "gnu_exseg_seq_sequential": "STL Ex",
+        "gnu_incseg_seq_updown": "Up-Down Inc",
+        "gnu_exseg_seq_updown": "Up-Down Ex",
+        "gnu_incseg_seq_tiled": "Tiled Inc",
+        "gnu_exseg_seq_tiled": "Tiled Ex",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Sequential Segmented Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Sequential Segmented Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure03(plotwrapper):
+# ---------------------------------------------------------------------------------
+# Parallel Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_parallel_media(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "STL",
-        "mp-media-gnu_inc_OMP_provided": "OpenMP Provided Scan",
-        "mp-media-gnu_inc_TBB_provided": "TBB Provided Scan",
-        "mp-media-gnu_inc_OMP_updown": "OpenMP Up-Down Sweep",
-        "mp-media-gnu_inc_TBB_updown": "TBB Up-Down Sweep",
-        "mp-media-gnu_inc_OMP_tiled": "OpenMP Tiled Scan",
-        "mp-media-gnu_inc_TBB_tiled": "TBB Tiled Scan",
+        "gnu_inc_seq_sequential": "STL",
+        "gnu_inc_OMP_provided": "OpenMP Provided Scan",
+        "gnu_inc_TBB_provided": "TBB Provided Scan",
+        "gnu_inc_OMP_updown": "OpenMP Up-Down Sweep",
+        "gnu_inc_TBB_updown": "TBB Up-Down Sweep",
+        "gnu_inc_OMP_tiled": "OpenMP Tiled Scan",
+        "gnu_inc_TBB_tiled": "TBB Tiled Scan",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Parallel Inclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Parallel Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure04(plotwrapper):
+def figure_parallel_segmented(plotwrapper):
     columns = {
-        "mp-media-gnu_incseg_seq_sequential": "STL",
-        "mp-media-gnu_incseg_TBB_provided": "TBB Provided Scan",
-        "mp-media-gnu_incseg_OMP_updown": "OpenMP Up-Down Sweep",
-        "mp-media-gnu_incseg_TBB_updown": "TBB Up-Down Sweep",
-        "mp-media-gnu_incseg_OMP_tiled": "OpenMP Tiled Scan",
-        "mp-media-gnu_incseg_TBB_tiled": "TBB Tiled Scan",
+        "gnu_incseg_seq_sequential": "STL",
+        "gnu_incseg_TBB_provided": "TBB Provided Scan",
+        "gnu_incseg_OMP_updown": "OpenMP Up-Down Sweep",
+        "gnu_incseg_TBB_updown": "TBB Up-Down Sweep",
+        "gnu_incseg_OMP_tiled": "OpenMP Tiled Scan",
+        "gnu_incseg_TBB_tiled": "TBB Tiled Scan",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Parallel Inclusive Segmented Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Parallel Inclusive Segmented Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure07(plotwrapper):
+# ---------------------------------------------------------------------------------
+# Algorithmic Optimization Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_algopt_inclusive(plotwrapper):
     columns = {
-        "mp-media-gnu_inc_seq_sequential": "STL",
-        "mp-media-gnu-algopt_inc_seq_sequential": "AlgOpt STL",
-        "mp-media-gnu_inc_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu-algopt_inc_seq_updown": "AlgOpt Up-Down Sweep",
-        "mp-media-gnu_inc_seq_tiled": "Tiled Scan",
-        "mp-media-gnu-algopt_inc_seq_tiled": "AlgOpt Tiled Scan",
+        "gnu_inc_seq_sequential": "STL",
+        "gnu-algopt_inc_seq_sequential": "AlgOpt STL",
+        "gnu_inc_seq_updown": "Up-Down Sweep",
+        "gnu-algopt_inc_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu_inc_seq_tiled": "Tiled Scan",
+        "gnu-algopt_inc_seq_tiled": "AlgOpt Tiled Scan",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Alg. Optimized Sequential Inclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Alg. Optimized Sequential Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure08(plotwrapper):
+def figure_algopt_exclusive_media(plotwrapper):
     columns = {
-        "mp-media-gnu_ex_seq_sequential": "Naive (STL)",
-        "mp-media-gnu-algopt_ex_seq_sequential": "AlgOpt Naive (STL)",
-        "mp-media-gnu_ex_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu-algopt_ex_seq_updown": "AlgOpt Up-Down Sweep",
-        "mp-media-gnu_ex_seq_tiled": "Tiled Scan",
-        "mp-media-gnu-algopt_ex_seq_tiled": "AlgOpt Tiled Scan",
+        "gnu_ex_seq_sequential": "Naive (STL)",
+        "gnu-algopt_ex_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu_ex_seq_updown": "Up-Down Sweep",
+        "gnu-algopt_ex_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu_ex_seq_tiled": "Tiled Scan",
+        "gnu-algopt_ex_seq_tiled": "AlgOpt Tiled Scan",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Alg. Optimized Sequential Exclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Alg. Optimized Sequential Exclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure09(plotwrapper):
+def figure_algopt_inclusive_segmented(plotwrapper):
     columns = {
-        "mp-media-gnu_incseg_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_incseg_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_incseg_seq_tiled": "Tiled Scan",
-        "mp-media-gnu-algopt_incseg_seq_sequential": "AlgOpt Naive (STL)",
-        "mp-media-gnu-algopt_incseg_seq_updown": "AlgOpt Up-Down Sweep",
-        "mp-media-gnu-algopt_incseg_seq_tiled": "AlgOpt Tiled Scan",
+        "gnu_incseg_seq_sequential": "Naive (STL)",
+        "gnu-algopt_incseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu_incseg_seq_updown": "Up-Down Sweep",
+        "gnu-algopt_incseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu_incseg_seq_tiled": "Tiled Scan",
+        "gnu-algopt_incseg_seq_tiled": "AlgOpt Tiled Scan",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Alg. Optimized Sequential Segmented Exclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Alg. Optimized Sequential Segmented Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure10(plotwrapper):
+def figure_algopt_exclusive_segmented(plotwrapper):
     columns = {
-        "mp-media-gnu_exseg_seq_sequential": "Naive (STL)",
-        "mp-media-gnu_exseg_seq_updown": "Up-Down Sweep",
-        "mp-media-gnu_exseg_seq_tiled": "Tiled Scan",
-        "mp-media-gnu-algopt_exseg_seq_sequential": "AlgOpt Naive (STL)",
-        "mp-media-gnu-algopt_exseg_seq_updown": "AlgOpt Up-Down Sweep",
-        "mp-media-gnu-algopt_exseg_seq_tiled": "AlgOpt Tiled Scan",
+        "gnu_exseg_seq_sequential": "Naive (STL)",
+        "gnu-algopt_exseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu_exseg_seq_updown": "Up-Down Sweep",
+        "gnu-algopt_exseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu_exseg_seq_tiled": "Tiled Scan",
+        "gnu-algopt_exseg_seq_tiled": "AlgOpt Tiled Scan",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Mp-Media Alg. Optimized Sequential Segmented Inclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Alg. Optimized Sequential Segmented Exclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure11(plotwrapper):
+# ---------------------------------------------------------------------------------
+# Tile Size Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_tilesize(plotwrapper):
     columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "STL Inc",
-        "ziti-rome-gnu_ex_seq_sequential": "STL Ex",
-        "ziti-rome-gnu_inc_seq_updown": "Up-Down Inc",
-        "ziti-rome-gnu_ex_seq_updown": "Up-Down Ex",
-        "ziti-rome-gnu_inc_seq_tiled": "Tiled Inc",
-        "ziti-rome-gnu_ex_seq_tiled": "Tiled Ex",
+        "gnu-tilesize_omp_inplace_inc_tilesize": "Inclusive",
+        "gnu-tilesize_omp_inplace_ex_tilesize": "Exclusive",
+        "gnu-tilesize_omp_inplace_incseg_tilesize": "Inclusive Segmented",
+        "gnu-tilesize_omp_inplace_exseg_tilesize": "Exclusive Segmented",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Sequential Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " OpenMP Tile Size Benchmark",
+            index_col="tile_size",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure12(plotwrapper):
-    columns = {
-        "ziti-rome-gnu_incseg_seq_sequential": "STL Inc",
-        "ziti-rome-gnu_exseg_seq_sequential": "STL Ex",
-        "ziti-rome-gnu_incseg_seq_updown": "Up-Down Inc",
-        "ziti-rome-gnu_exseg_seq_updown": "Up-Down Ex",
-        "ziti-rome-gnu_incseg_seq_tiled": "Tiled Inc",
-        "ziti-rome-gnu_exseg_seq_tiled": "Tiled Ex",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Sequential Segmented Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+# ---------------------------------------------------------------------------------
+# OpenMP Scheduling Plots with SIMD
+# ---------------------------------------------------------------------------------
 
 
-def figure13(plotwrapper):
-    columns = {
-        "ziti-rome-gnu_inc_seq_sequential": "STL",
-        "ziti-rome-gnu_inc_OMP_provided": "OpenMP Provided Scan",
-        "ziti-rome-gnu_inc_TBB_provided": "TBB Provided Scan",
-        "ziti-rome-gnu_inc_OMP_updown": "OpenMP Up-Down Sweep",
-        "ziti-rome-gnu_inc_TBB_updown": "TBB Up-Down Sweep",
-        "ziti-rome-gnu_inc_OMP_tiled": "OpenMP Tiled Scan",
-        "ziti-rome-gnu_inc_TBB_tiled": "TBB Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Parallel Inclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure14(plotwrapper):
-    columns = {
-        "ziti-rome-gnu_incseg_seq_sequential": "STL",
-        "ziti-rome-gnu_incseg_TBB_provided": "TBB Provided Scan",
-        "ziti-rome-gnu_incseg_OMP_updown": "OpenMP Up-Down Sweep",
-        "ziti-rome-gnu_incseg_TBB_updown": "TBB Up-Down Sweep",
-        "ziti-rome-gnu_incseg_OMP_tiled": "OpenMP Tiled Scan",
-        "ziti-rome-gnu_incseg_TBB_tiled": "TBB Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Parallel Inclusive Segmented Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure16(plotwrapper):
-    columns = {
-        "ziti-rome-gnu_ex_seq_sequential": "Naive (STL)",
-        "ziti-rome-gnu_ex_OMP_provided": "OpenMP Provided Scan",
-        "ziti-rome-gnu_ex_OMP_updown": "OpenMP Up-Down Sweep",
-        "ziti-rome-gnu_ex_OMP_tiled": "OpenMP Tiled Scan",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Ziti-Rome Parallel Exclusive Scans",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-def figure34(plotwrapper):
-    columns = {
-        "mp-media-gnu-tilesize_omp_outofplace_inc_tilesize": "Inclusive",
-        "mp-media-gnu-tilesize_omp_outofplace_incseg_tilesize": "Inclusive Segmented",
-        "mp-media-gnu-tilesize_omp_outofplace_exseg_tilesize": "Exclusive Segmented",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="OpenMP Tile Size Benchmark Out-Of-Place (mp-media)",
-        index_col="tile_size",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure35(plotwrapper):
-    columns = {
-        "mp-media-gnu-tilesize_omp_inplace_inc_tilesize": "Inclusive",
-        "mp-media-gnu-tilesize_omp_inplace_incseg_tilesize": "Inclusive Segmented",
-        "mp-media-gnu-tilesize_omp_inplace_exseg_tilesize": "Exclusive Segmented",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="OpenMP Tile Size Benchmark In-Place (mp-media)",
-        index_col="tile_size",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure36(plotwrapper):
-    columns = {
-        "ziti-rome-gnu-tilesize_omp_outofplace_inc_tilesize": "Inclusive",
-        "ziti-rome-gnu-tilesize_omp_outofplace_incseg_tilesize": "Inclusive Segmented",
-        "ziti-rome-gnu-tilesize_omp_outofplace_exseg_tilesize": "Exclusive Segmented",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="OpenMP Tile Size Benchmark Out-Of-Place (ziti-rome)",
-        index_col="tile_size",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-
-def figure37(plotwrapper):
-    columns = {
-        "ziti-rome-gnu-tilesize_omp_inplace_inc_tilesize": "Inclusive",
-        "ziti-rome-gnu-tilesize_omp_inplace_incseg_tilesize": "Inclusive Segmented",
-        "ziti-rome-gnu-tilesize_omp_inplace_exseg_tilesize": "Exclusive Segmented",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="OpenMP Tile Size Benchmark In-Place (ziti-rome)",
-        index_col="tile_size",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
-
-def figure38(plotwrapper):
+def figure_provided_scheduling_SIMD_media(plotwrapper):
     columns = {
         "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_provided": "Static",
         "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_provided": "Dynamic",
@@ -316,14 +260,15 @@ def figure38(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Provided Inclusive Scan with Different Scheduling and SIMD (gnu)",
+        title="mp_media OpenMP Provided Inclusive Scans \n with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure39(plotwrapper):
+
+def figure_updown_scheduling_SIMD_media(plotwrapper):
     columns = {
         "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_updown": "Static",
         "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_updown": "Dynamic",
@@ -332,14 +277,15 @@ def figure39(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Updown Inclusive Scans \n with Different Scheduling and SIMD (gnu)",
+        title="mp-media OpenMP Updown Inclusive Scans \n with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure40(plotwrapper):
+
+def figure_tiled_scheduling_SIMD_media(plotwrapper):
     columns = {
         "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "Static",
         "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_tiled": "Dynamic",
@@ -348,14 +294,15 @@ def figure40(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Tiled Inclusive Scans with Different Scheduling and SIMD (gnu)",
+        title="mp-media OpenMP Tiled Inclusive Scans \n with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure41(plotwrapper):
+
+def figure_provided_scheduling_SIMD_rome(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_scheduling_static_inc_OMP_provided": "Static",
         "ziti_rome_gnu_omp_scheduling_dynamic_inc_OMP_provided": "Dynamic",
@@ -364,42 +311,32 @@ def figure41(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome OpenMP Provided Inclusive Scan with Different Scheduling and SIMD (gnu)",
+        title="ziti-rome OpenMP Provided Inclusive Scan with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure42(plotwrapper):
+
+def figure_updown_scheduling_SIMD_rome(plotwrapper):
     columns = {
-        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD",
-        "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD",
+        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_updown": "Static",
+        "ziti_rome_gnu_omp_scheduling_dynamic_inc_OMP_updown": "Dynamic",
+        "ziti_rome_gnu_omp_scheduling_guided_inc_OMP_updown": "Guided",
+        "ziti_rome_gnu_omp_scheduling_auto_inc_OMP_updown": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome OpenMP Tiled Inclusive Scan (gnu)",
+        title="ziti-rome OpenMP Updown Inclusive Scan with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure69(plotwrapper):
-    columns = {
-        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "SIMD",
-        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "No SIMD",
-    }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="MP-Media OpenMP Tiled Inclusive Scan (gnu)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
 
-def figure43(plotwrapper):
+def figure_tiled_scheduling_SIMD_rome(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "Static",
         "ziti_rome_gnu_omp_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
@@ -408,14 +345,55 @@ def figure43(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome OpenMP Tiled Inclusive Scan with Different Scheduling and SIMD (gnu)",
+        title="ziti-rome OpenMP Tiled Inclusive Scan with Different Scheduling and SIMD (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure44(plotwrapper):
+
+# ---------------------------------------------------------------------------------
+# OpenMP SIMD vs no SIMD Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_SIMD_rome(plotwrapper):
+    columns = {
+        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD",
+        "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="ziti-rome OpenMP Tiled Inclusive Scan (gnu)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+def figure_SIMD_media(plotwrapper):
+    columns = {
+        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "SIMD",
+        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "No SIMD",
+    }
+    plotwrapper.columns = columns
+    plotwrapper.plot(
+        title="mp-media OpenMP Tiled Inclusive Scan (gnu)",
+        index_col="N",
+        xscale="log",
+        yscale="linear",
+        grid=True,
+    )
+
+
+# ---------------------------------------------------------------------------------
+# OpenMP Scheduling no SIMD Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_provided_scheduling_media(plotwrapper):
     columns = {
         "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_provided": "Static",
         "mp_media_gnu_omp_no_simd_scheduling_dynamic_media2_inc_OMP_provided": "Dynamic",
@@ -424,14 +402,15 @@ def figure44(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
+        title="mp-media OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure45(plotwrapper):
+
+def figure_updown_scheduling_media(plotwrapper):
     columns = {
         "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_updown": "Static",
         "mp_media_gnu_omp_no_simd_scheduling_dynamic_media2_inc_OMP_updown": "Dynamic",
@@ -440,14 +419,15 @@ def figure45(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Updown Inclusive Scans with Different Scheduling (gnu)",
+        title="mp-media OpenMP Updown Inclusive Scans with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure46(plotwrapper):
+
+def figure_tiled_scheduling_media(plotwrapper):
     columns = {
         "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "Static",
         "mp_media_gnu_omp_no_simd_scheduling_dynamic_media2_inc_OMP_tiled": "Dynamic",
@@ -456,14 +436,15 @@ def figure46(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Tiled Inclusive Scans with Different Scheduling (gnu)",
+        title="mp-media OpenMP Tiled Inclusive Scans with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure47(plotwrapper):
+
+def figure_provided_scheduling_rome(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_provided": "Static",
         "ziti_rome_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_provided": "Dynamic",
@@ -472,14 +453,15 @@ def figure47(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
+        title="ziti-rome OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure48(plotwrapper):
+
+def figure_updown_scheduling_rome(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_updown": "Static",
         "ziti_rome_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_updown": "Dynamic",
@@ -488,14 +470,15 @@ def figure48(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome OpenMP Updown Inclusive Scan with Different Scheduling (gnu)",
+        title="ziti-rome OpenMP Updown Inclusive Scan with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure49(plotwrapper):
+
+def figure_tiled_scheduling_rome(plotwrapper):
     columns = {
         "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "Static",
         "ziti_rome_gnu_omp_no_simd_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
@@ -504,14 +487,20 @@ def figure49(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="Ziti-Rome OpenMP Tiled Inclusive Scan with Different Scheduling (gnu)",
+        title="ziti-rome OpenMP Tiled Inclusive Scan with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure51(plotwrapper):
+
+# ---------------------------------------------------------------------------------
+# OpenMP Scheduling no SIMD with icx Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_updown_scheduling_icx_media(plotwrapper):
     columns = {
         "mp_media_icx_omp_no_simd_scheduling_static_inc_OMP_updown": "Static",
         "mp_media_icx_omp_no_simd_scheduling_dynamic_inc_OMP_updown": "Dynamic",
@@ -520,14 +509,15 @@ def figure51(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Updown Inclusive Scans with Different Scheduling (icx)",
+        title="mp-media OpenMP Updown Inclusive Scans with Different Scheduling (icx)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure52(plotwrapper):
+
+def figure_tiled_scheduling_icx_media(plotwrapper):
     columns = {
         "mp_media_icx_omp_no_simd_scheduling_static_inc_OMP_tiled": "Static",
         "mp_media_icx_omp_no_simd_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
@@ -536,14 +526,20 @@ def figure52(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Tiled Inclusive Scans with Different Scheduling (icx)",
+        title="mp-media OpenMP Tiled Inclusive Scans with Different Scheduling (icx)",
         index_col="N",
         xscale="log",
         yscale="linear",
         grid=True,
     )
 
-def figure54(plotwrapper):
+
+# ---------------------------------------------------------------------------------
+# OpenMP Scheduling SIMD with icx Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_updown_scheduling_SIMD_icx_media(plotwrapper):
     columns = {
         "mp_media_icx_omp_scheduling_static_inc_OMP_updown": "Static",
         "mp_media_icx_omp_scheduling_dynamic_inc_OMP_updown": "Dynamic",
@@ -552,7 +548,7 @@ def figure54(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="MP-Media OpenMP Updown Inclusive Scans with Different Scheduling and SIMD (icx)",
+        title="mp-media OpenMP Updown Inclusive Scans with Different Scheduling and SIMD (icx)",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -560,69 +556,304 @@ def figure54(plotwrapper):
     )
 
 
-def figure_tiledopt_media(plotwrapper):
+# ---------------------------------------------------------------------------------
+# Tile Size Optimized Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_tiledopt(plotwrapper):
     columns = {
-        "mp-media-gnu-algopt_inc_OMP_tiled": "Inclusive",
-        "mp-media-gnu-tiled_inc_OMP_tiled": "Inclusive Optimized",
-        "mp-media-gnu-algopt_ex_OMP_tiled": "Exclusive",
-        "mp-media-gnu-tiled_ex_OMP_tiled": "Exclusive Optimized",
+        "gnu-algopt_inc_OMP_tiled": "Inclusive",
+        "gnu-tiled_inc_OMP_tiled": "Inclusive Optimized",
+        "gnu-algopt_ex_OMP_tiled": "Exclusive",
+        "gnu-tiled_ex_OMP_tiled": "Exclusive Optimized",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Tiled Benchmark Optimized (mp-media)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Tiled Benchmark Optimized",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure_tiledopt_seg_media(plotwrapper):
+def figure_tiledopt_seg(plotwrapper):
     columns = {
-        "mp-media-gnu-algopt_incseg_OMP_tiled": "Inclusive",
-        "mp-media-gnu-tiled_incseg_OMP_tiled": "Inclusive Optimized",
-        "mp-media-gnu-algopt_exseg_OMP_tiled": "Exclusive",
-        "mp-media-gnu-tiled_exseg_OMP_tiled": "Exclusive Optimized",
+        "gnu-algopt_incseg_OMP_tiled": "Inclusive",
+        "gnu-tiled_incseg_OMP_tiled": "Inclusive Optimized",
+        "gnu-algopt_exseg_OMP_tiled": "Exclusive",
+        "gnu-tiled_exseg_OMP_tiled": "Exclusive Optimized",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Tiled Benchmark Optimized Segmented (mp-media)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Tiled Benchmark Optimized Segmented",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
 
 
-def figure_tiledopt_rome(plotwrapper):
+# ---------------------------------------------------------------------------------
+# Analytical Sequential Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_sequential_analytical(plotwrapper):
     columns = {
-        "ziti-rome-gnu-algopt_inc_OMP_tiled": "Inclusive",
-        "ziti-rome-gnu-algopt_ex_OMP_tiled": "Exclusive",
-        "ziti-rome-gnu-tiled_inc_OMP_tiled": "Inclusive Optimized",
-        "ziti-rome-gnu-tiled_ex_OMP_tiled": "Exclusive Optimized",
+        "gnu-ana_ana_inc_seq_sequential": "STL Inc",
+        "gnu-ana_ana_ex_seq_sequential": "STL Ex",
+        "gnu-ana_ana_inc_seq_updown": "Up-Down Inc",
+        "gnu-ana_ana_ex_seq_updown": "Up-Down Ex",
+        "gnu-ana_ana_inc_seq_tiled": "Tiled Inc",
+        "gnu-ana_ana_ex_seq_tiled": "Tiled Ex",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Tiled Benchmark Optimized (ziti-rome)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Analytical Sequential Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
 
 
-def figure_tiledopt_seg_rome(plotwrapper):
+def figure_sequential_segmented_analytical(plotwrapper):
     columns = {
-        "ziti-rome-gnu-algopt_incseg_OMP_tiled": "Inclusive",
-        "ziti-rome-gnu-algopt_exseg_OMP_tiled": "Exclusive",
-        "ziti-rome-gnu-tiled_incseg_OMP_tiled": "Inclusive Optimized",
-        "ziti-rome-gnu-tiled_exseg_OMP_tiled": "Exclusive Optimized",
+        "gnu-ana_ana_incseg_seq_sequential": "STL Inc",
+        "gnu-ana_ana_exseg_seq_sequential": "STL Ex",
+        "gnu-ana_ana_incseg_seq_updown": "Up-Down Inc",
+        "gnu-ana_ana_exseg_seq_updown": "Up-Down Ex",
+        "gnu-ana_ana_incseg_seq_tiled": "Tiled Inc",
+        "gnu-ana_ana_exseg_seq_tiled": "Tiled Ex",
     }
-    plotwrapper.columns = columns
-    plotwrapper.plot(
-        title="Tiled Benchmark Optimized Segmented (ziti-rome)",
-        index_col="N",
-        xscale="log",
-        yscale="linear",
-        grid=True,
-    )
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Analytical Sequential Segmented Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+# ---------------------------------------------------------------------------------
+# Analytical Parallel Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_parallel_media_analytical(plotwrapper):
+    columns = {
+        "gnu-ana_ana_inc_seq_sequential": "STL",
+        "gnu-ana_ana_inc_OMP_provided": "OpenMP Provided Scan",
+        "gnu-ana_ana_inc_TBB_provided": "TBB Provided Scan",
+        "gnu-ana_ana_inc_OMP_updown": "OpenMP Up-Down Sweep",
+        "gnu-ana_ana_inc_TBB_updown": "TBB Up-Down Sweep",
+        "gnu-ana_ana_inc_OMP_tiled": "OpenMP Tiled Scan",
+        "gnu-ana_ana_inc_TBB_tiled": "TBB Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " Analytical Parallel Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+def figure_parallel_segmented_analytical(plotwrapper):
+    columns = {
+        "gnu-ana_ana_incseg_seq_sequential": "STL",
+        "gnu-ana_ana_incseg_TBB_provided": "TBB Provided Scan",
+        "gnu-ana_ana_incseg_OMP_updown": "OpenMP Up-Down Sweep",
+        "gnu-ana_ana_incseg_TBB_updown": "TBB Up-Down Sweep",
+        "gnu-ana_ana_incseg_OMP_tiled": "OpenMP Tiled Scan",
+        "gnu-ana_ana_incseg_TBB_tiled": "TBB Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Analytical Parallel Inclusive Segmented Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+# ---------------------------------------------------------------------------------
+# Analytical Algorithmic Optimization Plots
+# ---------------------------------------------------------------------------------
+
+
+def figure_algopt_inclusive_analytical(plotwrapper):
+    columns = {
+        "gnu-ana_ana_inc_seq_sequential": "STL",
+        "gnu-algopt-ana_ana_inc_seq_sequential": "AlgOpt STL",
+        "gnu-ana_ana_inc_seq_updown": "Up-Down Sweep",
+        "gnu-algopt-ana_ana_inc_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu-ana_ana_inc_seq_tiled": "Tiled Scan",
+        "gnu-algopt-ana_ana_inc_seq_tiled": "AlgOpt Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Analytical Alg. Optimized Sequential Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+def figure_algopt_exclusive_media_analytical(plotwrapper):
+    columns = {
+        "gnu-ana_ana_ex_seq_sequential": "Naive (STL)",
+        "gnu-algopt-ana_ana_ex_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu-ana_ana_ex_seq_updown": "Up-Down Sweep",
+        "gnu-algopt-ana_ana_ex_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu-ana_ana_ex_seq_tiled": "Tiled Scan",
+        "gnu-algopt-ana_ana_ex_seq_tiled": "AlgOpt Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Analytical Alg. Optimized Sequential Exclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+def figure_algopt_inclusive_segmented_analytical(plotwrapper):
+    columns = {
+        "gnu-ana_ana_incseg_seq_sequential": "Naive (STL)",
+        "gnu-algopt-ana_ana_incseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu-ana_ana_incseg_seq_updown": "Up-Down Sweep",
+        "gnu-algopt-ana_ana_incseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu-ana_ana_incseg_seq_tiled": "Tiled Scan",
+        "gnu-algopt-ana_ana_incseg_seq_tiled": "AlgOpt Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Analytical Alg. Optimized Sequential Segmented Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+def figure_algopt_exclusive_segmented_analytical(plotwrapper):
+    columns = {
+        "gnu-ana_ana_exseg_seq_sequential": "Naive (STL)",
+        "gnu-algopt-ana_ana_exseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu-ana_ana_exseg_seq_updown": "Up-Down Sweep",
+        "gnu-algopt-ana_ana_exseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu-ana_ana_exseg_seq_tiled": "Tiled Scan",
+        "gnu-algopt-ana_ana_exseg_seq_tiled": "AlgOpt Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Analytical Alg. Optimized Sequential Segmented Exclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            ylabel="GOPS",
+            grid=True,
+        )
+
+
+def figure_partitioners_tbb(plotwrapper):
+    columns = {
+        "gnu-tbb-autopart_inc_TBB_updown": "auto",
+        "gnu-tbb-affinitypart_inc_TBB_updown": "affinity",
+        "gnu-tbb-simplepart_inc_TBB_updown": "simple",
+        "gnu-tbb-staticpart_inc_TBB_updown": "static",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " TBB Partitioner Updown Benchmark",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
