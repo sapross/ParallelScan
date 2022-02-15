@@ -1,2 +1,49 @@
-\begin{frame}{OpenMP Scheduling} 
+\begin{frame}{OpenMP Scheduling}
+
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.4\textwidth}
+			\centering
+			\includegraphics[width=.5\linewidth]{wiki/static_scheduling.png}
+			\caption{Static Scheduling}
+			\label{fig:sub1}
+		\end{subfigure}
+		\begin{subfigure}{.4\textwidth}
+			\centering
+			\includegraphics[width=.5\linewidth]{wiki/dynamic_scheduling.png}
+			\caption{Dynamic Scheduling}
+			\label{fig:sub2}
+		\end{subfigure}
+		\begin{subfigure}{.4\textwidth}
+			\centering
+			\includegraphics[width=.5\linewidth]{wiki/guided_scheduling.png}
+			\caption{Guided Scheduling}
+			\label{fig:sub2}
+		\end{subfigure}
+		\caption{Different Scheduling Strategies for 100 Iterations and 4 Threads}
+		\label{fig:Scheduling}
+	\end{figure}
+
+	\begin{itemize}
+	\item static: 
+	\item dynamic: 
+	\item guided:
+	\item auto:
+\end{itemize}
+	
+	
 \end{frame} 
+
+\begin{frame}{OpenMP Scheduling - Results MP-Media}
+	\begin{figure}
+		\includegraphics[width=80mm]{graphs/mp-media OpenMP Provided Inclusive Scan  with Different Scheduling (gnu).png}
+		\caption{{Scheduling mp-media}}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{OpenMP Scheduling - Results Ziti-Rome}
+	\begin{figure}
+		\includegraphics[width=80mm]{graphs/ziti-rome OpenMP Provided Inclusive Scan  with Different Scheduling (gnu).png}
+		\caption{{Scheduling ziti-rome}}
+	\end{figure}
+\end{frame}

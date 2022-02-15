@@ -360,12 +360,14 @@ def figure_tiled_scheduling_SIMD_rome(plotwrapper):
 
 def figure_SIMD_rome(plotwrapper):
     columns = {
-        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD",
-        "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD",
+        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD gnu",
+        "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD gnu",
+        "ziti-rome-icx_inc_OMP_tiled": "SIMD icx",
+        "ziti_rome_icx_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD icx",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="ziti-rome OpenMP Tiled Inclusive Scan (gnu)",
+        title="ziti-rome OpenMP Tiled Inclusive Scan",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -375,12 +377,14 @@ def figure_SIMD_rome(plotwrapper):
 
 def figure_SIMD_media(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "SIMD",
-        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "No SIMD",
+        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "SIMD gnu",
+        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "No SIMD gnu",
+        "mp_media_icx_omp_scheduling_static_inc_OMP_tiled": "SIMD icx",
+        "mp_media_icx_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD icx",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="mp-media OpenMP Tiled Inclusive Scan (gnu)",
+        title="mp-media OpenMP Tiled Inclusive Scan",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -402,7 +406,7 @@ def figure_provided_scheduling_media(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="mp-media OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
+        title="mp-media OpenMP Provided Inclusive Scan \n with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -453,7 +457,7 @@ def figure_provided_scheduling_rome(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="ziti-rome OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
+        title="ziti-rome OpenMP Provided Inclusive Scan \n with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
