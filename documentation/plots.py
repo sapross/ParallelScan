@@ -169,10 +169,10 @@ def figure_algopt_exclusive_media(plotwrapper):
 def figure_algopt_inclusive_segmented(plotwrapper):
     columns = {
         "gnu_incseg_seq_sequential": "Naive (STL)",
-        "gnu_incseg_seq_updown": "Up-Down Sweep",
-        "gnu_incseg_seq_tiled": "Tiled Scan",
         "gnu-algopt_incseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu_incseg_seq_updown": "Up-Down Sweep",
         "gnu-algopt_incseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu_incseg_seq_tiled": "Tiled Scan",
         "gnu-algopt_incseg_seq_tiled": "AlgOpt Tiled Scan",
     }
     for system in systems:
@@ -195,10 +195,10 @@ def figure_algopt_inclusive_segmented(plotwrapper):
 def figure_algopt_exclusive_segmented(plotwrapper):
     columns = {
         "gnu_exseg_seq_sequential": "Naive (STL)",
-        "gnu_exseg_seq_updown": "Up-Down Sweep",
-        "gnu_exseg_seq_tiled": "Tiled Scan",
         "gnu-algopt_exseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu_exseg_seq_updown": "Up-Down Sweep",
         "gnu-algopt_exseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu_exseg_seq_tiled": "Tiled Scan",
         "gnu-algopt_exseg_seq_tiled": "AlgOpt Tiled Scan",
     }
     for system in systems:
@@ -612,7 +612,7 @@ def figure_tiledopt_seg(plotwrapper):
 # ---------------------------------------------------------------------------------
 
 
-def figure_sequential(plotwrapper):
+def figure_sequential_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_inc_seq_sequential": "STL Inc",
         "gnu-ana_ana_ex_seq_sequential": "STL Ex",
@@ -633,11 +633,12 @@ def figure_sequential(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
 
-def figure_sequential_segmented(plotwrapper):
+def figure_sequential_segmented_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_incseg_seq_sequential": "STL Inc",
         "gnu-ana_ana_exseg_seq_sequential": "STL Ex",
@@ -658,6 +659,7 @@ def figure_sequential_segmented(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
@@ -667,7 +669,7 @@ def figure_sequential_segmented(plotwrapper):
 # ---------------------------------------------------------------------------------
 
 
-def figure_parallel_media(plotwrapper):
+def figure_parallel_media_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_inc_seq_sequential": "STL",
         "gnu-ana_ana_inc_OMP_provided": "OpenMP Provided Scan",
@@ -689,11 +691,12 @@ def figure_parallel_media(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
 
-def figure_parallel_segmented(plotwrapper):
+def figure_parallel_segmented_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_incseg_seq_sequential": "STL",
         "gnu-ana_ana_incseg_TBB_provided": "TBB Provided Scan",
@@ -715,6 +718,7 @@ def figure_parallel_segmented(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
@@ -724,7 +728,7 @@ def figure_parallel_segmented(plotwrapper):
 # ---------------------------------------------------------------------------------
 
 
-def figure_algopt_inclusive(plotwrapper):
+def figure_algopt_inclusive_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_inc_seq_sequential": "STL",
         "gnu-algopt-ana_ana_inc_seq_sequential": "AlgOpt STL",
@@ -746,11 +750,12 @@ def figure_algopt_inclusive(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
 
-def figure_algopt_exclusive_media(plotwrapper):
+def figure_algopt_exclusive_media_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_ex_seq_sequential": "Naive (STL)",
         "gnu-algopt-ana_ana_ex_seq_sequential": "AlgOpt Naive (STL)",
@@ -772,17 +777,18 @@ def figure_algopt_exclusive_media(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
 
-def figure_algopt_inclusive_segmented(plotwrapper):
+def figure_algopt_inclusive_segmented_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_incseg_seq_sequential": "Naive (STL)",
-        "gnu-ana_ana_incseg_seq_updown": "Up-Down Sweep",
-        "gnu-ana_ana_incseg_seq_tiled": "Tiled Scan",
         "gnu-algopt-ana_ana_incseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu-ana_ana_incseg_seq_updown": "Up-Down Sweep",
         "gnu-algopt-ana_ana_incseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu-ana_ana_incseg_seq_tiled": "Tiled Scan",
         "gnu-algopt-ana_ana_incseg_seq_tiled": "AlgOpt Tiled Scan",
     }
     for system in systems:
@@ -798,17 +804,18 @@ def figure_algopt_inclusive_segmented(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
 
 
-def figure_algopt_exclusive_segmented(plotwrapper):
+def figure_algopt_exclusive_segmented_analytical(plotwrapper):
     columns = {
         "gnu-ana_ana_exseg_seq_sequential": "Naive (STL)",
-        "gnu-ana_ana_exseg_seq_updown": "Up-Down Sweep",
-        "gnu-ana_ana_exseg_seq_tiled": "Tiled Scan",
         "gnu-algopt-ana_ana_exseg_seq_sequential": "AlgOpt Naive (STL)",
+        "gnu-ana_ana_exseg_seq_updown": "Up-Down Sweep",
         "gnu-algopt-ana_ana_exseg_seq_updown": "AlgOpt Up-Down Sweep",
+        "gnu-ana_ana_exseg_seq_tiled": "Tiled Scan",
         "gnu-algopt-ana_ana_exseg_seq_tiled": "AlgOpt Tiled Scan",
     }
     for system in systems:
@@ -824,5 +831,6 @@ def figure_algopt_exclusive_segmented(plotwrapper):
             index_col="N",
             xscale="log",
             yscale="linear",
+            ylabel="GOPS",
             grid=True,
         )
