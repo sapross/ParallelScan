@@ -62,8 +62,12 @@
 % Enables code listings.
 %\usepackage{listings}
 % Better source code support than listings
-% \usepackage{minted}
-% \setminted{fontsize=\footnotesize,baselinestretch=1}
+% \usepackage[outputdir=\detokenize{./_mintedcache}]{minted}
+% \setminted{ fontsize=\footnotesize,
+%             baselinestretch=1,
+%             }
+
+\usepackage{listings}
 
 % Other:
 % Relevant for the presetkeys command
@@ -82,7 +86,7 @@
     style=numeric
     ]{biblatex}
 %\bibliography{../sources}
-\bibliography{/home/steve/Documents/Documents/Current/MScTI_SEM/sources}
+%\bibliography{/home/steve/Documents/Documents/Current/MScTI_SEM/sources}
 
 
 
@@ -160,29 +164,28 @@
 
 
 \section{Implementation} %5min
-\include{segmented} % S
-
 \include{updown} % S
 
 \include{tiled} % S
 
+\include{segmented} % S
 
 \section{Optimizations} %10min
 \include{algopt} % S
+ 
+% \include{local} % C
+ 
+% \include{scheduling} % C
 
-\include{local} % C
+%\include{partitioner} % N
 
-\include{scheduling} % C
-
-\include{partitioner} % N
-
-\include{vector} % C
+% \include{vector} % C
 
 
 \section{Summary}
-\include{summary} % N
+%\include{summary} % N
 
-\include{outlook} % C
+% \include{outlook} % C
 
 
 
