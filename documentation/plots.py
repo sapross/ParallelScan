@@ -834,3 +834,26 @@ def figure_algopt_exclusive_segmented_analytical(plotwrapper):
             ylabel="GOPS",
             grid=True,
         )
+
+
+def figure_partitioners_tbb(plotwrapper):
+    columns = {
+        "gnu-tbb-autopart_inc_TBB_updown": "auto",
+        "gnu-tbb-affinitypart_inc_TBB_updown": "affinity",
+        "gnu-tbb-simplepart_inc_TBB_updown": "simple",
+        "gnu-tbb-staticpart_inc_TBB_updown": "static",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " TBB Partitioner Updown Benchmark",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )

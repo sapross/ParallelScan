@@ -55,6 +55,7 @@ class ResultAggregator:
             Returns:
                None
         """
+        print(data_path)
         new_df = pd.read_csv(
             str(data_path), sep=self.separator, header=None
         )
