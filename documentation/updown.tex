@@ -25,16 +25,15 @@
         \item OpenMP: scan pragma
         \item TBB: parallel\_scan function
     \end{itemize}
+    \vspace{10pt}
+    Constraint: Associativity! $\Rightarrow$ Re-ordering\\
+    \vspace{10pt}
     Alternative Algorithms:
     \begin{itemize}
      \item Up-Down Sweeping Scan
      \item Tiled Scan
     \end{itemize}
 \end{frame} 
-
-\begin{frame}{Up-Down Sweep}
-\todo{UpDown description}
-\end{frame}
 
 \begin{frame}{Up-Down Sweep}{Schema Inclusive}
  \begin{figure}
@@ -48,4 +47,20 @@
   \centering
   \includegraphics[width=0.85\textwidth]{wiki/ExclusiveUpDown}
  \end{figure}
+\end{frame}
+
+\begin{frame}{Up-Down Sweep}
+Dependency:
+\begin{itemize}
+ \item Only between stages
+ \item[$\Rightarrow$] Lots of parallelism
+\end{itemize}
+\vspace{10pt}
+Downsides:
+\begin{itemize}
+ \item Workload of 2N
+ \item Communication!
+ \item Workload stage dependent!
+\end{itemize}
+
 \end{frame}

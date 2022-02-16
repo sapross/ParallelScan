@@ -1,5 +1,19 @@
 \begin{frame}{Tiled Scan} 
-\todo{Tiled Scan Description}
+Idea: Process input in independent chunks.
+\begin{itemize}
+ \item Each chunk misses previous results
+ \begin{itemize}
+ \item[$\Rightarrow$] Second pass over data.
+ \end{itemize}
+ \item Workload: 2N
+\end{itemize}
+\vspace{10pt}
+Our solution:
+\begin{itemize}
+ \item Temporary vector for intermediate sums.
+ \item Only one write to output.
+\end{itemize}
+
 \end{frame} 
 
 \begin{frame}{Tiled Scan Schema}

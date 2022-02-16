@@ -48,21 +48,17 @@
 % \end{frame}
 
 \begin{frame}[fragile]{Segmented Scan}{Solution}
-\todo{shorter }
 Works for:
 \begin{itemize}
  \item STL Scans
- \item tbb::parallel\_scan Inclusive
- \item Up-Down Sweeping Scan inclusive
- \item Tiled Scan Inclusive
+ \item Most inclusive scans
 \end{itemize}
 \vspace{10pt}
 Challenge: Exclusive Scan
 \begin{itemize}
- \item Working Copy of Flags!
- \item Up-Down Sweep!
+ \item Exclusive Segmented is complex
+ \item Custom solution for each variant
 \end{itemize}
-$\Rightarrow$ Exclusive Segmented is complex
 
 \end{frame}
 
