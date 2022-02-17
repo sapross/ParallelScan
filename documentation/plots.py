@@ -140,6 +140,32 @@ def figure_algopt_inclusive(plotwrapper):
         )
 
 
+def figure_algopt_inclusive_parallel(plotwrapper):
+    columns = {
+        "gnu_inc_OMP_provided": "STL",
+        "gnu-algopt_inc_OMP_provided": "AlgOpt STL",
+        "gnu_inc_OMP_updown": "Up-Down Sweep",
+        "gnu-algopt_inc_OMP_updown": "AlgOpt Up-Down Sweep",
+        "gnu_inc_OMP_tiled": "Tiled Scan",
+        "gnu-algopt_inc_OMP_tiled": "AlgOpt Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Alg. Optimized Sequential parallel Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
+
+
 def figure_algopt_exclusive_media(plotwrapper):
     columns = {
         "gnu_ex_seq_sequential": "Naive (STL)",
@@ -856,6 +882,29 @@ def figure_partitioners_tbb(plotwrapper):
         plotwrapper.columns = syscol
         plotwrapper.plot(
             title=system + " TBB Partitioner Updown Benchmark",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
+
+
+def figure_partitioners_tiled_tbb(plotwrapper):
+    columns = {
+        "gnu-tbb-autopart_inc_TBB_tiled": "auto",
+        "gnu-tbb-affinitypart_inc_TBB_tiled": "affinity",
+        "gnu-tbb-simplepart_inc_TBB_tiled": "simple",
+        "gnu-tbb-staticpart_inc_TBB_tiled": "static",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " TBB Partitioner Tiled Benchmark",
             index_col="N",
             xscale="log",
             yscale="linear",
