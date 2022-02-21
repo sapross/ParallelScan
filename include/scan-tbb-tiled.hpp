@@ -9,7 +9,8 @@ namespace tiled
 {
 // ----------------------------------------------------------------------------------
 //  Partitioners for tbb
-//  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner, affinity_partitioner
+//  Valit for parallel_for : auto_partitioner, simple_partitioner, static_partitioner,
+//  affinity_partitioner
 // ----------------------------------------------------------------------------------
 auto for_part = tbb::simple_partitioner();
 // Controls the number of elements a tile has.
@@ -43,8 +44,10 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
         size_t(0),
         num_tiles,
         size_t(1),
-        [&](auto i) {
+        [&](auto i)
+        {
             temp[i] = *(first + 1 + i * tile_size);
+#pragma omp for simd
             for (size_t j = 2 + i * tile_size; j < 1 + (i + 1) * tile_size; j++)
             {
                 temp[i] = binary_op(temp[i], *(first + j));
@@ -62,14 +65,15 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
         size_t(0),
         num_tiles + 1,
         size_t(1),
-        [&](auto i) {
+        [&](auto i)
+        {
             size_t    begin = 1 + i * tile_size, end = 1 + (i + 1) * tile_size;
             ValueType sum = temp[i];
             if (end > num_values)
             {
                 end = num_values;
             }
-
+#pragma omp for simd
             for (size_t j = begin; j < end; j++)
             {
                 sum        = binary_op(sum, first[j]);
@@ -123,8 +127,11 @@ OutputIt exclusive_scan(InputIt         first,
         size_t(0),
         num_tiles,
         size_t(1),
-        [&](auto i) {
+        [&](auto i)
+        {
             temp[i] = *(first + i * tile_size);
+
+#pragma omp for simd
             for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
             {
                 temp[i] = binary_op(temp[i], *(first + j));
@@ -141,7 +148,8 @@ OutputIt exclusive_scan(InputIt         first,
         size_t(0),
         num_tiles + 1,
         size_t(1),
-        [&](auto i) {
+        [&](auto i)
+        {
             size_t begin = i * tile_size, end = (i + 1) * tile_size;
             if (end > num_values)
             {
@@ -149,6 +157,7 @@ OutputIt exclusive_scan(InputIt         first,
             }
 
             ValueType sum = temp[i];
+#pragma omp for simd
             for (size_t j = begin; j < end; j++)
             {
                 ValueType temp = first[j];
@@ -269,8 +278,10 @@ OutputIt exclusive_segmented_scan(InputIt         first,
         size_t(0),
         num_tiles,
         size_t(1),
-        [&](auto i) {
+        [&](auto i)
+        {
             temp[i] = *(first + i * tile_size);
+#pragma omp for simd
             for (size_t j = 1 + i * tile_size; j < (i + 1) * tile_size; j++)
             {
                 temp[i] = wrapped_bop(temp[i], *(first + j));
@@ -291,11 +302,13 @@ OutputIt exclusive_segmented_scan(InputIt         first,
         size_t(0),
         num_tiles + 1,
         size_t(1),
-        [&](auto i) {
+        [&](auto i)
+        {
             size_t end = (i + 1) * tile_size;
             end        = end > num_values ? num_values : end;
 
             ValueType sum = binary_op(init, temp[i].first);
+#pragma omp for simd
             for (size_t j = i * tile_size; j < end; j++)
             {
                 ValueType temp = first[j].first;

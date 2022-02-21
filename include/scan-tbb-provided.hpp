@@ -25,8 +25,10 @@ OutputIt inclusive_scan(
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         identity,
-        [&](const range_type& r, InputType sum, bool is_final_scan) {
+        [&](const range_type& r, InputType sum, bool is_final_scan)
+        {
             InputType tmp = sum;
+#pragma omp for simd
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 tmp = binary_op(tmp, first[i]);
@@ -73,7 +75,9 @@ OutputIt exclusive_scan(InputIt         first,
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         identity,
-        [&](const range_type& r, ValueType sum, bool is_final_scan) {
+        [&](const range_type& r, ValueType sum, bool is_final_scan)
+        {
+#pragma omp for simd
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 if (i == 0)
@@ -130,7 +134,8 @@ OutputIt inclusive_segmented_scan(
                                    last,
                                    d_first,
                                    std::make_pair(identity, 0),
-                                   [binary_op](PairType x, PairType y) {
+                                   [binary_op](PairType x, PairType y)
+                                   {
                                        PairType result = y;
                                        if (!y.second)
                                        {
@@ -189,7 +194,9 @@ OutputIt exclusive_segmented_scan(InputIt         first,
     tbb::parallel_scan(
         range_type(size_t(0), num_values),
         std::make_pair(identity, FlagType()),
-        [&](const range_type& r, PairType sum, bool is_final_scan) {
+        [&](const range_type& r, PairType sum, bool is_final_scan)
+        {
+#pragma omp for simd
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 ValueType temp = first[i].first;
@@ -214,7 +221,8 @@ OutputIt exclusive_segmented_scan(InputIt         first,
             }
             return sum;
         },
-        [&](const PairType& a, const PairType& b) {
+        [&](const PairType& a, const PairType& b)
+        {
             PairType result = b;
             if (!b.second)
                 result.first = binary_op(a.first, result.first);
