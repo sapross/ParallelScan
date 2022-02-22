@@ -820,7 +820,6 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
     const auto   part_num = GENERATE(0, 1, 2, 3);
 
     // Logging of variables
-    CAPTURE(part_num);
     CAPTURE(N);
     SUCCEED();
 
@@ -833,7 +832,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
             size_t(1),
             [&rand, &data](auto i) { data[i] = rand(); },
             tbb::simple_partitioner());
-        BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_provided_simple")(Catch::Benchmark::Chronometer meter)
         {
             meter.measure(
                 [&data]()
@@ -846,7 +845,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
                                                    tbb::simple_partitioner());
                 });
         };
-        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_updown_simple")(Catch::Benchmark::Chronometer meter)
         {
             meter.measure(
                 [&data]()
@@ -859,7 +858,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
                 });
         };
 
-        BENCHMARK_ADVANCED("inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_tiled_simple")(Catch::Benchmark::Chronometer meter)
         {
             _tbb::tiled::set_tile_size(N / TILERATIO);
             meter.measure(
@@ -881,7 +880,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
             [&rand, &data](auto i) { data[i] = rand(); },
             tbb::auto_partitioner());
 
-        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_updown_affinity")(Catch::Benchmark::Chronometer meter)
         {
             meter.measure(
                 [&data]()
@@ -902,7 +901,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
             size_t(1),
             [&rand, &data](auto i) { data[i] = rand(); },
             tbb::static_partitioner());
-        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_updown_static")(Catch::Benchmark::Chronometer meter)
         {
             meter.measure(
                 [&data]()
@@ -923,7 +922,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
             size_t(1),
             [&rand, &data](auto i) { data[i] = rand(); },
             tbb::auto_partitioner());
-        BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_provided_auto")(Catch::Benchmark::Chronometer meter)
         {
             meter.measure(
                 [&data]()
@@ -936,7 +935,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
                                                    tbb::auto_partitioner());
                 });
         };
-        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_updown_auto")(Catch::Benchmark::Chronometer meter)
         {
             meter.measure(
                 [&data]()
@@ -949,7 +948,7 @@ SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
                 });
         };
 
-        BENCHMARK_ADVANCED("inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        BENCHMARK_ADVANCED("inc_TBB_tiled_auto")(Catch::Benchmark::Chronometer meter)
         {
             _tbb::tiled::set_tile_size(N / TILERATIO);
             meter.measure(
