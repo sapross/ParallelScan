@@ -20,7 +20,7 @@ SCENARIO("Inclusive Scan Sequential", "[inc] [seq]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -59,7 +59,7 @@ SCENARIO("Inclusive Scan OpenMP", "[inc] [omp]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -93,37 +93,63 @@ SCENARIO("Inclusive Scan TBB", "[inc] [tbb]")
     // Benchmark parameters
     const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
 
+#if PARTITIONER == 1
+    auto partitioner = tbb::simple_partitioner();
+#elif PARITTIONER == 2
+    auto partitioner = tbb::affinity_partitioner();
+#elif PARTITIONER == 3
+    auto partitioner = tbb::static_partitioner();
+#else
+    auto partitioner = tbb::auto_partitioner();
+#endif
+
     // Logging of variables
     CAPTURE(N);
     SUCCEED();
 
-    std::vector<float> data(N, 0.);
-#pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < data.size(); i++)
+    std::vector<float> data(N);
+    tbb::parallel_for(
+        size_t(0),
+        (size_t)(data.size()),
+        size_t(1),
+        [&rand, &data](auto i) { data[i] = rand(); },
+        partitioner);
+
+    if (PARTITIONER < 2)
     {
-        data[i] = rand();
+        BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data, &partitioner]()
+                {
+                    _tbb::provided::inclusive_scan(data.begin(),
+                                                   data.end(),
+                                                   data.begin(),
+                                                   0.0,
+                                                   std::plus<>(),
+                                                   partitioner);
+                });
+        };
     }
-
-    BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
-    {
-        meter.measure(
-            [&data]() {
-                _tbb::provided::inclusive_scan(
-                    data.begin(), data.end(), 0.0, data.begin());
-            });
-    };
-
     BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([&data]()
-                      { _tbb::updown::inclusive_scan(data.begin(), data.end()); });
+        meter.measure(
+            [&data, &partitioner]()
+            {
+                _tbb::updown::inclusive_scan(
+                    data.begin(), data.end(), data.begin(), std::plus<>(), partitioner);
+            });
     };
 
     BENCHMARK_ADVANCED("inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
     {
         _tbb::tiled::set_tile_size(N / TILERATIO);
-        meter.measure([&data]()
-                      { _tbb::tiled::inclusive_scan(data.begin(), data.end()); });
+        meter.measure(
+            [&data, &partitioner]()
+            {
+                _tbb::tiled::inclusive_scan(
+                    data.begin(), data.end(), data.begin(), std::plus<>(), partitioner);
+            });
     };
 }
 
@@ -142,7 +168,7 @@ SCENARIO("Exclusive Scan", "[ex] [seq]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -187,7 +213,7 @@ SCENARIO("Exclusive Scan OpenMP", "[ex] [omp]")
     SUCCEED();
 
     std::vector<float> data(N, 0.);
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (size_t i = 0; i < data.size(); i++)
     {
         data[i] = rand();
@@ -225,40 +251,74 @@ SCENARIO("Exclusive Scan TBB", "[ex] [tbb]")
     // Benchmark parameters
     const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
 
+#if PARTITIONER == 1
+    auto partitioner = tbb::simple_partitioner();
+#elif PARITTIONER == 2
+    auto partitioner = tbb::affinity_partitioner();
+#elif PARTITIONER == 3
+    auto partitioner = tbb::static_partitioner();
+#else
+    auto partitioner = tbb::auto_partitioner();
+#endif
+
     // Logging of variables
     CAPTURE(N);
     SUCCEED();
 
-    std::vector<float> data(N, 0.);
-#pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < data.size(); i++)
-    {
-        data[i] = rand();
-    }
-
+    std::vector<float> data(N);
+    tbb::parallel_for(
+        size_t(0),
+        (size_t)(data.size()),
+        size_t(1),
+        [&rand, &data](auto i) { data[i] = rand(); },
+        partitioner);
     float init     = .0f;
     float identity = .0f;
 
-    BENCHMARK_ADVANCED("ex_TBB_provided")(Catch::Benchmark::Chronometer meter)
+    if (PARTITIONER < 2)
     {
-        meter.measure(
-            [&data, init, identity]() {
-                _tbb::provided::exclusive_scan(data.begin(), data.end(), identity, init);
-            });
-    };
-
+        BENCHMARK_ADVANCED("ex_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data, init, identity, &partitioner]()
+                {
+                    _tbb::provided::exclusive_scan(data.begin(),
+                                                   data.end(),
+                                                   data.begin(),
+                                                   identity,
+                                                   init,
+                                                   std::plus<>(),
+                                                   partitioner);
+                });
+        };
+        BENCHMARK_ADVANCED("ex_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        {
+            _tbb::tiled::set_tile_size(N / TILERATIO);
+            meter.measure(
+                [&data, init, identity, &partitioner]()
+                {
+                    _tbb::tiled::exclusive_scan(data.begin(),
+                                                data.end(),
+                                                data.begin(),
+                                                identity,
+                                                init,
+                                                std::plus<>(),
+                                                partitioner);
+                });
+        };
+    }
     BENCHMARK_ADVANCED("ex_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
-        meter.measure([&data, init]()
-                      { _tbb::updown::exclusive_scan(data.begin(), data.end(), init); });
-    };
-
-    BENCHMARK_ADVANCED("ex_TBB_tiled")(Catch::Benchmark::Chronometer meter)
-    {
-        _tbb::tiled::set_tile_size(N / TILERATIO);
         meter.measure(
-            [&data, init, identity]()
-            { _tbb::tiled::exclusive_scan(data.begin(), data.end(), identity, init); });
+            [&data, init, &partitioner]()
+            {
+                _tbb::updown::exclusive_scan(data.begin(),
+                                             data.end(),
+                                             data.begin(),
+                                             init,
+                                             std::plus<>(),
+                                             partitioner);
+            });
     };
 }
 
@@ -283,7 +343,7 @@ SCENARIO("Inclusive Segmented Scan Sequential", "[inc] [seg] [seq]")
     std::vector<std::pair<float, int>> data(N);
     std::generate(data.begin(),
                   data.end(),
-                  [&rand, &flag_rand]()
+                  [&rand, &data, &flag_rand]()
                   {
                       std::pair<float, int> A;
                       A.first  = rand();
@@ -335,7 +395,7 @@ SCENARIO("Inclusive Segmented Scan OpenMP", "[inc] [seg] [omp]")
     std::vector<std::pair<float, int>> data(N);
     std::generate(data.begin(),
                   data.end(),
-                  [&rand, &flag_rand]()
+                  [&rand, &data, &flag_rand]()
                   {
                       std::pair<float, int> A;
                       A.first  = rand();
@@ -372,42 +432,69 @@ SCENARIO("Inclusive Segmented Scan TBB", "[inc] [seg] [tbb]")
     // Benchmark parameters
     const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
 
+#if PARTITIONER == 1
+    auto partitioner = tbb::simple_partitioner();
+#elif PARITTIONER == 2
+    auto partitioner = tbb::affinity_partitioner();
+#elif PARTITIONER == 3
+    auto partitioner = tbb::static_partitioner();
+#else
+    auto partitioner = tbb::auto_partitioner();
+#endif
+
     // Logging of variables
     CAPTURE(N);
     SUCCEED();
 
     std::vector<std::pair<float, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
-
-    BENCHMARK_ADVANCED("incseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
+    tbb::parallel_for(
+        size_t(0),
+        (size_t)(data.size()),
+        size_t(1),
+        [&rand, &data, &flag_rand](auto i)
+        {
+            data[i].first  = rand();
+            data[i].second = flag_rand();
+        },
+        partitioner);
+    if (PARTITIONER < 2)
     {
-        meter.measure(
-            [&data]() {
-                _tbb::provided::inclusive_segmented_scan(data.begin(), data.end(), 0.0f);
-            });
-    };
+        BENCHMARK_ADVANCED("incseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data, &partitioner]()
+                {
+                    _tbb::provided::inclusive_segmented_scan(data.begin(),
+                                                             data.end(),
+                                                             data.begin(),
+                                                             0.0f,
+                                                             std::plus<>(),
+                                                             partitioner);
+                });
+        };
+        BENCHMARK_ADVANCED("incseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        {
+            _tbb::tiled::set_tile_size(N / TILERATIO);
+            meter.measure(
+                [&data, &partitioner]()
+                {
+                    _tbb::tiled::inclusive_segmented_scan(data.begin(),
+                                                          data.end(),
+                                                          data.begin(),
+                                                          std::plus<>(),
+                                                          partitioner);
+                });
+        };
+    }
 
     BENCHMARK_ADVANCED("incseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [&data]()
-            { _tbb::updown::inclusive_segmented_scan(data.begin(), data.end()); });
-    };
-
-    BENCHMARK_ADVANCED("incseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
-    {
-        _tbb::tiled::set_tile_size(N / TILERATIO);
-        meter.measure(
-            [&data]()
-            { _tbb::tiled::inclusive_segmented_scan(data.begin(), data.end()); });
+            [&data, &partitioner]()
+            {
+                _tbb::updown::inclusive_segmented_scan(
+                    data.begin(), data.end(), data.begin(), std::plus<>(), partitioner);
+            });
     };
 }
 
@@ -425,14 +512,10 @@ SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
     // Benchmark parameters
     const size_t N = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
 
-    // Logging of variables
-    CAPTURE(N);
-    SUCCEED();
-
     std::vector<std::pair<float, int>> data(N);
     std::generate(data.begin(),
                   data.end(),
-                  [&rand, &flag_rand]()
+                  [&rand, &data, &flag_rand]()
                   {
                       std::pair<float, int> A;
                       A.first  = rand();
@@ -443,7 +526,8 @@ SCENARIO("Exclusive Segmented Scan Sequential", "[ex] [seg] [seq]")
     float init = 0.0;
 
     // Benchmark
-    BENCHMARK_ADVANCED("exseg_seq_sequential")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("exseg_seq_sequential")
+    (Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
             [&data, init]() {
@@ -493,7 +577,7 @@ SCENARIO("Exclusive Segmented Scan OpenMP", "[ex] [seg] [omp]")
     std::vector<std::pair<float, int>> data(N);
     std::generate(data.begin(),
                   data.end(),
-                  [&rand, &flag_rand]()
+                  [&rand, &data, &flag_rand]()
                   {
                       std::pair<float, int> A;
                       A.first  = rand();
@@ -539,46 +623,78 @@ SCENARIO("Exclusive Segmented Scan TBB", "[ex] [seg] [tbb]")
     // Logging of variables
     CAPTURE(N);
     SUCCEED();
+#if PARTITIONER == 1
+    auto partitioner = tbb::simple_partitioner();
+#elif PARITTIONER == 2
+    auto partitioner = tbb::affinity_partitioner();
+#elif PARTITIONER == 3
+    auto partitioner = tbb::static_partitioner();
+#else
+    auto partitioner = tbb::auto_partitioner();
+#endif
+    // Logging of variables
+    CAPTURE(N);
+    SUCCEED();
 
     std::vector<std::pair<float, int>> data(N);
-    std::generate(data.begin(),
-                  data.end(),
-                  [&rand, &flag_rand]()
-                  {
-                      std::pair<float, int> A;
-                      A.first  = rand();
-                      A.second = flag_rand();
-                      return A;
-                  });
+    tbb::parallel_for(
+        size_t(0),
+        (size_t)(data.size()),
+        size_t(1),
+        [&rand, &data, &flag_rand](auto i)
+        {
+            data[i].first  = rand();
+            data[i].second = flag_rand();
+        },
+        partitioner);
 
     float init     = 0.0;
     float identity = 0.0;
-
-    BENCHMARK_ADVANCED("exseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
+    if (PARTITIONER < 2)
     {
-        meter.measure(
-            [&data, init, identity]() {
-                _tbb::provided::exclusive_segmented_scan(
-                    data.begin(), data.end(), identity, init);
-            });
-    };
 
+        BENCHMARK_ADVANCED("exseg_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data, init, identity, &partitioner]()
+                {
+                    _tbb::provided::exclusive_segmented_scan(data.begin(),
+                                                             data.end(),
+                                                             data.begin(),
+                                                             identity,
+                                                             init,
+                                                             std::plus<>(),
+                                                             partitioner);
+                });
+        };
+        BENCHMARK_ADVANCED("exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        {
+            _tbb::tiled::set_tile_size(N / TILERATIO);
+            meter.measure(
+                [&data, init, &partitioner]()
+                {
+                    _tbb::tiled::exclusive_segmented_scan(data.begin(),
+                                                          data.end(),
+                                                          data.begin(),
+                                                          .0f,
+                                                          init,
+                                                          std::plus<>(),
+                                                          partitioner);
+                });
+        };
+    }
     BENCHMARK_ADVANCED("exseg_TBB_updown")(Catch::Benchmark::Chronometer meter)
     {
         meter.measure(
-            [&data, init]() {
-                _tbb::updown::exclusive_segmented_scan(
-                    data.begin(), data.end(), .0f, init);
-            });
-    };
-
-    BENCHMARK_ADVANCED("exseg_TBB_tiled")(Catch::Benchmark::Chronometer meter)
-    {
-        _tbb::tiled::set_tile_size(N / TILERATIO);
-        meter.measure(
-            [&data, init]() {
-                _tbb::tiled::exclusive_segmented_scan(
-                    data.begin(), data.end(), .0f, init);
+            [&data, init, &partitioner]()
+            {
+                _tbb::updown::exclusive_segmented_scan(data.begin(),
+                                                       data.end(),
+                                                       data.begin(),
+                                                       .0f,
+                                                       init,
+                                                       std::plus<>(),
+                                                       partitioner);
             });
     };
 }
@@ -600,15 +716,16 @@ SCENARIO("Inclusive Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<float> data(N);
-#pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < data.size(); i++)
+#pragma omp parallel for
+    for (size_t i = 0; i < (size_t)(data.size()); i++)
     {
         data[i] = rand();
     }
 
     // Benchmark
 
-    BENCHMARK_ADVANCED("omp_inplace_inc_tilesize")(Catch::Benchmark::Chronometer meter)
+    BENCHMARK_ADVANCED("omp_inplace_inc_tilesize")
+    (Catch::Benchmark::Chronometer meter)
     {
         openmp::tiled::set_tile_size(tile_size);
         meter.measure(
@@ -638,7 +755,7 @@ SCENARIO("Inclusive Segmented Scan Tile Size", "[.][tilesize]")
 
     std::vector<std::pair<float, int>> data(N);
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (size_t i = 0; i < N; i++)
     {
         data[i] = std::make_pair(rand(), flag_rand());
@@ -675,7 +792,7 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
     SUCCEED();
 
     std::vector<std::pair<float, int>> data(N);
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (size_t i = 0; i < N; i++)
     {
         data[i] = std::make_pair(rand(), flag_rand());
@@ -689,4 +806,161 @@ SCENARIO("Exclusive Segmented Scan Tile Size", "[.][tilesize]")
             [&data]()
             { openmp::tiled::exclusive_segmented_scan(data.begin(), data.end(), 0, 0); });
     };
+}
+
+SCENARIO("TBB Partitioner Benchmark", "[.partitioner]")
+{
+
+    std::default_random_engine            generator;
+    std::uniform_real_distribution<float> distribution(1., 10.);
+    auto                                  rand = std::bind(distribution, generator);
+
+    // Benchmark parameters
+    const size_t N        = GENERATE(logRange(1ull << 15, 1ull << 30, 2));
+    const auto   part_num = GENERATE(0, 1, 2, 3);
+
+    // Logging of variables
+    CAPTURE(part_num);
+    CAPTURE(N);
+    SUCCEED();
+
+    std::vector<float> data(N);
+    if (part_num == 1)
+    {
+        tbb::parallel_for(
+            size_t(0),
+            (size_t)(data.size()),
+            size_t(1),
+            [&rand, &data](auto i) { data[i] = rand(); },
+            tbb::simple_partitioner());
+        BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::provided::inclusive_scan(data.begin(),
+                                                   data.end(),
+                                                   data.begin(),
+                                                   0.0,
+                                                   std::plus<>(),
+                                                   tbb::simple_partitioner());
+                });
+        };
+        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::updown::inclusive_scan(data.begin(),
+                                                 data.end(),
+                                                 data.begin(),
+                                                 std::plus<>(),
+                                                 tbb::simple_partitioner());
+                });
+        };
+
+        BENCHMARK_ADVANCED("inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        {
+            _tbb::tiled::set_tile_size(N / TILERATIO);
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::tiled::inclusive_scan(data.begin(),
+                                                data.end(),
+                                                data.begin(),
+                                                std::plus<>(),
+                                                tbb::simple_partitioner());
+                });
+        };
+    }
+    else if (part_num == 2)
+    {
+        tbb::parallel_for(
+            size_t(0),
+            (size_t)(data.size()),
+            [&rand, &data](auto i) { data[i] = rand(); },
+            tbb::auto_partitioner());
+
+        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::updown::inclusive_scan(data.begin(),
+                                                 data.end(),
+                                                 data.begin(),
+                                                 std::plus<>(),
+                                                 tbb::affinity_partitioner());
+                });
+        };
+    }
+    else if (part_num == 3)
+    {
+        tbb::parallel_for(
+            size_t(0),
+            (size_t)(data.size()),
+            size_t(1),
+            [&rand, &data](auto i) { data[i] = rand(); },
+            tbb::static_partitioner());
+        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::updown::inclusive_scan(data.begin(),
+                                                 data.end(),
+                                                 data.begin(),
+                                                 std::plus<>(),
+                                                 tbb::static_partitioner());
+                });
+        };
+    }
+    else
+    {
+        tbb::parallel_for(
+            size_t(0),
+            (size_t)(data.size()),
+            size_t(1),
+            [&rand, &data](auto i) { data[i] = rand(); },
+            tbb::auto_partitioner());
+        BENCHMARK_ADVANCED("inc_TBB_provided")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::provided::inclusive_scan(data.begin(),
+                                                   data.end(),
+                                                   data.begin(),
+                                                   0.0,
+                                                   std::plus<>(),
+                                                   tbb::auto_partitioner());
+                });
+        };
+        BENCHMARK_ADVANCED("inc_TBB_updown")(Catch::Benchmark::Chronometer meter)
+        {
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::updown::inclusive_scan(data.begin(),
+                                                 data.end(),
+                                                 data.begin(),
+                                                 std::plus<>(),
+                                                 tbb::auto_partitioner());
+                });
+        };
+
+        BENCHMARK_ADVANCED("inc_TBB_tiled")(Catch::Benchmark::Chronometer meter)
+        {
+            _tbb::tiled::set_tile_size(N / TILERATIO);
+            meter.measure(
+                [&data]()
+                {
+                    _tbb::tiled::inclusive_scan(data.begin(),
+                                                data.end(),
+                                                data.begin(),
+                                                std::plus<>(),
+                                                tbb::auto_partitioner());
+                });
+        };
+    }
 }

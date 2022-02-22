@@ -17,9 +17,15 @@ auto for_part = tbb::simple_partitioner();
 // // ----------------------------------------------------------------------------------
 // //  Inclusive Scan
 // // ----------------------------------------------------------------------------------
-template<class InputIt, class OutputIt, class BinaryOperation>
-OutputIt
-inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation binary_op)
+template<typename InputIt,
+         typename OutputIt,
+         typename BinaryOperation,
+         typename Partitioner>
+OutputIt inclusive_scan(InputIt         first,
+                        InputIt         last,
+                        OutputIt        d_first,
+                        BinaryOperation binary_op,
+                        Partitioner     part)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
@@ -47,7 +53,7 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
                         binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
                 }
             },
-            for_part);
+            part);
     }
 
     // Down sweep
@@ -67,19 +73,27 @@ inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation bi
                         binary_op(d_first[i - 1], d_first[i + step / 2 - 1]);
                 }
             },
-            for_part);
+            part);
     }
 
     return d_first + num_values;
 }
 
-template<class InputIt, class OutputIt>
+template<typename InputIt, typename OutputIt, typename BinaryOperation>
+OutputIt
+inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation binary_op)
+{
+    return _tbb::updown::inclusive_scan(
+        first, last, d_first, binary_op, tbb::auto_partitioner());
+}
+
+template<typename InputIt, typename OutputIt>
 OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first)
 {
     return _tbb::updown::inclusive_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
+template<typename InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 {
     return _tbb::updown::inclusive_scan(first, last, first, std::plus<>());
 }
@@ -88,9 +102,17 @@ template<class InputIt> InputIt inclusive_scan(InputIt first, InputIt last)
 // //  Exclusive Scan
 // // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class T, class BinaryOperation>
-OutputIt exclusive_scan(
-    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+template<typename InputIt,
+         typename OutputIt,
+         typename T,
+         typename BinaryOperation,
+         typename Partitioner>
+OutputIt exclusive_scan(InputIt         first,
+                        InputIt         last,
+                        OutputIt        d_first,
+                        T               init,
+                        BinaryOperation binary_op,
+                        Partitioner     part)
 {
     using InputType  = typename std::iterator_traits<InputIt>::value_type;
     using OutputType = typename std::iterator_traits<OutputIt>::value_type;
@@ -118,7 +140,7 @@ OutputIt exclusive_scan(
                         binary_op(d_first[i + step / 2 - 1], d_first[i + step - 1]);
                 }
             },
-            for_part);
+            part);
     }
     d_first[num_values - 1] = init;
 
@@ -139,19 +161,25 @@ OutputIt exclusive_scan(
                         binary_op(t, d_first[i + (1 << (stage + 1)) - 1]);
                 }
             },
-            for_part);
+            part);
     }
 
     return d_first + num_values;
 }
-
-template<class InputIt, class OutputIt, class T>
+template<typename InputIt, typename OutputIt, typename T, typename BinaryOperation>
+OutputIt exclusive_scan(
+    InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op)
+{
+    return _tbb::updown::exclusive_scan(
+        first, last, d_first, init, binary_op, tbb::auto_partitioner());
+}
+template<typename InputIt, typename OutputIt, typename T>
 OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init)
 {
     return _tbb::updown::exclusive_scan(first, last, d_first, init, std::plus<>());
 }
 
-template<class InputIt, class T>
+template<typename InputIt, typename T>
 InputIt exclusive_scan(InputIt first, InputIt last, T init)
 {
     return _tbb::updown::exclusive_scan(first, last, first, init, std::plus<>());
@@ -161,11 +189,15 @@ InputIt exclusive_scan(InputIt first, InputIt last, T init)
 // //  Inclusive Segmented Scan
 // // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation>
+template<typename InputIt,
+         typename OutputIt,
+         typename BinaryOperation,
+         typename Partitioner>
 OutputIt inclusive_segmented_scan(InputIt         first,
                                   InputIt         last,
                                   OutputIt        d_first,
-                                  BinaryOperation binary_op)
+                                  BinaryOperation binary_op,
+                                  Partitioner     part)
 {
     using PairType   = typename std::iterator_traits<InputIt>::value_type;
     using FlagType   = typename std::tuple_element<1, PairType>::type;
@@ -175,33 +207,43 @@ OutputIt inclusive_segmented_scan(InputIt         first,
     static_assert(std::is_convertible<PairType, OutputType>::value,
                   "Input type must be convertible to output type!");
     size_t num_values = last - first;
-    _tbb::updown::inclusive_scan(first,
-                                 last,
-                                 d_first,
-                                 [binary_op](PairType x, PairType y)
-                                 {
-                                     PairType result = y;
-                                     if (!y.second)
-                                     {
-                                         result.first = binary_op(x.first, y.first);
-                                         if (x.second)
-                                         {
-                                             result.second = x.second;
-                                         }
-                                     }
-                                     return result;
-                                 });
+    _tbb::updown::inclusive_scan(
+        first,
+        last,
+        d_first,
+        [binary_op](PairType x, PairType y)
+        {
+            PairType result = y;
+            if (!y.second)
+            {
+                result.first = binary_op(x.first, y.first);
+                if (x.second)
+                {
+                    result.second = x.second;
+                }
+            }
+            return result;
+        },
+        part);
 
     return d_first + num_values;
 }
-
-template<class InputIt, class OutputIt>
+template<typename InputIt, typename OutputIt, typename BinaryOperation>
+OutputIt inclusive_segmented_scan(InputIt         first,
+                                  InputIt         last,
+                                  OutputIt        d_first,
+                                  BinaryOperation binary_op)
+{
+    return _tbb::updown::inclusive_segmented_scan(
+        first, last, d_first, binary_op, tbb::auto_partitioner());
+}
+template<typename InputIt, typename OutputIt>
 OutputIt inclusive_segmented_scan(InputIt first, InputIt last, OutputIt d_first)
 {
     return _tbb::updown::inclusive_segmented_scan(first, last, d_first, std::plus<>());
 }
 
-template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
+template<typename InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt last)
 {
     return _tbb::updown::inclusive_segmented_scan(first, last, first, std::plus<>());
 }
@@ -210,13 +252,18 @@ template<class InputIt> InputIt inclusive_segmented_scan(InputIt first, InputIt 
 // //  Exclusive Segmented Scan
 // // ----------------------------------------------------------------------------------
 
-template<class InputIt, class OutputIt, class BinaryOperation, class T>
+template<typename InputIt,
+         typename OutputIt,
+         typename BinaryOperation,
+         typename T,
+         typename Partitioner>
 OutputIt exclusive_segmented_scan(InputIt         first,
                                   InputIt         last,
                                   OutputIt        d_first,
                                   T               identity,
                                   T               init,
-                                  BinaryOperation binary_op)
+                                  BinaryOperation binary_op,
+                                  Partitioner     part)
 {
     /* Due to the add-swap operation in the down sweep phase a simple wrapper
        of the binary operation is insufficient.
@@ -262,7 +309,7 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                 d_first[right] = val_right;
             }
         },
-        for_part);
+        part);
     // Remainder stages of the up sweep.
     for (size_t stage = 1; stage < std::floor(std::log2(num_values)); stage++)
     {
@@ -286,7 +333,7 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                     }
                 }
             },
-            for_part);
+            part);
     }
 
     d_first[num_values - 1].first = identity;
@@ -335,7 +382,7 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                     }
                 }
             },
-            for_part);
+            part);
     }
 
     // Last stage of down-sweep meaning that stage = 0
@@ -384,11 +431,22 @@ OutputIt exclusive_segmented_scan(InputIt         first,
                 d_first[right].first = binary_op(init, val_right);
             }
         },
-        for_part);
+        part);
     return d_first + num_values;
 }
+template<typename InputIt, typename OutputIt, typename BinaryOperation, typename T>
+OutputIt exclusive_segmented_scan(InputIt         first,
+                                  InputIt         last,
+                                  OutputIt        d_first,
+                                  T               identity,
+                                  T               init,
+                                  BinaryOperation binary_op)
+{
+    return _tbb::updown::exclusive_segmented_scan(
+        first, last, d_first, identity, init, binary_op, tbb::auto_partitioner());
+}
 
-template<class InputIt, class OutputIt, class T>
+template<typename InputIt, typename OutputIt, typename T>
 OutputIt exclusive_segmented_scan(
     InputIt first, InputIt last, OutputIt d_first, T identity, T init)
 {
@@ -396,7 +454,7 @@ OutputIt exclusive_segmented_scan(
         first, last, d_first, identity, init, std::plus<>());
 }
 
-template<class InputIt, class T>
+template<typename InputIt, typename T>
 InputIt exclusive_segmented_scan(InputIt first, InputIt last, T identity, T init)
 {
     return _tbb::updown::exclusive_segmented_scan(
