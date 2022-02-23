@@ -1,2 +1,51 @@
-\begin{frame}{Algorithmic} 
+\begin{frame}{Intermediate Results}
+ Ranking:
+ \begin{enumerate}
+  \item Library provided implementations
+  \item Tiled Scan
+  \item Up-Down Sweeping Scan 
+ \end{enumerate}
+ Remarks:
+ \begin{itemize}
+  \item OpenMP $>=$ TBB (if available)
+  \item Up-Down Sweep is slow
+ \end{itemize}
+ \vspace{10pt}
+    \centering Can we do better?
+\end{frame}
+
+\begin{frame}{Algorithmic Optimization}
+Initial Goal: functional correctness.\\
+\vspace{20pt}
+Algorithmic Optimizations:
+\begin{itemize}
+ \item Loop-Fusion:
+ \begin{itemize}
+  \item Up-Down Sweep
+  \item Exclusive Segmented Scan
+ \end{itemize}
+ \item Limiting Memory Accesses
+ \item General clean up
+\end{itemize}
+\begin{center}
+ Performance gain $\sim$ 1-5 \gbs!
+\end{center}
+
 \end{frame} 
+
+% \begin{frame}{Algorithmic Optimization Results}
+%  
+%   \centering
+%   \vspace{-5pt}
+%   \includegraphics[width=0.90\textwidth]{"graphs/mp-media Alg. Optimized Sequential Inclusive Scans"}
+%  
+% \end{frame}
+% 
+% \begin{frame}{Algorithmic Optimization Segmented Results}
+%  
+%   \centering
+%   \vspace{-5pt}
+%   \includegraphics[width=0.90\textwidth]{"graphs/mp-media Alg. Optimized Sequential Segmented Inclusive Scans"}
+%  
+% \end{frame}
+

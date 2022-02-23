@@ -1,2 +1,18 @@
-\begin{frame}{Data Locality} 
+\begin{frame}[fragile]{Data Locality}
+	Ensure that the data generated is local to the node:
+	
+\begin{lstlisting}[language=C++, frame=single]
+std::vector<float> data(N);
+#pragma omp parallel for schedule(static)
+for (size_t i = 0; i < data.size(); i++)
+{
+data[i] = rand();
+}
+\end{lstlisting}
+	
+	 \begin{itemize}
+	 	
+	 	\item The performance gain by using data local structures is likely to be small due to the warmup of Catch2
+	 	
+	 \end{itemize}
 \end{frame} 

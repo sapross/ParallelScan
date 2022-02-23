@@ -21,8 +21,8 @@
 \usepackage{anyfontsize}
 \usepackage[default,oldstyle,scale=0.95]{opensans}
 
-\setmonofont{Source Code Pro}
-\setmathfont{STIXTwoMath-Regular.otf}
+%\setmonofont{Source Code Pro}
+%\setmathfont{STIXTwoMath-Regular.otf}
 
 
 % Language Supoort
@@ -62,8 +62,12 @@
 % Enables code listings.
 %\usepackage{listings}
 % Better source code support than listings
-% \usepackage{minted}
-% \setminted{fontsize=\footnotesize,baselinestretch=1}
+% \usepackage[outputdir=\detokenize{./_mintedcache}]{minted}
+% \setminted{ fontsize=\footnotesize,
+%             baselinestretch=1,
+%             }
+
+\usepackage{listings}
 
 % Other:
 % Relevant for the presetkeys command
@@ -82,7 +86,7 @@
     style=numeric
     ]{biblatex}
 %\bibliography{../sources}
-\bibliography{/home/steve/Documents/Documents/Current/MScTI_SEM/sources}
+%\bibliography{/home/steve/Documents/Documents/Current/MScTI_SEM/sources}
 
 
 
@@ -108,7 +112,7 @@
 % }
 
 % Notes
-
+% 
 % \setbeameroption{show notes}
 % \setbeameroption{show notes on second screen=right}
 % \addtobeamertemplate{note page}{\large}{}
@@ -136,7 +140,7 @@
 
 % Title, Author etc. of document.
 \title[Scan]{Scan}
-\subtitle{Workplan}
+\subtitle{Parallel Algorithm Design WS21/22}
 \author{N. Kochendörfer, C. Alles, S. Proß}
 %\institute{Heidelberg University}
 
@@ -160,18 +164,17 @@
 
 
 \section{Implementation} %5min
-\include{segmented} % S
-
 \include{updown} % S
 
 \include{tiled} % S
 
+\include{segmented} % S
 
 \section{Optimizations} %10min
 \include{algopt} % S
-
+ 
 \include{local} % C
-
+ 
 \include{scheduling} % C
 
 \include{partitioner} % N
@@ -182,7 +185,7 @@
 \section{Summary}
 \include{summary} % N
 
-\include{outlook} % C
+%\include{outlook} % C
 
 
 

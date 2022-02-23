@@ -140,6 +140,32 @@ def figure_algopt_inclusive(plotwrapper):
         )
 
 
+def figure_algopt_inclusive_parallel(plotwrapper):
+    columns = {
+        "gnu_inc_OMP_provided": "STL",
+        "gnu-algopt_inc_OMP_provided": "AlgOpt STL",
+        "gnu_inc_OMP_updown": "Up-Down Sweep",
+        "gnu-algopt_inc_OMP_updown": "AlgOpt Up-Down Sweep",
+        "gnu_inc_OMP_tiled": "Tiled Scan",
+        "gnu-algopt_inc_OMP_tiled": "AlgOpt Tiled Scan",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system
+            + " Alg. Optimized Sequential parallel Inclusive Scans",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
+
+
 def figure_algopt_exclusive_media(plotwrapper):
     columns = {
         "gnu_ex_seq_sequential": "Naive (STL)",
@@ -360,12 +386,14 @@ def figure_tiled_scheduling_SIMD_rome(plotwrapper):
 
 def figure_SIMD_rome(plotwrapper):
     columns = {
-        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD",
-        "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD",
+        "ziti_rome_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD gnu",
+        "ziti_rome_gnu_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD gnu",
+        "ziti-rome-icx_inc_OMP_tiled": "SIMD icx",
+        "ziti_rome_icx_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD icx",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="ziti-rome OpenMP Tiled Inclusive Scan (gnu)",
+        title="ziti-rome OpenMP Tiled Inclusive Scan",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -380,7 +408,7 @@ def figure_SIMD_media(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="mp-media OpenMP Tiled Inclusive Scan (gnu)",
+        title="mp-media OpenMP Tiled Inclusive Scan",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -402,7 +430,7 @@ def figure_provided_scheduling_media(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="mp-media OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
+        title="mp-media OpenMP Provided Inclusive Scan \n with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -453,7 +481,7 @@ def figure_provided_scheduling_rome(plotwrapper):
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
-        title="ziti-rome OpenMP Provided Inclusive Scan with Different Scheduling (gnu)",
+        title="ziti-rome OpenMP Provided Inclusive Scan \n with Different Scheduling (gnu)",
         index_col="N",
         xscale="log",
         yscale="linear",
@@ -852,6 +880,29 @@ def figure_partitioners_tbb(plotwrapper):
         plotwrapper.columns = syscol
         plotwrapper.plot(
             title=system + " TBB Partitioner Updown Benchmark",
+            index_col="N",
+            xscale="log",
+            yscale="linear",
+            grid=True,
+        )
+
+
+def figure_partitioners_tiled_tbb(plotwrapper):
+    columns = {
+        "gnu-tbb-autopart_inc_TBB_tiled": "auto",
+        "gnu-tbb-affinitypart_inc_TBB_tiled": "affinity",
+        "gnu-tbb-simplepart_inc_TBB_tiled": "simple",
+        "gnu-tbb-staticpart_inc_TBB_tiled": "static",
+    }
+    for system in systems:
+        syscol = dict()
+
+        for key, value in columns.items():
+            syscol[system + "-" + key] = value
+
+        plotwrapper.columns = syscol
+        plotwrapper.plot(
+            title=system + " TBB Partitioner Tiled Benchmark",
             index_col="N",
             xscale="log",
             yscale="linear",
