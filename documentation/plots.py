@@ -279,10 +279,10 @@ def figure_tilesize(plotwrapper):
 
 def figure_provided_scheduling_SIMD_media(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_provided": "Static",
-        "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_provided": "Dynamic",
-        "mp_media_gnu_omp_scheduling_guided_media2_inc_OMP_provided": "Guided",
-        "mp_media_gnu_omp_scheduling_auto_media2_inc_OMP_provided": "Auto",
+        "mp_media_gnu_omp_scheduling_static_inc_OMP_provided": "Static",
+        "mp_media_gnu_omp_scheduling_dynamic_inc_OMP_provided": "Dynamic",
+        "mp_media_gnu_omp_scheduling_guided_inc_OMP_provided": "Guided",
+        "mp_media_gnu_omp_scheduling_auto_inc_OMP_provided": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -296,10 +296,10 @@ def figure_provided_scheduling_SIMD_media(plotwrapper):
 
 def figure_updown_scheduling_SIMD_media(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_updown": "Static",
-        "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_updown": "Dynamic",
-        "mp_media_gnu_omp_scheduling_guided_media2_inc_OMP_updown": "Guided",
-        "mp_media_gnu_omp_scheduling_auto_media2_inc_OMP_updown": "Auto",
+        "mp_media_gnu_omp_scheduling_static_inc_OMP_updown": "Static",
+        "mp_media_gnu_omp_scheduling_dynamic_inc_OMP_updown": "Dynamic",
+        "mp_media_gnu_omp_scheduling_guided_inc_OMP_updown": "Guided",
+        "mp_media_gnu_omp_scheduling_auto_inc_OMP_updown": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -313,10 +313,10 @@ def figure_updown_scheduling_SIMD_media(plotwrapper):
 
 def figure_tiled_scheduling_SIMD_media(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "Static",
-        "mp_media_gnu_omp_scheduling_dynamic_media2_inc_OMP_tiled": "Dynamic",
-        "mp_media_gnu_omp_scheduling_guided_media2_inc_OMP_tiled": "Guided",
-        "mp_media_gnu_omp_scheduling_auto_media2_inc_OMP_tiled": "Auto",
+        "mp_media_gnu_omp_scheduling_static_inc_OMP_tiled": "Static",
+        "mp_media_gnu_omp_scheduling_dynamic_inc_OMP_tiled": "Dynamic",
+        "mp_media_gnu_omp_scheduling_guided_inc_OMP_tiled": "Guided",
+        "mp_media_gnu_omp_scheduling_auto_inc_OMP_tiled": "Auto",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
@@ -403,10 +403,8 @@ def figure_SIMD_rome(plotwrapper):
 
 def figure_SIMD_media(plotwrapper):
     columns = {
-        "mp_media_gnu_omp_scheduling_static_media2_inc_OMP_tiled": "SIMD gnu",
-        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "No SIMD gnu",
-        "mp_media_icx_omp_scheduling_static_inc_OMP_tiled": "SIMD icx",
-        "mp_media_icx_omp_no_simd_scheduling_static_inc_OMP_tiled": "No SIMD icx",
+        "mp_media_gnu_omp_scheduling_static_inc_OMP_tiled": "SIMD",
+        "mp_media_gnu_omp_no_simd_scheduling_static_media2_inc_OMP_tiled": "No SIMD",
     }
     plotwrapper.columns = columns
     plotwrapper.plot(
