@@ -1,5 +1,5 @@
 #pragma once
-#include "scan.h"
+
 namespace openmp
 {
 namespace updown
