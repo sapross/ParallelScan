@@ -1,0 +1,45 @@
+\begin{frame}{Tiled Scan} 
+Idea: Process input in independent chunks.
+\begin{itemize}
+ \item Each chunk misses previous results
+ \begin{itemize}
+ \item[$\Rightarrow$] Second pass over data.
+ \end{itemize}
+ \item Workload: 2N
+\end{itemize}
+\vspace{10pt}
+Our solution:
+\begin{itemize}
+ \item Temporary vector for intermediate sums.
+ \item Only one write to output.
+\end{itemize}
+
+\end{frame} 
+
+\begin{frame}{Tiled Scan Schema}
+ 
+  \centering
+  \includegraphics[width=0.80\textwidth]{"wiki/3Phase Nice"}
+ 
+\end{frame}
+
+\begin{frame}{Benchmarks}
+Parameters:
+\begin{itemize}
+ \item In-Place
+ \item Datatype: float
+ \item Values: Linear Distribution. between 0-10.
+ \item Benchmarking Suite: Catch2
+ \item Number of input elements: N
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Sequential Scan Results}
+ 
+  \centering
+  \vspace{-5pt}
+  \includegraphics[width=0.90\textwidth]{"graphs/mp-media Sequential Scans"}
+ 
+\end{frame}

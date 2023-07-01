@@ -1,0 +1,27 @@
+\begin{frame}{TBB Partitioning} 
+	\textbf{TBB parallel constructs used:}
+	\begin{itemize}
+		\item parallel\_scan
+		\item parallel\_for
+	\end{itemize}
+	\vspace{.2in}
+	\textbf{available partitioners:}
+	\begin{itemize}
+		\item auto\_partitioner
+		\item affinity\_partitioner
+		\item simple\_partitioner
+		\item static\_partitioner
+	\end{itemize}
+\end{frame} 
+
+\begin{frame}{Performance (inclusive scan)}
+	\centering
+	\vspace{-5pt}
+	\includegraphics[width=0.90\textwidth]{"graphs/mp-media TBB Partitioner Tiled Benchmark"}
+\end{frame}
+
+\begin{frame}{Performance (inclusive scan)}
+	\centering
+	\vspace{-5pt}
+	\includegraphics[width=0.90\textwidth]{"graphs/ziti-rome TBB Partitioner Tiled Benchmark.png"}
+\end{frame}
