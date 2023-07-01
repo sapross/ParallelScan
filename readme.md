@@ -1,13 +1,13 @@
 
 # Table of Contents
 
-1.  [Tiled, Updown Parallel Scan in OpenMP and TBB](#org1586fa1)
-    1.  [Documentation](#org2059401)
-    2.  [Building and Executing](#org999594a)
-    3.  [Plot Generation](#org5f205e2)
+1.  [Tiled, Updown Parallel Scan in OpenMP and TBB](#org565bb33)
+    1.  [Documentation](#orgd9a9e00)
+    2.  [Building and Executing](#orgc14c25f)
+    3.  [Plot Generation](#orga09757b)
 
 
-<a id="org1586fa1"></a>
+<a id="org565bb33"></a>
 
 # Tiled, Updown Parallel Scan in OpenMP and TBB
 
@@ -16,14 +16,14 @@ Implementation of the parallel scan algorithms &ldquo;Tiled&rdquo; and &ldquo;Up
 Project was completed as part of the lecture Parallel Algorithm Design in the winter semester at Heidelberg University.
 
 
-<a id="org2059401"></a>
+<a id="orgd9a9e00"></a>
 
 ## Documentation
 
-For an overview of the implemented algorithms visit `documentation/presentation.pdf`.
+For an overview of the implemented algorithms visit `documentation/presentation.pdf`. Originally, an extensive wiki existed documenting the algorithms and benchmark results. However, this was lost with the access to the local gitlab instance.
 
 
-<a id="org999594a"></a>
+<a id="orgc14c25f"></a>
 
 ## Building and Executing
 
@@ -42,7 +42,7 @@ For the benchmark run
 additionally, a tag of the desired test may be appended to filter the tests.
 
 
-<a id="org5f205e2"></a>
+<a id="orga09757b"></a>
 
 ## Plot Generation
 
